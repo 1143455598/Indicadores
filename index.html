@@ -623,9 +623,11 @@ async function doLogout(){
   chartNomina=chartContratos=chartAreas=null;
 }
 
-sb.auth.onAuthStateChange(async(ev,sess)=>{
-  if(ev==='SIGNED_IN'&&sess&&!currentUser) await initApp(sess.user);
-});
+// Verificar sesión existente al cargar
+(async()=>{
+  const {data:{session}}=await sb.auth.getSession();
+  if(session?.user) await initApp(session.user);
+})();
 
 // ── ÁREAS ────────────────────────────────────────────
 async function loadAreas(){
