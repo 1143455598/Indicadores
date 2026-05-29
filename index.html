@@ -196,6 +196,7 @@ tr:hover td{background:#fafdf5}
               <input type="month" id="dash-period-to" onchange="loadDashboardGeneral()"/>
             </span>
             <button class="btn btn-sm btn-p" onclick="loadDashboardGeneral()"><i class="ti ti-refresh"></i> Actualizar</button>
+            <div style="margin-left:auto;display:flex;align-items:center;gap:6px;flex-wrap:wrap" id="area-quick-btns"></div>
           </div>
           <div id="dash-loader" style="text-align:center;padding:40px"><div class="spinner"></div></div>
           <div id="dash-general" style="display:none">
@@ -215,8 +216,6 @@ tr:hover td{background:#fafdf5}
               </div>
             </div>
             <div id="dash-alerts"></div>
-            <div class="sec-hdr" style="margin-top:10px"><span class="sec-title">Ver dashboard por área</span></div>
-            <div class="area-btn-grid" id="area-btn-grid"></div>
           </div>
         </div>
         <!-- Vista detalle de área -->
@@ -573,16 +572,11 @@ async function loadAreas(){
 }
 
 function renderAreaBtns(){
-  const grid=document.getElementById('area-btn-grid');if(!grid)return;
+  const grid=document.getElementById('area-quick-btns');if(!grid)return;
   grid.innerHTML=areas.map(a=>`
-    <div class="area-btn" onclick="showAreaDetail('${a.id}','${a.nombre}')">
-      <div class="area-ico"><i class="ti ti-folder"></i></div>
-      <div class="area-info">
-        <div class="area-name">${a.nombre}</div>
-        <div class="area-count">Ver indicadores y gráficas</div>
-      </div>
-      <i class="ti ti-chevron-right" style="color:var(--text3);font-size:16px"></i>
-    </div>`).join('');
+    <button class="btn btn-sm" onclick="showAreaDetail('${a.id}','${a.nombre}')" style="border-color:var(--pera);color:var(--pera-dk)">
+      <i class="ti ti-folder" style="font-size:13px"></i> ${a.nombre.split(' ')[0]}
+    </button>`).join('');
 }
 
 function abrirNuevaArea(){
