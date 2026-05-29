@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Panel de Indicadores RRHH</title>
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<!-- Tabler Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css"/>
+<style>
+/* ── RESET & TOKENS ─────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --pera:#8BBF3A;--pera-l:#C8E6A0;--pera-bg:#EEF7DC;--pera-dk:#4d7a0a;
+  --white:#fff;--bg:#f7f8f5;--surface:#fff;
+  --border:0.5px solid #d6e0c0;
+  --text:#1a2510;--text2:#5a7030;--text3:#8a9a70;
+  --red:#E24B4A;--red-bg:#FCEBEB;--red-dk:#A32D2D;
+  --yellow:#EFC832;--yellow-bg:#FFF8DC;--yellow-dk:#8a6000;
+  --radius:10px;--radius-sm:6px;
+  --shadow:0 1px 3px rgba(0,0,0,.07);
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;font-family:inherit;font-size:13px}
+input,select,textarea{font-family:inherit;font-size:13px}
+
+/* ── LAYOUT ─────────────────────────────────────── */
+#app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:210px;min-width:210px;background:var(--pera-bg);border-right:var(--border);display:flex;flex-direction:column}
+.sb-logo{padding:16px 14px;border-bottom:var(--border);display:flex;align-items:center;gap:10px}
+.sb-logo .ico{width:32px;height:32px;border-radius:8px;background:var(--pera);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px}
+.sb-logo .txt{font-size:13px;font-weight:600;color:var(--pera-dk);line-height:1.3}
+.nav-sec{padding:8px 0}
+.nav-lbl{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;padding:6px 14px 2px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 14px;cursor:pointer;font-size:13px;color:var(--pera-dk);transition:background .12s}
+.nav-item:hover{background:rgba(139,191,58,.15)}
+.nav-item.active{background:var(--pera);color:#fff;font-weight:500}
+.nav-item.active i{color:#fff}
+.nav-item i{font-size:17px;color:var(--text2)}
+.sb-user{margin-top:auto;padding:12px;border-top:var(--border)}
+.user-chip{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:var(--radius-sm);background:rgba(255,255,255,.75);cursor:pointer}
+.avatar{width:30px;height:30px;border-radius:50%;background:var(--pera);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0}
+.uc-name{font-size:12px;font-weight:600;color:var(--pera-dk);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.uc-role{font-size:10px;color:var(--text2)}
+
+/* ── MAIN ───────────────────────────────────────── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{height:50px;border-bottom:var(--border);display:flex;align-items:center;padding:0 22px;gap:12px;background:var(--surface)}
+.tb-title{font-size:15px;font-weight:600;flex:1;color:var(--text)}
+.content{flex:1;overflow-y:auto;padding:22px}
+.page{display:none}.page.active{display:block}
+
+/* ── COMPONENTS ─────────────────────────────────── */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500}
+.b-green{background:var(--pera-bg);color:var(--pera-dk)}
+.b-warn{background:var(--yellow-bg);color:var(--yellow-dk)}
+.b-red{background:var(--red-bg);color:var(--red-dk)}
+.b-gray{background:#f0f0ee;color:#555}
+.b-blue{background:#e6f1fb;color:#185FA5}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius-sm);font-size:12px;font-weight:500;border:var(--border);background:var(--surface);color:var(--text);transition:background .12s}
+.btn:hover{background:#f4f4f0}
+.btn-p{background:var(--pera);color:#fff;border-color:var(--pera)}
+.btn-p:hover{background:var(--pera-dk)}
+.btn-sm{padding:4px 10px;font-size:11px}
+.btn-danger{background:var(--red-bg);color:var(--red-dk);border-color:#f0b0b0}
+.btn-danger:hover{background:#f9d0d0}
+.card{background:var(--surface);border:var(--border);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow)}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.sec-title{font-size:14px;font-weight:600;color:var(--text)}
+.tabs{display:flex;border-bottom:var(--border);margin-bottom:16px;gap:0}
+.tab{padding:8px 15px;font-size:12px;font-weight:500;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-.5px;transition:color .15s}
+.tab:hover{color:var(--pera-dk)}
+.tab.active{color:var(--pera-dk);border-bottom-color:var(--pera)}
+.tbl-wrap{border:var(--border);border-radius:var(--radius);overflow:hidden}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:var(--pera-bg);color:var(--pera-dk);font-weight:600;padding:9px 13px;text-align:left;font-size:11px}
+td{padding:8px 13px;border-top:var(--border);color:var(--text);vertical-align:middle}
+tr:hover td{background:#fafdf5}
+.form-g{margin-bottom:13px}
+.form-l{font-size:11px;color:var(--text2);margin-bottom:4px;display:block;font-weight:500}
+.form-i{width:100%;padding:8px 10px;border-radius:var(--radius-sm);border:var(--border);font-size:13px;background:var(--surface);color:var(--text);outline:none;transition:border .15s}
+.form-i:focus{border-color:var(--pera)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.semaforo{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.s-g{background:#63C132}.s-y{background:#EFC832}.s-r{background:#E24B4A}.s-n{background:#ccc}
+.alert{padding:10px 14px;border-radius:var(--radius-sm);font-size:12px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.al-ok{background:#EAF3DE;color:#3B6D11}
+.al-err{background:var(--red-bg);color:var(--red-dk)}
+.al-info{background:var(--pera-bg);color:var(--pera-dk)}
+.spinner{width:18px;height:18px;border:2px solid var(--pera-l);border-top-color:var(--pera);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── KPI GRID ───────────────────────────────────── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:20px}
+.kpi-card{background:var(--surface);border:var(--border);border-radius:var(--radius);padding:14px 16px;border-left:3px solid var(--pera)}
+.kpi-card.warn{border-left-color:var(--yellow)}
+.kpi-card.bad{border-left-color:var(--red)}
+.kpi-lbl{font-size:11px;color:var(--text3);margin-bottom:4px}
+.kpi-val{font-size:22px;font-weight:600;color:var(--text)}
+.kpi-sub{font-size:11px;margin-top:3px;color:var(--text3)}
+
+/* ── CHARTS ─────────────────────────────────────── */
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.chart-card{background:var(--surface);border:var(--border);border-radius:var(--radius);padding:16px 18px}
+.chart-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:14px}
+.chart-wrap{position:relative;height:200px}
+.chart-wrap-lg{position:relative;height:240px}
+
+/* ── MODAL ──────────────────────────────────────── */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;align-items:center;justify-content:center}
+.modal-ov.open{display:flex}
+.modal{background:var(--surface);border-radius:var(--radius);padding:24px;width:460px;max-width:95vw;border:var(--border);max-height:90vh;overflow-y:auto}
+.modal-title{font-size:15px;font-weight:600;margin-bottom:18px;color:var(--text);display:flex;align-items:center;gap:8px}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:18px;padding-top:14px;border-top:var(--border)}
+
+/* ── LOGIN ──────────────────────────────────────── */
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg)}
+.login-box{background:var(--surface);border:var(--border);border-radius:var(--radius);padding:36px 32px;width:360px;box-shadow:0 4px 24px rgba(0,0,0,.08)}
+.login-logo{text-align:center;margin-bottom:28px}
+.login-logo .ico{width:52px;height:52px;border-radius:14px;background:var(--pera);display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:26px;margin-bottom:10px}
+.login-logo h2{font-size:16px;font-weight:600;color:var(--text)}
+.login-logo p{font-size:12px;color:var(--text3);margin-top:3px}
+
+/* ── PASSWORD STRENGTH ──────────────────────────── */
+.pw-strength{height:4px;border-radius:2px;background:#eee;margin-top:6px;overflow:hidden}
+.pw-fill{height:100%;border-radius:2px;transition:width .3s,background .3s}
+
+/* ── RESPONSIVE ─────────────────────────────────── */
+@media(max-width:768px){
+  .sidebar{width:52px;min-width:52px}
+  .sb-logo .txt,.nav-lbl,.nav-item span,.uc-name,.uc-role{display:none}
+  .nav-item{justify-content:center;padding:10px}
+  .kpi-grid{grid-template-columns:1fr 1fr}
+  .charts-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!--  LOGIN                                          -->
+<!-- ═══════════════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="ico"><i class="ti ti-chart-bar"></i></div>
+      <h2>Panel de Indicadores</h2>
+      <p>Gestión RRHH</p>
+    </div>
+    <div id="login-alert" class="alert al-err" style="display:none"></div>
+    <div class="form-g">
+      <label class="form-l">Correo electrónico</label>
+      <input class="form-i" type="email" id="li-email" placeholder="tu@empresa.com" autocomplete="username"/>
+    </div>
+    <div class="form-g">
+      <label class="form-l">Contraseña</label>
+      <div style="position:relative">
+        <input class="form-i" type="password" id="li-pass" placeholder="••••••••" autocomplete="current-password" style="padding-right:38px"/>
+        <i class="ti ti-eye" id="li-eye" onclick="togglePw('li-pass','li-eye')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--text3);font-size:17px"></i>
+      </div>
+    </div>
+    <button class="btn btn-p" style="width:100%;justify-content:center;padding:10px" onclick="doLogin()" id="li-btn">
+      <i class="ti ti-login"></i> Ingresar
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!--  APP (oculta hasta login)                       -->
+<!-- ═══════════════════════════════════════════════ -->
+<div id="app" style="display:none">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sb-logo">
+      <div class="ico"><i class="ti ti-chart-bar"></i></div>
+      <div class="txt">Panel de<br>Gestión RRHH</div>
+    </div>
+    <div class="nav-sec">
+      <div class="nav-lbl">Principal</div>
+      <div class="nav-item active" data-page="dashboard" onclick="goTo('dashboard',this)"><i class="ti ti-layout-dashboard"></i><span>Dashboard</span></div>
+      <div class="nav-item" data-page="indicadores" onclick="goTo('indicadores',this)"><i class="ti ti-chart-line"></i><span>Indicadores</span></div>
+      <div class="nav-item" data-page="registro" onclick="goTo('registro',this)"><i class="ti ti-edit"></i><span>Registrar valores</span></div>
+      <div class="nav-item" data-page="informes" onclick="goTo('informes',this)"><i class="ti ti-file-analytics"></i><span>Informes</span></div>
+    </div>
+    <div class="nav-sec" id="nav-admin">
+      <div class="nav-lbl">Administración</div>
+      <div class="nav-item" data-page="usuarios" onclick="goTo('usuarios',this)"><i class="ti ti-users"></i><span>Usuarios</span></div>
+      <div class="nav-item" data-page="config" onclick="goTo('config',this)"><i class="ti ti-settings"></i><span>Configuración</span></div>
+    </div>
+    <div class="sb-user">
+      <div class="user-chip" onclick="goTo('perfil',document.querySelector('[data-page=perfil]')||{classList:{add:()=>{},remove:()=>{}}})">
+        <div class="avatar" id="sb-av">AD</div>
+        <div style="flex:1;min-width:0">
+          <div class="uc-name" id="sb-name">Admin</div>
+          <div class="uc-role" id="sb-role">Administrador</div>
+        </div>
+        <i class="ti ti-logout" style="font-size:15px;color:var(--text3)" onclick="event.stopPropagation();doLogout()" title="Cerrar sesión"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <span class="tb-title" id="page-title">Dashboard</span>
+      <span class="badge b-green" id="periodo-badge"><i class="ti ti-calendar" style="font-size:11px"></i> <span id="periodo-lbl">Mayo 2026</span></span>
+    </div>
+    <div class="content">
+
+      <!-- ══ DASHBOARD ══ -->
+      <div class="page active" id="page-dashboard">
+        <div id="dash-loader" style="text-align:center;padding:40px"><div class="spinner"></div></div>
+        <div id="dash-content" style="display:none">
+          <div class="kpi-grid" id="kpi-grid"></div>
+          <div class="charts-grid">
+            <div class="chart-card">
+              <div class="chart-title">Tendencia — Exactitud de nómina</div>
+              <div class="chart-wrap"><canvas id="chart-nomina" role="img" aria-label="Tendencia exactitud de nómina últimos 5 meses">Gráfica de tendencia exactitud de nómina.</canvas></div>
+            </div>
+            <div class="chart-card">
+              <div class="chart-title">Errores en contratos — tendencia</div>
+              <div class="chart-wrap"><canvas id="chart-contratos" role="img" aria-label="Tendencia errores en contratos">Gráfica de errores en contratos.</canvas></div>
+            </div>
+            <div class="chart-card" style="grid-column:span 2">
+              <div class="chart-title">Resumen por área — cumplimiento de metas</div>
+              <div class="chart-wrap-lg"><canvas id="chart-areas" role="img" aria-label="Cumplimiento de metas por área">Gráfica de cumplimiento por área.</canvas></div>
+            </div>
+          </div>
+          <div id="dash-alerts"></div>
+          <div class="charts-grid" style="grid-template-columns:1fr 1fr 1fr 1fr;margin-top:0">
+            <div id="area-cards"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ INDICADORES ══ -->
+      <div class="page" id="page-indicadores">
+        <div class="sec-hdr">
+          <span class="sec-title">Indicadores corporativos</span>
+          <button class="btn btn-p btn-sm" id="btn-new-ind" onclick="openModal('modal-ind')"><i class="ti ti-plus"></i> Nuevo</button>
+        </div>
+        <div class="tabs" id="area-tabs"></div>
+        <div class="tbl-wrap">
+          <table><thead><tr><th>Indicador</th><th>Área</th><th>Meta</th><th>Último valor</th><th>Estado</th><th>Activo</th><th>Acciones</th></tr></thead>
+          <tbody id="ind-tbody"><tr><td colspan="7" style="text-align:center;padding:20px"><div class="spinner"></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ REGISTRO ══ -->
+      <div class="page" id="page-registro">
+        <div class="sec-hdr"><span class="sec-title">Registrar valor</span></div>
+        <div id="reg-alert" class="alert al-ok" style="display:none"></div>
+        <div class="card" style="max-width:560px;margin-bottom:20px">
+          <div class="form-row">
+            <div class="form-g">
+              <label class="form-l">Área</label>
+              <select class="form-i" id="reg-area" onchange="loadRegInd()">
+                <option value="">Seleccionar...</option>
+              </select>
+            </div>
+            <div class="form-g">
+              <label class="form-l">Período</label>
+              <input type="month" class="form-i" id="reg-periodo"/>
+            </div>
+          </div>
+          <div class="form-g">
+            <label class="form-l">Indicador</label>
+            <select class="form-i" id="reg-ind"><option>Seleccione área primero</option></select>
+          </div>
+          <div class="form-row">
+            <div class="form-g">
+              <label class="form-l">Valor</label>
+              <input type="number" class="form-i" id="reg-valor" placeholder="Ej: 98.5" step="0.01"/>
+            </div>
+            <div class="form-g">
+              <label class="form-l">Unidad</label>
+              <select class="form-i" id="reg-unidad">
+                <option>%</option><option>Días</option><option>COP $</option><option>Número</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-g">
+            <label class="form-l">Comentario / observación</label>
+            <textarea class="form-i" id="reg-comentario" rows="3" placeholder="Contexto del resultado..."></textarea>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-p" onclick="guardarRegistro()"><i class="ti ti-device-floppy"></i> Guardar</button>
+            <button class="btn" onclick="limpiarReg()">Limpiar</button>
+          </div>
+        </div>
+        <div class="sec-hdr"><span class="sec-title">Últimos registros</span></div>
+        <div class="tbl-wrap">
+          <table><thead><tr><th>Período</th><th>Área</th><th>Indicador</th><th>Valor</th><th>Comentario</th><th>Registrado por</th></tr></thead>
+          <tbody id="reg-tbody"><tr><td colspan="6" style="text-align:center;padding:16px"><div class="spinner"></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ INFORMES ══ -->
+      <div class="page" id="page-informes">
+        <div class="sec-hdr">
+          <span class="sec-title">Informe comparativo</span>
+          <button class="btn btn-sm" onclick="exportCSV()"><i class="ti ti-download"></i> Exportar CSV</button>
+        </div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="form-row" style="max-width:400px">
+            <div class="form-g"><label class="form-l">Período 1</label><input type="month" class="form-i" id="inf-p1"/></div>
+            <div class="form-g"><label class="form-l">Período 2</label><input type="month" class="form-i" id="inf-p2"/></div>
+          </div>
+          <button class="btn btn-p btn-sm" onclick="cargarInforme()"><i class="ti ti-refresh"></i> Generar informe</button>
+        </div>
+        <div id="inf-resumen" style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap"></div>
+        <div class="tbl-wrap">
+          <table><thead><tr><th>Indicador</th><th>Área</th><th id="inf-h1">Per. 1</th><th id="inf-h2">Per. 2</th><th>Variación</th><th>Meta</th><th>Estado</th></tr></thead>
+          <tbody id="inf-tbody"><tr><td colspan="7" style="text-align:center;color:var(--text3);padding:20px">Selecciona dos períodos y genera el informe</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ USUARIOS ══ -->
+      <div class="page" id="page-usuarios">
+        <div class="sec-hdr">
+          <span class="sec-title">Gestión de usuarios</span>
+          <button class="btn btn-p btn-sm" onclick="openModal('modal-user')"><i class="ti ti-plus"></i> Nuevo usuario</button>
+        </div>
+        <div id="user-alert" class="alert al-ok" style="display:none"></div>
+        <div class="tbl-wrap">
+          <table><thead><tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Área</th><th>Habilitado</th><th>Acciones</th></tr></thead>
+          <tbody id="user-tbody"><tr><td colspan="6" style="text-align:center;padding:20px"><div class="spinner"></div></td></tr></tbody>
+          </table>
+        </div>
+        <div style="margin-top:14px;padding:12px 14px;background:var(--pera-bg);border-radius:var(--radius-sm);font-size:12px;color:var(--pera-dk)">
+          <b>Roles:</b> <b>Administrador</b> — acceso total &nbsp;·&nbsp; <b>Editor</b> — registra y edita indicadores de su área &nbsp;·&nbsp; <b>Visualizador</b> — solo lectura
+        </div>
+      </div>
+
+      <!-- ══ CONFIGURACIÓN ══ -->
+      <div class="page" id="page-config">
+        <div class="sec-hdr"><span class="sec-title">Configuración</span></div>
+        <div class="tabs">
+          <div class="tab active" onclick="cfgTab('areas',this)">Áreas e indicadores</div>
+          <div class="tab" onclick="cfgTab('permisos',this)">Permisos por rol</div>
+        </div>
+        <div id="cfg-areas">
+          <div class="sec-hdr" style="margin-bottom:10px">
+            <span style="font-size:12px;color:var(--text3)">Habilita o deshabilita áreas e indicadores individualmente</span>
+            <button class="btn btn-p btn-sm" onclick="openModal('modal-area')"><i class="ti ti-plus"></i> Nueva área</button>
+          </div>
+          <div id="cfg-area-list"><div class="spinner"></div></div>
+        </div>
+        <div id="cfg-permisos" style="display:none">
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Función</th><th>Administrador</th><th>Editor</th><th>Visualizador</th></tr></thead>
+              <tbody>
+                <tr><td>Ver dashboard e informes</td><td>✅</td><td>✅</td><td>✅</td></tr>
+                <tr><td>Ver indicadores</td><td>✅</td><td>✅</td><td>✅</td></tr>
+                <tr><td>Registrar valores</td><td>✅</td><td>✅</td><td>❌</td></tr>
+                <tr><td>Crear / editar indicadores</td><td>✅</td><td>❌</td><td>❌</td></tr>
+                <tr><td>Habilitar / deshabilitar indicadores</td><td>✅</td><td>❌</td><td>❌</td></tr>
+                <tr><td>Gestionar usuarios y contraseñas</td><td>✅</td><td>❌</td><td>❌</td></tr>
+                <tr><td>Configuración del sistema</td><td>✅</td><td>❌</td><td>❌</td></tr>
+                <tr><td>Exportar informes</td><td>✅</td><td>✅</td><td>❌</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ═══════════════════════════════════════════════ -->
+<!--  MODALES                                        -->
+<!-- ═══════════════════════════════════════════════ -->
+
+<!-- NUEVO INDICADOR -->
+<div class="modal-ov" id="modal-ind">
+  <div class="modal">
+    <div class="modal-title"><i class="ti ti-chart-line" style="color:var(--pera)"></i> Nuevo indicador</div>
+    <div class="form-g"><label class="form-l">Nombre</label><input class="form-i" id="ni-nombre" placeholder="Ej: Exactitud de nómina"/></div>
+    <div class="form-row">
+      <div class="form-g"><label class="form-l">Área</label>
+        <select class="form-i" id="ni-area"></select>
+      </div>
+      <div class="form-g"><label class="form-l">Meta (texto)</label><input class="form-i" id="ni-meta" placeholder="Ej: ≥ 98%"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-g"><label class="form-l">Meta numérica</label><input type="number" class="form-i" id="ni-meta-n" placeholder="98"/></div>
+      <div class="form-g"><label class="form-l">Tipo de meta</label>
+        <select class="form-i" id="ni-tipo">
+          <option value="mayor_igual">Mayor o igual (≥)</option>
+          <option value="menor_igual">Menor o igual (≤)</option>
+          <option value="igual">Igual (=)</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-g"><label class="form-l">Fórmula</label><input class="form-i" id="ni-formula" placeholder="Ej: (correctos / total) × 100"/></div>
+    <div class="form-g"><label class="form-l">Objetivo</label><input class="form-i" id="ni-objetivo" placeholder="Ej: Garantizar pagos correctos"/></div>
+    <div class="form-g"><label class="form-l">Unidad</label>
+      <select class="form-i" id="ni-unidad"><option>%</option><option>Días</option><option>COP $</option><option>Número</option></select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-ind')">Cancelar</button>
+      <button class="btn btn-p" onclick="crearIndicador()"><i class="ti ti-plus"></i> Crear</button>
+    </div>
+  </div>
+</div>
+
+<!-- NUEVO USUARIO -->
+<div class="modal-ov" id="modal-user">
+  <div class="modal">
+    <div class="modal-title"><i class="ti ti-user-plus" style="color:var(--pera)"></i> Nuevo usuario</div>
+    <div id="nu-alert" class="alert al-err" style="display:none"></div>
+    <div class="form-row">
+      <div class="form-g"><label class="form-l">Nombre completo</label><input class="form-i" id="nu-nombre" placeholder="Nombre y apellido"/></div>
+      <div class="form-g"><label class="form-l">Correo</label><input type="email" class="form-i" id="nu-email" placeholder="correo@empresa.com"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-g"><label class="form-l">Rol</label>
+        <select class="form-i" id="nu-rol">
+          <option value="administrador">Administrador</option>
+          <option value="editor">Editor</option>
+          <option value="visualizador" selected>Visualizador</option>
+        </select>
+      </div>
+      <div class="form-g"><label class="form-l">Área asignada</label>
+        <select class="form-i" id="nu-area"><option value="">Todas</option></select>
+      </div>
+    </div>
+    <div class="form-g">
+      <label class="form-l">Contraseña inicial</label>
+      <div style="position:relative">
+        <input class="form-i" type="password" id="nu-pass" placeholder="Mínimo 8 caracteres" style="padding-right:38px" oninput="pwStrength('nu-pass','nu-strength')"/>
+        <i class="ti ti-eye" onclick="togglePw('nu-pass',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--text3);font-size:17px"></i>
+      </div>
+      <div class="pw-strength"><div class="pw-fill" id="nu-strength" style="width:0%;background:#ccc"></div></div>
+    </div>
+    <div class="form-g" style="display:flex;align-items:center;gap:8px">
+      <input type="checkbox" id="nu-force" checked style="accent-color:var(--pera)">
+      <label for="nu-force" style="font-size:12px;color:var(--text2)">Forzar cambio de contraseña en primer ingreso</label>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-user')">Cancelar</button>
+      <button class="btn btn-p" onclick="crearUsuario()"><i class="ti ti-check"></i> Crear usuario</button>
+    </div>
+  </div>
+</div>
+
+<!-- GESTIONAR CONTRASEÑA (admin) -->
+<div class="modal-ov" id="modal-pw">
+  <div class="modal">
+    <div class="modal-title"><i class="ti ti-key" style="color:var(--pera)"></i> Gestionar contraseña</div>
+    <div id="pw-alert" class="alert al-ok" style="display:none"></div>
+    <p style="font-size:12px;color:var(--text2);margin-bottom:14px">Usuario: <b id="pw-user-name"></b></p>
+    <div class="form-g">
+      <label class="form-l">Nueva contraseña</label>
+      <div style="position:relative">
+        <input class="form-i" type="password" id="pw-new" placeholder="Mínimo 8 caracteres" style="padding-right:38px" oninput="pwStrength('pw-new','pw-strength')"/>
+        <i class="ti ti-eye" onclick="togglePw('pw-new',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--text3);font-size:17px"></i>
+      </div>
+      <div class="pw-strength"><div class="pw-fill" id="pw-strength" style="width:0%;background:#ccc"></div></div>
+    </div>
+    <div class="form-g"><label class="form-l">Confirmar contraseña</label>
+      <input class="form-i" type="password" id="pw-confirm" placeholder="Repetir contraseña"/>
+    </div>
+    <div style="padding:10px 12px;background:var(--pera-bg);border-radius:var(--radius-sm);font-size:11px;color:var(--pera-dk);margin-bottom:8px">
+      <i class="ti ti-info-circle"></i> El usuario recibirá un correo con su nueva contraseña si tiene notificaciones activas en Supabase.
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-pw')">Cancelar</button>
+      <button class="btn btn-danger btn-sm" onclick="resetPwLink()" style="margin-right:auto"><i class="ti ti-mail"></i> Enviar enlace de restablecimiento</button>
+      <button class="btn btn-p" onclick="savePw()"><i class="ti ti-device-floppy"></i> Guardar contraseña</button>
+    </div>
+  </div>
+</div>
+
+<!-- NUEVA ÁREA -->
+<div class="modal-ov" id="modal-area">
+  <div class="modal">
+    <div class="modal-title"><i class="ti ti-folder-plus" style="color:var(--pera)"></i> Nueva área</div>
+    <div class="form-g"><label class="form-l">Nombre del área</label><input class="form-i" id="na-nombre" placeholder="Ej: Bienestar Laboral"/></div>
+    <div class="form-g"><label class="form-l">Descripción</label><input class="form-i" id="na-desc" placeholder="Descripción breve"/></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-area')">Cancelar</button>
+      <button class="btn btn-p" onclick="crearArea()"><i class="ti ti-plus"></i> Crear área</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!--  SCRIPT PRINCIPAL                               -->
+<!-- ═══════════════════════════════════════════════ -->
+<script>
+// ══ CONFIGURACIÓN SUPABASE ══════════════════════════
+// Reemplaza con tus credenciales de Supabase:
+const SUPABASE_URL = 'https://wbghkzjtccobsulcnajh.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_62wy3IDRvg33xL17MUdX4w_g6zXwLOW';
+// ════════════════════════════════════════════════════
+
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Estado global
+let currentUser = null;
+let currentPerfil = null;
+let areas = [];
+let indicadoresData = [];
+let pwTargetUserId = null;
+let pwTargetEmail = null;
+let chartNomina = null, chartContratos = null, chartAreas = null;
+
+// ── UTILIDADES ───────────────────────────────────────
+function fmt(v){ return v === null || v === undefined ? '—' : (isNaN(v) ? v : parseFloat(v).toFixed(1)) }
+function mesToNombre(m){
+  const n=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const [y,mo]=m.split('-'); return n[parseInt(mo)-1]+' '+y;
+}
+function periodoActual(){
+  const d=new Date(); const m=String(d.getMonth()+1).padStart(2,'0');
+  return d.getFullYear()+'-'+m;
+}
+function togglePw(inputId,iconEl){
+  const inp=document.getElementById(inputId)||document.getElementById(inputId);
+  const el=typeof iconEl==='string'?document.getElementById(iconEl):iconEl;
+  inp.type=inp.type==='password'?'text':'password';
+  el.className=inp.type==='password'?'ti ti-eye':'ti ti-eye-off';
+}
+function pwStrength(inputId,barId){
+  const v=document.getElementById(inputId).value;
+  const bar=document.getElementById(barId);
+  let score=0;
+  if(v.length>=8)score++;if(v.length>=12)score++;
+  if(/[A-Z]/.test(v))score++;if(/[0-9]/.test(v))score++;if(/[^A-Za-z0-9]/.test(v))score++;
+  const pct=[0,20,40,60,80,100][score];
+  const col=['#ccc','#E24B4A','#EFC832','#EFC832','#8BBF3A','#3B6D11'][score];
+  bar.style.width=pct+'%'; bar.style.background=col;
+}
+function showAlert(id,msg,type='ok'){
+  const el=document.getElementById(id);
+  el.className='alert al-'+(type==='ok'?'ok':type==='info'?'info':'err');
+  el.innerHTML='<i class="ti ti-'+(type==='ok'?'check':'info-circle')+'"></i> '+msg;
+  el.style.display='flex';
+  if(type==='ok') setTimeout(()=>el.style.display='none',3500);
+}
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-ov').forEach(m=>m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('open'); }));
+
+function rolBadge(r){
+  if(r==='administrador') return '<span class="badge b-green">Administrador</span>';
+  if(r==='editor') return '<span class="badge b-gray">Editor</span>';
+  return '<span class="badge b-blue">Visualizador</span>';
+}
+function estadoBadge(estado){
+  if(estado==='ok') return '<span class="badge b-green">En meta</span>';
+  if(estado==='warn') return '<span class="badge b-warn">Alerta</span>';
+  if(estado==='bad') return '<span class="badge b-red">Crítico</span>';
+  return '<span class="badge b-gray">Sin datos</span>';
+}
+function calcEstado(valor, meta_n, tipo){
+  if(valor===null||valor===undefined) return 'nd';
+  const v=parseFloat(valor), m=parseFloat(meta_n);
+  if(isNaN(v)||isNaN(m)) return 'nd';
+  if(tipo==='mayor_igual') return v>=m?'ok':v>=(m*0.9)?'warn':'bad';
+  if(tipo==='menor_igual') return v<=m?'ok':v<=(m*1.1)?'warn':'bad';
+  if(tipo==='igual') return v===m?'ok':'bad';
+  return 'nd';
+}
+function semaforoDiv(estado){
+  const cls={ok:'s-g',warn:'s-y',bad:'s-r',nd:'s-n'}[estado]||'s-n';
+  return `<div class="semaforo ${cls}"></div>`;
+}
+
+// ── AUTH ─────────────────────────────────────────────
+async function doLogin(){
+  const email=document.getElementById('li-email').value.trim();
+  const pass=document.getElementById('li-pass').value;
+  const btn=document.getElementById('li-btn');
+  const alert=document.getElementById('login-alert');
+  if(!email||!pass){ alert.textContent='Completa todos los campos.'; alert.style.display='flex'; return; }
+  btn.disabled=true; btn.innerHTML='<div class="spinner"></div>';
+  const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
+  if(error){
+    alert.textContent=error.message==='Invalid login credentials'?'Correo o contraseña incorrectos.':error.message;
+    alert.style.display='flex'; btn.disabled=false; btn.innerHTML='<i class="ti ti-login"></i> Ingresar'; return;
+  }
+  await initApp(data.user);
+}
+
+async function initApp(user){
+  currentUser=user;
+  const {data:p}=await sb.from('perfiles').select('*, areas(nombre)').eq('id',user.id).single();
+  currentPerfil=p;
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  document.getElementById('sb-name').textContent=p.nombre;
+  document.getElementById('sb-role').textContent=p.rol.charAt(0).toUpperCase()+p.rol.slice(1);
+  document.getElementById('sb-av').textContent=p.nombre.split(' ').map(x=>x[0]).join('').substring(0,2).toUpperCase();
+  if(p.rol!=='administrador') document.getElementById('nav-admin').style.display='none';
+  document.getElementById('btn-new-ind').style.display=p.rol==='administrador'?'inline-flex':'none';
+  // Período actual
+  const pa=periodoActual();
+  document.getElementById('reg-periodo').value=pa;
+  document.getElementById('inf-p1').value=pa.slice(0,7).replace(/(\d{4})-(\d{2})/,(_,y,m)=>{ const pm=parseInt(m)-1; return pm<1?`${parseInt(y)-1}-12`:`${y}-${String(pm).padStart(2,'0')}`; });
+  document.getElementById('inf-p2').value=pa;
+  document.getElementById('periodo-lbl').textContent=mesToNombre(pa);
+  await loadAreas();
+  await loadDashboard();
+}
+
+async function doLogout(){
+  await sb.auth.signOut();
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  [chartNomina,chartContratos,chartAreas].forEach(c=>{ if(c) c.destroy(); });
+  chartNomina=chartContratos=chartAreas=null;
+}
+
+sb.auth.onAuthStateChange(async(ev,sess)=>{
+  if(ev==='SIGNED_IN'&&sess&&!currentUser) await initApp(sess.user);
+});
+
+// ── ÁREAS ────────────────────────────────────────────
+async function loadAreas(){
+  const {data}=await sb.from('areas').select('*').order('nombre');
+  areas=data||[];
+  // Tabs indicadores
+  const tabs=document.getElementById('area-tabs');
+  tabs.innerHTML='<div class="tab active" onclick="filterInd(null,this)">Todas</div>'+
+    areas.map(a=>`<div class="tab" onclick="filterInd('${a.id}',this)">${a.nombre}</div>`).join('');
+  // Selects
+  ['ni-area','nu-area','reg-area'].forEach(id=>{
+    const sel=document.getElementById(id);
+    if(!sel) return;
+    const first=id==='nu-area'?'<option value="">Todas</option>':id==='reg-area'?'<option value="">Seleccionar...</option>':'';
+    sel.innerHTML=first+areas.map(a=>`<option value="${a.id}">${a.nombre}</option>`).join('');
+  });
+  // Config áreas
+  renderConfigAreas();
+}
+
+async function crearArea(){
+  const n=document.getElementById('na-nombre').value.trim();
+  if(!n) return;
+  await sb.from('areas').insert({nombre:n,descripcion:document.getElementById('na-desc').value});
+  closeModal('modal-area');
+  await loadAreas();
+}
+
+function renderConfigAreas(){
+  const div=document.getElementById('cfg-area-list');
+  if(!div) return;
+  div.innerHTML=areas.map(a=>`
+    <div class="card" style="margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <i class="ti ti-folder" style="font-size:18px;color:var(--pera)"></i>
+        <span style="font-size:13px;font-weight:600;flex:1">${a.nombre}</span>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer">
+          <input type="checkbox" ${a.habilitada?'checked':''} style="accent-color:var(--pera)" onchange="toggleArea('${a.id}',this.checked)"> Habilitada
+        </label>
+      </div>
+      <div id="cfg-inds-${a.id.replace(/-/g,'')}" style="display:flex;gap:6px;flex-wrap:wrap;font-size:11px;color:var(--text3)">Cargando...</div>
+    </div>`).join('');
+  areas.forEach(a=>loadCfgInds(a.id));
+}
+
+async function loadCfgInds(areaId){
+  const {data}=await sb.from('indicadores').select('id,nombre,habilitado').eq('area_id',areaId);
+  const div=document.getElementById('cfg-inds-'+areaId.replace(/-/g,''));
+  if(!div) return;
+  div.innerHTML=(data||[]).map(i=>`
+    <label style="background:var(--pera-bg);color:var(--pera-dk);padding:3px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:5px;cursor:pointer">
+      <input type="checkbox" ${i.habilitado?'checked':''} style="accent-color:var(--pera);width:12px;height:12px" onchange="toggleInd('${i.id}',this.checked)"> ${i.nombre}
+    </label>`).join('');
+}
+
+async function toggleArea(id,v){ await sb.from('areas').update({habilitada:v}).eq('id',id); }
+async function toggleInd(id,v){ await sb.from('indicadores').update({habilitado:v}).eq('id',id); }
+
+// ── INDICADORES ──────────────────────────────────────
+let currentAreaFilter=null;
+async function loadIndicadores(){
+  let q=sb.from('indicadores').select('*, areas(nombre)').order('nombre');
+  if(currentAreaFilter) q=q.eq('area_id',currentAreaFilter);
+  const {data}=await q;
+  indicadoresData=data||[];
+  const pa=periodoActual();
+  // Obtener último valor para cada indicador
+  const ids=indicadoresData.map(i=>i.id);
+  const {data:regs}=await sb.from('registros').select('indicador_id,valor,periodo').in('indicador_id',ids).order('periodo',{ascending:false});
+  const ultimoVal={};
+  (regs||[]).forEach(r=>{ if(!ultimoVal[r.indicador_id]) ultimoVal[r.indicador_id]={valor:r.valor,periodo:r.periodo}; });
+
+  const tbody=document.getElementById('ind-tbody');
+  tbody.innerHTML=indicadoresData.map(i=>{
+    const uv=ultimoVal[i.id];
+    const estado=uv?calcEstado(uv.valor,i.meta_numerica,i.tipo_meta):'nd';
+    return `<tr>
+      <td><b>${i.nombre}</b><br><span style="font-size:11px;color:var(--text3)">${i.objetivo||''}</span></td>
+      <td>${i.areas?.nombre||'—'}</td>
+      <td>${i.meta||'—'}</td>
+      <td style="display:flex;align-items:center;gap:6px">${uv?fmt(uv.valor)+' '+i.unidad:'Sin datos'}${semaforoDiv(estado)}</td>
+      <td>${estadoBadge(estado)}</td>
+      <td><input type="checkbox" ${i.habilitado?'checked':''} style="accent-color:var(--pera)" onchange="toggleInd('${i.id}',this.checked)"></td>
+      <td><div style="display:flex;gap:5px">
+        ${currentPerfil?.rol==='administrador'?`<button class="btn btn-sm" onclick="editInd('${i.id}')"><i class="ti ti-edit"></i></button>`:''}
+        <button class="btn btn-sm" onclick="verComentarios('${i.id}')"><i class="ti ti-message"></i></button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+async function filterInd(areaId,el){
+  currentAreaFilter=areaId;
+  document.querySelectorAll('#area-tabs .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  await loadIndicadores();
+}
+
+async function crearIndicador(){
+  const n=document.getElementById('ni-nombre').value.trim();
+  if(!n) return;
+  await sb.from('indicadores').insert({
+    nombre:n, area_id:document.getElementById('ni-area').value,
+    meta:document.getElementById('ni-meta').value,
+    meta_numerica:parseFloat(document.getElementById('ni-meta-n').value)||null,
+    tipo_meta:document.getElementById('ni-tipo').value,
+    formula:document.getElementById('ni-formula').value,
+    objetivo:document.getElementById('ni-objetivo').value,
+    unidad:document.getElementById('ni-unidad').value
+  });
+  closeModal('modal-ind');
+  await loadIndicadores();
+}
+
+function editInd(id){ alert('Edición completa — próxima versión del panel'); }
+function verComentarios(id){ alert('Historial de comentarios — próxima versión'); }
+
+// ── DASHBOARD ────────────────────────────────────────
+async function loadDashboard(){
+  document.getElementById('dash-loader').style.display='block';
+  document.getElementById('dash-content').style.display='none';
+  const pa=periodoActual();
+  // Cargar indicadores + último registro
+  const {data:inds}=await sb.from('indicadores').select('id,nombre,meta,meta_numerica,tipo_meta,unidad,area_id,areas(nombre)').eq('habilitado',true);
+  const ids=(inds||[]).map(i=>i.id);
+  const {data:regs}=await sb.from('registros').select('indicador_id,valor,periodo').in('indicador_id',ids).order('periodo',{ascending:false});
+  const ultimo={};
+  (regs||[]).forEach(r=>{ if(!ultimo[r.indicador_id]) ultimo[r.indicador_id]={valor:r.valor,periodo:r.periodo}; });
+
+  // KPIs principales
+  const kpiInds=[
+    inds?.find(i=>i.nombre==='Exactitud de nómina'),
+    inds?.find(i=>i.nombre==='Tiempo promedio de pago de liquidación'),
+    inds?.find(i=>i.nombre==='Afiliaciones oportunas'),
+    inds?.find(i=>i.nombre==='Errores en contratos'),
+  ].filter(Boolean);
+
+  const kpiGrid=document.getElementById('kpi-grid');
+  kpiGrid.innerHTML=kpiInds.map(i=>{
+    const uv=ultimo[i.id];
+    const estado=uv?calcEstado(uv.valor,i.meta_numerica,i.tipo_meta):'nd';
+    const cls=estado==='ok'?'':estado==='warn'?'warn':'bad';
+    const col=estado==='ok'?'#3B6D11':estado==='warn'?'#BA7517':'#A32D2D';
+    return `<div class="kpi-card ${cls}">
+      <div class="kpi-lbl">${i.nombre}</div>
+      <div class="kpi-val">${uv?fmt(uv.valor)+' '+i.unidad:'—'}</div>
+      <div class="kpi-sub" style="color:${col}">Meta: ${i.meta} ${uv?'· '+mesToNombre(uv.periodo):''}</div>
+    </div>`;
+  }).join('');
+
+  // Alertas
+  const alertas=(inds||[]).filter(i=>{ const uv=ultimo[i.id]; if(!uv) return false; return calcEstado(uv.valor,i.meta_numerica,i.tipo_meta)!=='ok'; });
+  const alertDiv=document.getElementById('dash-alerts');
+  alertDiv.innerHTML=alertas.length?`<div class="alert al-info"><i class="ti ti-alert-triangle"></i> ${alertas.length} indicador(es) requieren atención: <b>${alertas.map(i=>i.nombre).join(', ')}</b></div>`:'<div class="alert al-ok"><i class="ti ti-check"></i> Todos los indicadores con datos están dentro de meta.</div>';
+
+  // Gráficas — últimos 5 períodos
+  const periodos=[];
+  for(let i=4;i>=0;i--){
+    const d=new Date(); d.setMonth(d.getMonth()-i);
+    periodos.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'));
+  }
+  const labels=periodos.map(mesToNombre);
+  const colores=['#8BBF3A','#E24B4A','#EFC832','#185FA5','#D85A30'];
+
+  // Gráfica nómina
+  const indNomina=inds?.find(i=>i.nombre==='Exactitud de nómina');
+  const dataNomina=periodos.map(p=>{ const r=regs?.find(x=>x.indicador_id===indNomina?.id&&x.periodo===p); return r?parseFloat(r.valor):null; });
+  if(chartNomina) chartNomina.destroy();
+  chartNomina=new Chart(document.getElementById('chart-nomina'),{
+    type:'line',
+    data:{labels,datasets:[{label:'Exactitud %',data:dataNomina,borderColor:'#8BBF3A',backgroundColor:'rgba(139,191,58,.1)',tension:.3,pointRadius:4,fill:true}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:90,max:100,ticks:{callback:v=>v+'%'}},x:{ticks:{font:{size:11}}}}}
+  });
+
+  // Gráfica contratos
+  const indContrato=inds?.find(i=>i.nombre==='Errores en contratos');
+  const dataContrato=periodos.map(p=>{ const r=regs?.find(x=>x.indicador_id===indContrato?.id&&x.periodo===p); return r?parseFloat(r.valor):null; });
+  if(chartContratos) chartContratos.destroy();
+  chartContratos=new Chart(document.getElementById('chart-contratos'),{
+    type:'bar',
+    data:{labels,datasets:[{label:'Errores %',data:dataContrato,backgroundColor:dataContrato.map(v=>v===null?'#ccc':v<=2?'rgba(139,191,58,.7)':v<=3?'rgba(239,200,50,.8)':'rgba(226,75,74,.8)'),borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>v+'%'}},x:{ticks:{font:{size:11}}}}}
+  });
+
+  // Gráfica por áreas
+  const areaStats=areas.map(a=>{
+    const aInds=(inds||[]).filter(i=>i.area_id===a.id);
+    const total=aInds.length; if(!total) return {nombre:a.nombre,pct:0};
+    const ok=aInds.filter(i=>{ const uv=ultimo[i.id]; return uv&&calcEstado(uv.valor,i.meta_numerica,i.tipo_meta)==='ok'; }).length;
+    return {nombre:a.nombre.split(' ').slice(0,2).join(' '),pct:total?Math.round((ok/total)*100):0};
+  });
+  if(chartAreas) chartAreas.destroy();
+  chartAreas=new Chart(document.getElementById('chart-areas'),{
+    type:'bar',
+    data:{labels:areaStats.map(a=>a.nombre),datasets:[{label:'% Indicadores en meta',data:areaStats.map(a=>a.pct),backgroundColor:'rgba(139,191,58,.75)',borderColor:'#5a8c0a',borderWidth:1,borderRadius:5}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{min:0,max:100,ticks:{callback:v=>v+'%'}},y:{ticks:{font:{size:12}}}}}
+  });
+
+  document.getElementById('dash-loader').style.display='none';
+  document.getElementById('dash-content').style.display='block';
+}
+
+// ── REGISTRO ─────────────────────────────────────────
+async function loadRegInd(){
+  const areaId=document.getElementById('reg-area').value;
+  const sel=document.getElementById('reg-ind');
+  sel.innerHTML='<option>Cargando...</option>';
+  if(!areaId){ sel.innerHTML='<option>Seleccione área primero</option>'; return; }
+  const {data}=await sb.from('indicadores').select('id,nombre,unidad').eq('area_id',areaId).eq('habilitado',true);
+  sel.innerHTML=(data||[]).map(i=>`<option value="${i.id}" data-unidad="${i.unidad}">${i.nombre}</option>`).join('');
+  const opt=sel.selectedOptions[0];
+  if(opt) document.getElementById('reg-unidad').value=opt.dataset.unidad||'%';
+}
+
+async function guardarRegistro(){
+  const indId=document.getElementById('reg-ind').value;
+  const valor=document.getElementById('reg-valor').value;
+  const periodo=document.getElementById('reg-periodo').value;
+  if(!indId||!valor||!periodo){ showAlert('reg-alert','Completa todos los campos requeridos.','err'); return; }
+  const {error}=await sb.from('registros').upsert({
+    indicador_id:indId, periodo, valor:parseFloat(valor),
+    comentario:document.getElementById('reg-comentario').value,
+    usuario_id:currentUser.id
+  },{onConflict:'indicador_id,periodo'});
+  if(error){ showAlert('reg-alert','Error: '+error.message,'err'); return; }
+  showAlert('reg-alert','Valor registrado correctamente.');
+  await loadUltimosRegistros();
+}
+
+function limpiarReg(){
+  ['reg-area','reg-valor','reg-comentario'].forEach(id=>{ const e=document.getElementById(id); if(e) e.value=''; });
+  document.getElementById('reg-ind').innerHTML='<option>Seleccione área primero</option>';
+}
+
+async function loadUltimosRegistros(){
+  const {data}=await sb.from('registros')
+    .select('periodo,valor,comentario,indicadores(nombre,unidad,areas(nombre)),perfiles(nombre)')
+    .order('created_at',{ascending:false}).limit(15);
+  const tbody=document.getElementById('reg-tbody');
+  tbody.innerHTML=(data||[]).map(r=>`<tr>
+    <td>${mesToNombre(r.periodo)}</td>
+    <td>${r.indicadores?.areas?.nombre||'—'}</td>
+    <td>${r.indicadores?.nombre||'—'}</td>
+    <td>${fmt(r.valor)} ${r.indicadores?.unidad||''}</td>
+    <td>${r.comentario||'—'}</td>
+    <td>${r.perfiles?.nombre||'—'}</td>
+  </tr>`).join('');
+}
+
+// ── INFORMES ─────────────────────────────────────────
+async function cargarInforme(){
+  const p1=document.getElementById('inf-p1').value;
+  const p2=document.getElementById('inf-p2').value;
+  if(!p1||!p2) return;
+  document.getElementById('inf-h1').textContent=mesToNombre(p1);
+  document.getElementById('inf-h2').textContent=mesToNombre(p2);
+  const {data:inds}=await sb.from('indicadores').select('id,nombre,meta,meta_numerica,tipo_meta,unidad,areas(nombre)').eq('habilitado',true);
+  const ids=(inds||[]).map(i=>i.id);
+  const {data:regs}=await sb.from('registros').select('indicador_id,valor,periodo').in('indicador_id',ids).in('periodo',[p1,p2]);
+  const map={};
+  (regs||[]).forEach(r=>{ if(!map[r.indicador_id]) map[r.indicador_id]={}; map[r.indicador_id][r.periodo]=r.valor; });
+  let total=0,enMeta=0,alerta=0,critico=0;
+  const rows=(inds||[]).map(i=>{
+    const v1=map[i.id]?.[p1]; const v2=map[i.id]?.[p2];
+    const est=calcEstado(v2??v1,i.meta_numerica,i.tipo_meta);
+    total++;
+    if(est==='ok') enMeta++; else if(est==='warn') alerta++; else if(est==='bad') critico++;
+    const var_=v1!==undefined&&v2!==undefined?parseFloat(v2)-parseFloat(v1):null;
+    const varStr=var_===null?'—':var_>0?`<span style="color:#3B6D11">▲ +${fmt(var_)}</span>`:var_<0?`<span style="color:#A32D2D">▼ ${fmt(var_)}</span>`:'<span style="color:#888">— 0</span>';
+    return `<tr>
+      <td>${i.nombre}</td><td>${i.areas?.nombre||'—'}</td>
+      <td>${v1!==undefined?fmt(v1)+' '+i.unidad:'—'}</td>
+      <td>${v2!==undefined?fmt(v2)+' '+i.unidad:'—'}</td>
+      <td>${varStr}</td><td>${i.meta||'—'}</td>
+      <td>${estadoBadge(est)}</td>
+    </tr>`;
+  });
+  document.getElementById('inf-tbody').innerHTML=rows.join('');
+  document.getElementById('inf-resumen').innerHTML=`
+    <div class="card" style="flex:1;text-align:center"><div style="font-size:20px;font-weight:600">${total}</div><div style="font-size:11px;color:var(--text3)">Total indicadores</div></div>
+    <div class="card" style="flex:1;text-align:center;border-left:3px solid var(--pera)"><div style="font-size:20px;font-weight:600;color:var(--pera-dk)">${enMeta}</div><div style="font-size:11px;color:var(--text3)">En meta</div></div>
+    <div class="card" style="flex:1;text-align:center;border-left:3px solid var(--yellow)"><div style="font-size:20px;font-weight:600;color:${alerta?'var(--yellow-dk)':'var(--text3)'}">${alerta}</div><div style="font-size:11px;color:var(--text3)">En alerta</div></div>
+    <div class="card" style="flex:1;text-align:center;border-left:3px solid var(--red)"><div style="font-size:20px;font-weight:600;color:${critico?'var(--red-dk)':'var(--text3)'}">${critico}</div><div style="font-size:11px;color:var(--text3)">Críticos</div></div>`;
+}
+
+function exportCSV(){
+  const rows=[['Indicador','Área','Período 1','Período 2','Variación','Meta','Estado']];
+  document.querySelectorAll('#inf-tbody tr').forEach(tr=>{
+    rows.push([...tr.querySelectorAll('td')].map(td=>td.innerText).slice(0,7));
+  });
+  const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent('\uFEFF'+csv);
+  a.download='informe_indicadores.csv'; a.click();
+}
+
+// ── USUARIOS ─────────────────────────────────────────
+async function loadUsuarios(){
+  const {data}=await sb.from('perfiles').select('*, areas(nombre)').order('nombre');
+  const tbody=document.getElementById('user-tbody');
+  tbody.innerHTML=(data||[]).map(u=>`<tr>
+    <td><div style="display:flex;align-items:center;gap:8px">
+      <div class="avatar" style="width:26px;height:26px;font-size:10px">${u.nombre.split(' ').map(x=>x[0]).join('').substring(0,2).toUpperCase()}</div>
+      <span>${u.nombre}</span>
+    </div></td>
+    <td style="color:var(--text3)">${u.email}</td>
+    <td>${rolBadge(u.rol)}</td>
+    <td>${u.areas?.nombre||'Todas'}</td>
+    <td><input type="checkbox" ${u.habilitado?'checked':''} style="accent-color:var(--pera)" onchange="toggleUsuario('${u.id}',this.checked)"></td>
+    <td><div style="display:flex;gap:5px">
+      <button class="btn btn-sm" onclick="openPwModal('${u.id}','${u.email}','${u.nombre}')" title="Gestionar contraseña"><i class="ti ti-key"></i></button>
+      <button class="btn btn-sm" onclick="editarUsuario('${u.id}')" title="Editar"><i class="ti ti-edit"></i></button>
+    </div></td>
+  </tr>`).join('');
+}
+
+async function toggleUsuario(id,v){ await sb.from('perfiles').update({habilitado:v}).eq('id',id); }
+
+async function crearUsuario(){
+  const nombre=document.getElementById('nu-nombre').value.trim();
+  const email=document.getElementById('nu-email').value.trim();
+  const pass=document.getElementById('nu-pass').value;
+  const rol=document.getElementById('nu-rol').value;
+  const areaId=document.getElementById('nu-area').value||null;
+  if(!nombre||!email||pass.length<8){ showAlert('nu-alert','Completa todos los campos. Contraseña mínimo 8 caracteres.','err'); return; }
+  // Crear usuario en Supabase Auth (desde admin vía service role — en producción usar Edge Function)
+  // Por seguridad, usamos signUp con datos adicionales; el trigger handle_new_user creará el perfil
+  const {data,error}=await sb.auth.signUp({
+    email, password:pass,
+    options:{data:{nombre, rol}}
+  });
+  if(error){ showAlert('nu-alert',error.message,'err'); return; }
+  // Actualizar área si se asignó
+  if(data.user&&areaId){
+    await sb.from('perfiles').update({area_id:areaId}).eq('id',data.user.id);
+  }
+  closeModal('modal-user');
+  showAlert('user-alert','Usuario creado correctamente.');
+  await loadUsuarios();
+}
+
+function openPwModal(userId,email,nombre){
+  pwTargetUserId=userId; pwTargetEmail=email;
+  document.getElementById('pw-user-name').textContent=nombre+' ('+email+')';
+  document.getElementById('pw-new').value='';
+  document.getElementById('pw-confirm').value='';
+  document.getElementById('pw-strength').style.width='0%';
+  document.getElementById('pw-alert').style.display='none';
+  openModal('modal-pw');
+}
+
+async function savePw(){
+  const np=document.getElementById('pw-new').value;
+  const cp=document.getElementById('pw-confirm').value;
+  if(np.length<8){ showAlert('pw-alert','La contraseña debe tener al menos 8 caracteres.','err'); return; }
+  if(np!==cp){ showAlert('pw-alert','Las contraseñas no coinciden.','err'); return; }
+  // Nota: updateUserById requiere service_role key (Edge Function en producción)
+  // Con anon key solo se puede actualizar el usuario actual:
+  if(pwTargetUserId===currentUser.id){
+    const {error}=await sb.auth.updateUser({password:np});
+    if(error){ showAlert('pw-alert','Error: '+error.message,'err'); return; }
+    showAlert('pw-alert','Contraseña actualizada correctamente.');
+    setTimeout(()=>closeModal('modal-pw'),2000);
+  } else {
+    showAlert('pw-alert','Para cambiar contraseñas de otros usuarios, configura una Edge Function con service_role. Por ahora usa "Enviar enlace de restablecimiento".','info');
+  }
+}
+
+async function resetPwLink(){
+  if(!pwTargetEmail) return;
+  const {error}=await sb.auth.resetPasswordForEmail(pwTargetEmail,{
+    redirectTo:window.location.origin
+  });
+  if(error){ showAlert('pw-alert','Error: '+error.message,'err'); return; }
+  showAlert('pw-alert','Enlace de restablecimiento enviado a '+pwTargetEmail);
+}
+
+function editarUsuario(id){ alert('Edición de usuario — próxima versión'); }
+
+// ── NAVEGACIÓN ───────────────────────────────────────
+async function goTo(page,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  if(el&&el.classList) el.classList.add('active');
+  const titles={dashboard:'Dashboard',indicadores:'Indicadores corporativos',registro:'Registrar valores',informes:'Informes comparativos',usuarios:'Gestión de usuarios',config:'Configuración'};
+  document.getElementById('page-title').textContent=titles[page]||page;
+  if(page==='indicadores') await loadIndicadores();
+  if(page==='registro') await loadUltimosRegistros();
+  if(page==='usuarios') await loadUsuarios();
+  if(page==='config') renderConfigAreas();
+  if(page==='dashboard') await loadDashboard();
+}
+
+function cfgTab(tab,el){
+  document.querySelectorAll('#page-config .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('cfg-areas').style.display=tab==='areas'?'block':'none';
+  document.getElementById('cfg-permisos').style.display=tab==='permisos'?'block':'none';
+}
+
+// Enter en login
+document.addEventListener('keydown',e=>{ if(e.key==='Enter'&&document.getElementById('login-screen').style.display!=='none') doLogin(); });
+</script>
+</body>
+</html>
