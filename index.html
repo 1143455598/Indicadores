@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+	<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
@@ -126,7 +126,7 @@ tr:hover td{background:#fafdf5}
       <div class="nav-lbl">Principal</div>
       <div class="nav-item active" onclick="goTo('dashboard',this)"><i class="ti ti-layout-dashboard"></i><span>Dashboard</span></div>
       <div class="nav-item" onclick="goTo('indicadores',this)"><i class="ti ti-chart-line"></i><span>Indicadores</span></div>
-      <div class="nav-item" onclick="goTo('registro',this)"><i class="ti ti-edit"></i><span>Registrar valores</span></div>
+      <div class="nav-item" onclick="goTo('registro',this)"><i class="ti ti-edit"></i><span>Registrar resultados</span></div>
       <div class="nav-item" onclick="goTo('informes',this)"><i class="ti ti-file-analytics"></i><span>Informes</span></div>
     </div>
     <div class="nav-sec" id="nav-admin">
@@ -228,9 +228,9 @@ tr:hover td{background:#fafdf5}
 
       <!-- REGISTRO -->
       <div class="page" id="page-registro">
-        <div class="sec-hdr"><span class="sec-title">Registrar valor</span></div>
+        <div class="sec-hdr"><span class="sec-title">Registrar resultados</span></div>
         <div id="reg-alert" class="alert al-ok" style="display:none"></div>
-        <div class="card" style="max-width:560px;margin-bottom:20px">
+        <div class="card" style="max-width:600px;margin-bottom:20px">
           <div class="form-row">
             <div class="form-g"><label class="form-l">Área</label>
               <select class="form-i" id="reg-area" onchange="loadRegInd()"><option value="">Seleccionar...</option></select>
@@ -238,15 +238,61 @@ tr:hover td{background:#fafdf5}
             <div class="form-g"><label class="form-l">Período</label><input type="month" class="form-i" id="reg-periodo"/></div>
           </div>
           <div class="form-g"><label class="form-l">Indicador</label>
-            <select class="form-i" id="reg-ind"><option>Seleccione área primero</option></select>
+            <select class="form-i" id="reg-ind" onchange="onIndChange()"><option value="">Seleccione área primero</option></select>
           </div>
-          <div class="form-row">
-            <div class="form-g"><label class="form-l">Valor</label><input type="number" class="form-i" id="reg-valor" placeholder="Ej: 98.5" step="0.01"/></div>
-            <div class="form-g"><label class="form-l">Unidad</label>
-              <select class="form-i" id="reg-unidad"><option>%</option><option>Días</option><option>COP $</option><option>Número</option></select>
+          <!-- Tipo de indicador -->
+          <div class="form-g">
+            <label class="form-l">Tipo de indicador</label>
+            <div style="display:flex;gap:12px;margin-top:4px">
+              <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+                <input type="radio" name="reg-tipo" value="calculo" checked onchange="cambiarTipoReg()" style="accent-color:var(--pera)"> Cálculo
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+                <input type="radio" name="reg-tipo" value="informativo" onchange="cambiarTipoReg()" style="accent-color:var(--pera)"> Informativo
+              </label>
             </div>
           </div>
-          <div class="form-g"><label class="form-l">Comentario</label>
+          <!-- Tipo: Cálculo -->
+          <div id="reg-calculo-wrap">
+            <div style="background:var(--pera-bg);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:12px">
+              <div class="form-row">
+                <div class="form-g" style="margin-bottom:0">
+                  <label class="form-l">Numerador</label>
+                  <input type="number" class="form-i" id="reg-numerador" placeholder="Ej: 48" step="0.01" oninput="calcularResultado()"/>
+                </div>
+                <div class="form-g" style="margin-bottom:0">
+                  <label class="form-l">Denominador</label>
+                  <input type="number" class="form-i" id="reg-denominador" placeholder="Ej: 50" step="0.01" oninput="calcularResultado()"/>
+                </div>
+              </div>
+              <div style="margin-top:10px;display:flex;align-items:center;gap:10px">
+                <span style="font-size:12px;color:var(--text2)">Resultado calculado:</span>
+                <span id="reg-resultado-calc" style="font-size:18px;font-weight:600;color:var(--pera-dk)">—</span>
+                <span id="reg-estado-calc" style="margin-left:4px"></span>
+              </div>
+            </div>
+          </div>
+          <!-- Tipo: Informativo -->
+          <div id="reg-informativo-wrap" style="display:none">
+            <div class="form-row">
+              <div class="form-g">
+                <label class="form-l">Resultado</label>
+                <input class="form-i" id="reg-resultado-info" placeholder="Ej: 5 días, $2.500.000, 98%..."/>
+              </div>
+              <div class="form-g">
+                <label class="form-l">Unidad</label>
+                <select class="form-i" id="reg-unidad-info">
+                  <option value="%">Porcentaje (%)</option>
+                  <option value="días">Días</option>
+                  <option value="COP">Pesos (COP $)</option>
+                  <option value="USD">Dólares (USD)</option>
+                  <option value="número">Número</option>
+                  <option value="texto">Texto</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="form-g"><label class="form-l">Análisis / Comentario</label>
             <textarea class="form-i" id="reg-comentario" rows="3" placeholder="Contexto del resultado..."></textarea>
           </div>
           <div style="display:flex;gap:8px">
@@ -254,9 +300,11 @@ tr:hover td{background:#fafdf5}
             <button class="btn" onclick="limpiarReg()">Limpiar</button>
           </div>
         </div>
-        <div class="sec-hdr"><span class="sec-title">Últimos registros</span></div>
+        <div class="sec-hdr"><span class="sec-title">Últimos registros</span>
+          <span style="font-size:11px;color:var(--text3)" id="reg-tabla-lbl">Mostrando últimos 10</span>
+        </div>
         <div class="tbl-wrap">
-          <table><thead><tr><th>Período</th><th>Área</th><th>Indicador</th><th>Valor</th><th>Comentario</th><th>Usuario</th></tr></thead>
+          <table><thead><tr><th>Período</th><th>Área</th><th>Indicador</th><th>Resultado</th><th>Análisis</th><th>Usuario</th></tr></thead>
           <tbody id="reg-tbody"></tbody></table>
         </div>
       </div>
@@ -590,7 +638,7 @@ async function loadAreaView(areaId){
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
         <div><div style="font-size:12px;font-weight:600;margin-bottom:8px;color:var(--text)">Tendencia</div><div style="position:relative;height:160px"><canvas id="ac-${idx}"></canvas></div></div>
-        <div><div style="font-size:12px;font-weight:600;margin-bottom:8px;color:var(--text)">Comentarios</div>
+        <div>          <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:8px">Análisis</div>
           <div style="border:var(--border);border-radius:var(--radius-sm);max-height:160px;overflow-y:auto">
             ${coms.length?coms.map(r=>`<div class="comentario-item">${r.comentario}<div class="comentario-meta">${mes(r.periodo)} · ${r.perfiles?.nombre||'—'}</div></div>`).join(''):'<div class="comentario-item" style="color:var(--text3)">Sin comentarios</div>'}
           </div>
@@ -705,10 +753,87 @@ async function guardarArea(){const n=document.getElementById('m-area-nombre').va
 function delArea(id){const a=AREAS.find(x=>x.id===id);confirm2(`¿Eliminar área "${a?.nombre}" y todos sus indicadores?`,async()=>{await sb.from('areas').delete().eq('id',id);await loadAreas();});}
 
 // REGISTRO
-async function loadRegInd(){const aId=document.getElementById('reg-area').value,sel=document.getElementById('reg-ind');if(!aId){sel.innerHTML='<option>Seleccione área primero</option>';return;}const{data}=await sb.from('indicadores').select('id,nombre,unidad').eq('area_id',aId).eq('habilitado',true);sel.innerHTML=(data||[]).map(i=>`<option value="${i.id}" data-u="${i.unidad}">${i.nombre}</option>`).join('');const o=sel.selectedOptions[0];if(o)document.getElementById('reg-unidad').value=o.dataset.u||'%';}
-async function guardarRegistro(){const iId=document.getElementById('reg-ind').value,val=document.getElementById('reg-valor').value,per=document.getElementById('reg-periodo').value;if(!iId||!val||!per){sAlert('reg-alert','Completa todos los campos.','err');return;}const{error}=await sb.from('registros').upsert({indicador_id:iId,periodo:per,valor:parseFloat(val),comentario:document.getElementById('reg-comentario').value,usuario_id:CU.id},{onConflict:'indicador_id,periodo'});if(error){sAlert('reg-alert','Error: '+error.message,'err');return;}sAlert('reg-alert','Valor guardado.');await loadUltRegs();}
-function limpiarReg(){['reg-area','reg-valor','reg-comentario'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});document.getElementById('reg-ind').innerHTML='<option>Seleccione área primero</option>';}
-async function loadUltRegs(){const{data}=await sb.from('registros').select('periodo,valor,comentario,indicadores(nombre,unidad,areas(nombre)),perfiles(nombre)').order('created_at',{ascending:false}).limit(20);document.getElementById('reg-tbody').innerHTML=(data||[]).map(r=>`<tr><td>${mes(r.periodo)}</td><td>${r.indicadores?.areas?.nombre||'—'}</td><td>${r.indicadores?.nombre||'—'}</td><td>${fmt(r.valor)} ${r.indicadores?.unidad||''}</td><td>${r.comentario||'—'}</td><td>${r.perfiles?.nombre||'—'}</td></tr>`).join('');}
+let indActual=null;
+function cambiarTipoReg(){
+  const t=document.querySelector('input[name="reg-tipo"]:checked')?.value||'calculo';
+  document.getElementById('reg-calculo-wrap').style.display=t==='calculo'?'block':'none';
+  document.getElementById('reg-informativo-wrap').style.display=t==='informativo'?'block':'none';
+  if(t==='calculo'){document.getElementById('reg-numerador').value='';document.getElementById('reg-denominador').value='';document.getElementById('reg-resultado-calc').textContent='—';document.getElementById('reg-estado-calc').innerHTML='';}
+}
+function calcularResultado(){
+  const n=parseFloat(document.getElementById('reg-numerador').value);
+  const d=parseFloat(document.getElementById('reg-denominador').value);
+  const resEl=document.getElementById('reg-resultado-calc');
+  const estEl=document.getElementById('reg-estado-calc');
+  if(isNaN(n)||isNaN(d)||d===0){resEl.textContent='—';estEl.innerHTML='';return;}
+  const res=Math.round((n/d)*100*100)/100;
+  resEl.textContent=res+'%';
+  if(indActual){
+    const est=calcEst(res,indActual.meta_numerica,indActual.tipo_meta);
+    estEl.innerHTML=estBadge(est);
+  }
+}
+async function loadRegInd(){
+  const aId=document.getElementById('reg-area').value,sel=document.getElementById('reg-ind');
+  indActual=null;
+  if(!aId){sel.innerHTML='<option value="">Seleccione área primero</option>';await loadUltRegs();return;}
+  const{data}=await sb.from('indicadores').select('id,nombre,unidad,meta_numerica,tipo_meta').eq('area_id',aId).eq('habilitado',true);
+  sel.innerHTML='<option value="">Seleccionar indicador...</option>'+(data||[]).map(i=>`<option value="${i.id}">${i.nombre}</option>`).join('');
+  await loadUltRegs();
+}
+async function onIndChange(){
+  const id=document.getElementById('reg-ind').value;
+  if(!id){indActual=null;await loadUltRegs();return;}
+  const{data}=await sb.from('indicadores').select('*').eq('id',id).single();
+  indActual=data;
+  calcularResultado();
+  await loadUltRegs();
+}
+async function guardarRegistro(){
+  const iId=document.getElementById('reg-ind').value;
+  const per=document.getElementById('reg-periodo').value;
+  if(!iId||!per){sAlert('reg-alert','Selecciona área, indicador y período.','err');return;}
+  const tipo=document.querySelector('input[name="reg-tipo"]:checked')?.value||'calculo';
+  let valor,resultado_texto='';
+  if(tipo==='calculo'){
+    const n=parseFloat(document.getElementById('reg-numerador').value);
+    const d=parseFloat(document.getElementById('reg-denominador').value);
+    if(isNaN(n)||isNaN(d)||d===0){sAlert('reg-alert','Ingresa numerador y denominador válidos.','err');return;}
+    valor=Math.round((n/d)*100*100)/100;
+    resultado_texto=`${n} / ${d} = ${valor}%`;
+  } else {
+    const rv=document.getElementById('reg-resultado-info').value.trim();
+    const ru=document.getElementById('reg-unidad-info').value;
+    if(!rv){sAlert('reg-alert','Ingresa el resultado.','err');return;}
+    const num=parseFloat(rv);
+    valor=isNaN(num)?0:num;
+    resultado_texto=`${rv} ${ru}`;
+  }
+  const{error}=await sb.from('registros').upsert({
+    indicador_id:iId,periodo:per,valor,
+    comentario:document.getElementById('reg-comentario').value,
+    usuario_id:CU.id
+  },{onConflict:'indicador_id,periodo'});
+  if(error){sAlert('reg-alert','Error: '+error.message,'err');return;}
+  sAlert('reg-alert','Resultado guardado correctamente.');
+  await loadUltRegs();
+}
+function limpiarReg(){
+  ['reg-area','reg-valor','reg-comentario','reg-numerador','reg-denominador','reg-resultado-info'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  document.getElementById('reg-ind').innerHTML='<option value="">Seleccione área primero</option>';
+  document.getElementById('reg-resultado-calc').textContent='—';
+  document.getElementById('reg-estado-calc').innerHTML='';
+  indActual=null;
+}
+async function loadUltRegs(){
+  const indId=document.getElementById('reg-ind')?.value;
+  const lbl=document.getElementById('reg-tabla-lbl');
+  let q=sb.from('registros').select('periodo,valor,comentario,indicadores(nombre,unidad,areas(nombre)),perfiles(nombre)').order('created_at',{ascending:false}).limit(10);
+  if(indId){q=q.eq('indicador_id',indId);if(lbl)lbl.textContent='Filtrando por indicador seleccionado';}
+  else{if(lbl)lbl.textContent='Mostrando últimos 10';}
+  const{data}=await q;
+  document.getElementById('reg-tbody').innerHTML=(data||[]).map(r=>`<tr><td>${mes(r.periodo)}</td><td>${r.indicadores?.areas?.nombre||'—'}</td><td>${r.indicadores?.nombre||'—'}</td><td>${fmt(r.valor)} ${r.indicadores?.unidad||''}</td><td>${r.comentario||'—'}</td><td>${r.perfiles?.nombre||'—'}</td></tr>`).join('');
+}
 
 // INFORMES
 async function cargarInforme(){const p1=document.getElementById('inf-p1').value,p2=document.getElementById('inf-p2').value;if(!p1||!p2)return;document.getElementById('inf-h1').textContent=mes(p1);document.getElementById('inf-h2').textContent=mes(p2);const{data:inds}=await sb.from('indicadores').select('id,nombre,meta,meta_numerica,tipo_meta,unidad,areas(nombre)').eq('habilitado',true);const ids=(inds||[]).map(i=>i.id);const{data:regs}=await sb.from('registros').select('indicador_id,valor,periodo').in('indicador_id',ids).in('periodo',[p1,p2]);const map={};(regs||[]).forEach(r=>{if(!map[r.indicador_id])map[r.indicador_id]={};map[r.indicador_id][r.periodo]=r.valor;});let tot=0,ok=0,al=0,cr=0;const rows=(inds||[]).map(i=>{const v1=map[i.id]?.[p1],v2=map[i.id]?.[p2],e=calcEst(v2??v1,i.meta_numerica,i.tipo_meta);tot++;if(e==='ok')ok++;else if(e==='warn')al++;else if(e==='bad')cr++;const vd=v1!==undefined&&v2!==undefined?parseFloat(v2)-parseFloat(v1):null;const vs=vd==null?'—':vd>0?`<span style="color:#3B6D11">▲ +${fmt(vd)}</span>`:vd<0?`<span style="color:#A32D2D">▼ ${fmt(vd)}</span>`:'—';return`<tr><td>${i.nombre}</td><td>${i.areas?.nombre||'—'}</td><td>${v1!==undefined?fmt(v1)+' '+i.unidad:'—'}</td><td>${v2!==undefined?fmt(v2)+' '+i.unidad:'—'}</td><td>${vs}</td><td>${i.meta||'—'}</td><td>${estBadge(e)}</td></tr>`;});document.getElementById('inf-tbody').innerHTML=rows.join('');document.getElementById('inf-resumen').innerHTML=`<div class="card" style="flex:1;text-align:center"><div style="font-size:20px;font-weight:600">${tot}</div><div style="font-size:11px;color:var(--text3)">Total</div></div><div class="card" style="flex:1;text-align:center;border-left:3px solid var(--pera)"><div style="font-size:20px;font-weight:600;color:var(--pera-dk)">${ok}</div><div style="font-size:11px;color:var(--text3)">En meta</div></div><div class="card" style="flex:1;text-align:center;border-left:3px solid var(--yellow)"><div style="font-size:20px;font-weight:600;color:var(--yellow-dk)">${al}</div><div style="font-size:11px;color:var(--text3)">Alerta</div></div><div class="card" style="flex:1;text-align:center;border-left:3px solid var(--red)"><div style="font-size:20px;font-weight:600;color:var(--red-dk)">${cr}</div><div style="font-size:11px;color:var(--text3)">Críticos</div></div>`;}
@@ -730,7 +855,7 @@ async function goTo(page,el){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
   if(el?.classList)el.classList.add('active');
-  const titles={dashboard:'Dashboard',indicadores:'Indicadores',registro:'Registrar valores',informes:'Informes',usuarios:'Usuarios',config:'Configuración'};
+  const titles={dashboard:'Dashboard',indicadores:'Indicadores',registro:'Registrar resultados',informes:'Informes',usuarios:'Usuarios',config:'Configuración'};
   document.getElementById('page-title').textContent=titles[page]||page;
   if(page==='dashboard'){document.getElementById('dash-general-view').style.display='block';document.getElementById('dash-area-view').style.display='none';await loadDashboard();}
   if(page==='indicadores')await loadIndicadores();
