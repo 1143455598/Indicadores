@@ -181,7 +181,7 @@ tr:hover td{background:#fafdf5}
       <div class="page active" id="page-dashboard">
         <!-- Vista principal: selección de área -->
         <div id="dash-areas-view">
-          <div class="filter-bar">
+          <div class="filter-bar" style="flex-wrap:wrap;gap:8px">
             <label>Período:</label>
             <select id="dash-period-type" onchange="changePeriodType()">
               <option value="mensual">Mensual</option>
@@ -196,11 +196,11 @@ tr:hover td{background:#fafdf5}
               <input type="month" id="dash-period-to" onchange="loadDashboardGeneral()"/>
             </span>
             <button class="btn btn-sm btn-p" onclick="loadDashboardGeneral()"><i class="ti ti-refresh"></i> Actualizar</button>
+            <div style="width:1px;height:22px;background:var(--border);margin:0 4px"></div>
+            <span style="font-size:11px;font-weight:600;color:var(--text3)">ÁREAS:</span>
+            <div id="area-quick-btns" style="display:flex;gap:5px;flex-wrap:wrap"></div>
           </div>
-          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px">
-            <span style="font-size:12px;font-weight:600;color:var(--text2)"><i class="ti ti-folder"></i> Ver por área:</span>
-            <div id="area-quick-btns" style="display:flex;gap:6px;flex-wrap:wrap"></div>
-          </div>
+
           <div id="dash-loader" style="text-align:center;padding:40px"><div class="spinner"></div></div>
           <div id="dash-general" style="display:none">
             <div class="kpi-grid" id="kpi-grid"></div>
