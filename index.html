@@ -480,15 +480,22 @@ async function doLogin(){
 }
 async function initApp(user){
   CU=user;
-  const{data:p}=await sb.from('perfiles').select('*,areas(nombre)').eq('id',user.id).single();
-  CP=p;
+  const{data:p,error:perfilError}=await sb.from('perfiles').select('*,areas(nombre)').eq('id',user.id).single();
+  if(!p){
+    // Perfil no existe — crearlo automáticamente
+    const nombre=user.email.split('@')[0];
+    const{data:nuevo}=await sb.from('perfiles').insert({id:user.id,nombre,email:user.email,rol:'administrador',habilitado:true}).select().single();
+    CP=nuevo||{id:user.id,nombre,email:user.email,rol:'administrador',habilitado:true};
+  } else {
+    CP=p;
+  }
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='flex';
-  document.getElementById('sb-name').textContent=p.nombre;
-  document.getElementById('sb-role').textContent=p.rol.charAt(0).toUpperCase()+p.rol.slice(1);
-  document.getElementById('sb-av').textContent=p.nombre.split(' ').map(x=>x[0]).join('').substring(0,2).toUpperCase();
-  if(p.rol!=='administrador')document.getElementById('nav-admin').style.display='none';
-  document.getElementById('btn-new-ind').style.display=p.rol==='administrador'?'inline-flex':'none';
+  document.getElementById('sb-name').textContent=CP.nombre;
+  document.getElementById('sb-role').textContent=CP.rol.charAt(0).toUpperCase()+CP.rol.slice(1);
+  document.getElementById('sb-av').textContent=CP.nombre.split(' ').map(x=>x[0]).join('').substring(0,2).toUpperCase();
+  if(CP.rol!=='administrador')document.getElementById('nav-admin').style.display='none';
+  document.getElementById('btn-new-ind').style.display=CP.rol==='administrador'?'inline-flex':'none';
   const now=pa();
   document.getElementById('reg-periodo').value=now;
   document.getElementById('dash-period-from').value=subM(now,4);
