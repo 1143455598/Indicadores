@@ -776,9 +776,17 @@ function calcularResultado(){
 async function loadRegInd(){
   const aId=document.getElementById('reg-area').value,sel=document.getElementById('reg-ind');
   indActual=null;
-  if(!aId){sel.innerHTML='<option value="">Seleccione área primero</option>';await loadUltRegs();return;}
-  const{data}=await sb.from('indicadores').select('id,nombre,unidad,meta_numerica,tipo_meta').eq('area_id',aId).eq('habilitado',true);
-  sel.innerHTML='<option value="">Seleccionar indicador...</option>'+(data||[]).map(i=>`<option value="${i.id}">${i.nombre}</option>`).join('');
+  sel.innerHTML='<option value="">Seleccionar indicador...</option>';
+  if(!aId){await loadUltRegs();return;}
+  const{data,error}=await sb.from('indicadores').select('id,nombre,unidad,meta_numerica,tipo_meta').eq('area_id',aId).eq('habilitado',true);
+  if(error){console.error('Error cargando indicadores:',error);return;}
+  (data||[]).forEach(i=>{
+    const opt=document.createElement('option');
+    opt.value=i.id;
+    opt.textContent=i.nombre;
+    sel.appendChild(opt);
+  });
+  console.log('Indicadores cargados:',(data||[]).map(i=>({id:i.id,nombre:i.nombre})));
   await loadUltRegs();
 }
 async function onIndChange(){
@@ -792,8 +800,9 @@ async function onIndChange(){
 async function guardarRegistro(){
   const iId=document.getElementById('reg-ind').value;
   const per=document.getElementById('reg-periodo').value;
+  console.log('Guardando — indicador_id:',iId,'periodo:',per);
   if(!iId||!per){sAlert('reg-alert','Selecciona área, indicador y período.','err');return;}
-  const tipo=document.querySelector('input[name="reg-tipo"]:checked')?.value||'calculo';
+  if(!iId.includes('-')){sAlert('reg-alert','Error: el indicador no tiene un ID válido. Recarga la página.','err');return;}
   let valor,resultado_texto='';
   if(tipo==='calculo'){
     const n=parseFloat(document.getElementById('reg-numerador').value);
