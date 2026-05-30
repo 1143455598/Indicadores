@@ -800,9 +800,9 @@ async function onIndChange(){
 async function guardarRegistro(){
   const iId=document.getElementById('reg-ind').value;
   const per=document.getElementById('reg-periodo').value;
-  console.log('Guardando — indicador_id:',iId,'periodo:',per);
   if(!iId||!per){sAlert('reg-alert','Selecciona área, indicador y período.','err');return;}
-  if(!iId.includes('-')){sAlert('reg-alert','Error: el indicador no tiene un ID válido. Recarga la página.','err');return;}
+  if(!iId.includes('-')){sAlert('reg-alert','Error: indicador sin ID válido. Recarga la página.','err');return;}
+  const tipo=document.querySelector('input[name="reg-tipo"]:checked')?.value||'calculo';
   let valor,resultado_texto='';
   if(tipo==='calculo'){
     const n=parseFloat(document.getElementById('reg-numerador').value);
