@@ -71,7 +71,8 @@ tr:hover td{background:#fafdf5}
 .chart-wrap{position:relative;height:200px}.chart-wrap-lg{position:relative;height:240px}
 .modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;align-items:center;justify-content:center}
 .modal-ov.open{display:flex}
-.modal{background:var(--surface);border-radius:var(--radius);padding:24px;width:480px;max-width:95vw;border:var(--border);max-height:90vh;overflow-y:auto}
+.modal{background:var(--surface);border-radius:var(--radius);padding:24px;width:520px;max-width:95vw;border:var(--border);max-height:90vh;overflow-y:auto}
+.modal-wide{width:820px}
 .modal-title{font-size:15px;font-weight:600;margin-bottom:18px;color:var(--text);display:flex;align-items:center;gap:8px}
 .modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:18px;padding-top:14px;border-top:var(--border)}
 #login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg)}
@@ -87,9 +88,14 @@ tr:hover td{background:#fafdf5}
 .divider-v{width:1px;height:20px;background:var(--border);margin:0 4px}
 .back-btn{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--pera-dk);cursor:pointer;margin-bottom:14px;font-weight:500}
 .back-btn:hover{text-decoration:underline}
-.comentario-item{padding:8px 12px;border-bottom:var(--border);font-size:12px}
-.comentario-item:last-child{border:none}
-.comentario-meta{font-size:10px;color:var(--text3);margin-top:2px}
+.traza-table{width:100%;border-collapse:collapse;font-size:12px}
+.traza-table th{background:var(--pera-bg);color:var(--pera-dk);font-weight:600;padding:8px 12px;text-align:left;font-size:11px;border-bottom:var(--border)}
+.traza-table td{padding:8px 12px;border-bottom:var(--border);vertical-align:middle}
+.traza-table tr:last-child td{border-bottom:none}
+.traza-table tr:hover td{background:#fafdf5}
+.ficha-header{background:var(--pera-bg);border-radius:var(--radius);padding:14px 18px;margin-bottom:16px}
+.ficha-nombre{font-size:16px;font-weight:600;color:var(--pera-dk)}
+.ficha-meta{font-size:12px;color:var(--text2);margin-top:4px}
 </style>
 </head>
 <body>
@@ -127,6 +133,7 @@ tr:hover td{background:#fafdf5}
       <div class="nav-item active" onclick="goTo('dashboard',this)"><i class="ti ti-layout-dashboard"></i><span>Dashboard</span></div>
       <div class="nav-item" onclick="goTo('indicadores',this)"><i class="ti ti-chart-line"></i><span>Indicadores</span></div>
       <div class="nav-item" onclick="goTo('registro',this)"><i class="ti ti-edit"></i><span>Registrar resultados</span></div>
+      <div class="nav-item" onclick="goTo('historico',this)"><i class="ti ti-history"></i><span>Histórico</span></div>
       <div class="nav-item" onclick="goTo('informes',this)"><i class="ti ti-file-analytics"></i><span>Informes</span></div>
     </div>
     <div class="nav-sec" id="nav-admin">
@@ -152,10 +159,7 @@ tr:hover td{background:#fafdf5}
 
       <!-- DASHBOARD -->
       <div class="page active" id="page-dashboard">
-
-        <!-- Vista general -->
         <div id="dash-general-view">
-          <!-- BARRA DE FILTROS + BOTONES DE ÁREA -->
           <div class="filter-bar">
             <label>Período:</label>
             <select id="dash-period-type" onchange="changePeriodType()">
@@ -172,11 +176,8 @@ tr:hover td{background:#fafdf5}
             <button class="btn btn-sm btn-p" onclick="loadDashboard()"><i class="ti ti-refresh"></i> Actualizar</button>
             <div class="divider-v"></div>
             <span style="font-size:11px;font-weight:600;color:var(--text3)">VER ÁREA:</span>
-            <div id="area-btns" style="display:flex;gap:5px;flex-wrap:wrap">
-              <span style="font-size:11px;color:var(--text3)">Cargando...</span>
-            </div>
+            <div id="area-btns" style="display:flex;gap:5px;flex-wrap:wrap"><span style="font-size:11px;color:var(--text3)">Cargando...</span></div>
           </div>
-
           <div id="dash-loader" style="text-align:center;padding:40px"><div class="spinner"></div></div>
           <div id="dash-data" style="display:none">
             <div class="kpi-grid" id="kpi-grid"></div>
@@ -188,8 +189,6 @@ tr:hover td{background:#fafdf5}
             <div id="dash-alerts"></div>
           </div>
         </div>
-
-        <!-- Vista por área -->
         <div id="dash-area-view" style="display:none">
           <div class="back-btn" onclick="volverDash()"><i class="ti ti-arrow-left"></i> Volver al dashboard general</div>
           <div class="filter-bar">
@@ -221,7 +220,7 @@ tr:hover td{background:#fafdf5}
         </div>
         <div class="tabs" id="area-tabs"></div>
         <div class="tbl-wrap">
-          <table><thead><tr><th>Indicador</th><th>Área</th><th>Meta</th><th>Último valor</th><th>Estado</th><th>Activo</th><th>Acciones</th></tr></thead>
+          <table><thead><tr><th>Indicador</th><th>Área</th><th>Meta</th><th>Último resultado</th><th>Estado</th><th>Activo</th><th>Acciones</th></tr></thead>
           <tbody id="ind-tbody"></tbody></table>
         </div>
       </div>
@@ -230,7 +229,7 @@ tr:hover td{background:#fafdf5}
       <div class="page" id="page-registro">
         <div class="sec-hdr"><span class="sec-title">Registrar resultados</span></div>
         <div id="reg-alert" class="alert al-ok" style="display:none"></div>
-        <div class="card" style="max-width:600px;margin-bottom:20px">
+        <div class="card" style="max-width:620px;margin-bottom:20px">
           <div class="form-row">
             <div class="form-g"><label class="form-l">Área</label>
               <select class="form-i" id="reg-area" onchange="loadRegInd()"><option value="">Seleccionar...</option></select>
@@ -240,10 +239,9 @@ tr:hover td{background:#fafdf5}
           <div class="form-g"><label class="form-l">Indicador</label>
             <select class="form-i" id="reg-ind" onchange="onIndChange()"><option value="">Seleccione área primero</option></select>
           </div>
-          <!-- Tipo de indicador -->
           <div class="form-g">
             <label class="form-l">Tipo de indicador</label>
-            <div style="display:flex;gap:12px;margin-top:4px">
+            <div style="display:flex;gap:16px;margin-top:4px">
               <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
                 <input type="radio" name="reg-tipo" value="calculo" checked onchange="cambiarTipoReg()" style="accent-color:var(--pera)"> Cálculo
               </label>
@@ -252,32 +250,45 @@ tr:hover td{background:#fafdf5}
               </label>
             </div>
           </div>
-          <!-- Tipo: Cálculo -->
+
+          <!-- CÁLCULO -->
           <div id="reg-calculo-wrap">
-            <div style="background:var(--pera-bg);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:12px">
+            <div style="background:var(--pera-bg);border-radius:var(--radius-sm);padding:14px;margin-bottom:12px">
+              <div class="form-row" style="margin-bottom:10px">
+                <div class="form-g" style="margin-bottom:0">
+                  <label class="form-l">Nombre del numerador</label>
+                  <input class="form-i" id="reg-num-label" placeholder="Ej: Empleados registrados oportunamente"/>
+                </div>
+                <div class="form-g" style="margin-bottom:0">
+                  <label class="form-l">Nombre del denominador</label>
+                  <input class="form-i" id="reg-den-label" placeholder="Ej: Total nuevos empleados"/>
+                </div>
+              </div>
               <div class="form-row">
                 <div class="form-g" style="margin-bottom:0">
-                  <label class="form-l">Numerador</label>
+                  <label class="form-l">Valor numerador</label>
                   <input type="number" class="form-i" id="reg-numerador" placeholder="Ej: 48" step="0.01" oninput="calcularResultado()"/>
                 </div>
                 <div class="form-g" style="margin-bottom:0">
-                  <label class="form-l">Denominador</label>
+                  <label class="form-l">Valor denominador</label>
                   <input type="number" class="form-i" id="reg-denominador" placeholder="Ej: 50" step="0.01" oninput="calcularResultado()"/>
                 </div>
               </div>
-              <div style="margin-top:10px;display:flex;align-items:center;gap:10px">
+              <div style="margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
                 <span style="font-size:12px;color:var(--text2)">Resultado calculado:</span>
-                <span id="reg-resultado-calc" style="font-size:18px;font-weight:600;color:var(--pera-dk)">—</span>
-                <span id="reg-estado-calc" style="margin-left:4px"></span>
+                <span id="reg-resultado-calc" style="font-size:20px;font-weight:700;color:var(--pera-dk)">—</span>
+                <span id="reg-estado-calc"></span>
+                <span id="reg-formula-preview" style="font-size:11px;color:var(--text3)"></span>
               </div>
             </div>
           </div>
-          <!-- Tipo: Informativo -->
+
+          <!-- INFORMATIVO -->
           <div id="reg-informativo-wrap" style="display:none">
             <div class="form-row">
               <div class="form-g">
                 <label class="form-l">Resultado</label>
-                <input class="form-i" id="reg-resultado-info" placeholder="Ej: 5 días, $2.500.000, 98%..."/>
+                <input class="form-i" id="reg-resultado-info" placeholder="Ej: 5, 2500000, 98..."/>
               </div>
               <div class="form-g">
                 <label class="form-l">Unidad</label>
@@ -292,6 +303,7 @@ tr:hover td{background:#fafdf5}
               </div>
             </div>
           </div>
+
           <div class="form-g"><label class="form-l">Análisis / Comentario</label>
             <textarea class="form-i" id="reg-comentario" rows="3" placeholder="Contexto del resultado..."></textarea>
           </div>
@@ -300,12 +312,37 @@ tr:hover td{background:#fafdf5}
             <button class="btn" onclick="limpiarReg()">Limpiar</button>
           </div>
         </div>
-        <div class="sec-hdr"><span class="sec-title">Últimos registros</span>
-          <span style="font-size:11px;color:var(--text3)" id="reg-tabla-lbl">Mostrando últimos 10</span>
+
+        <div class="sec-hdr">
+          <span class="sec-title">Últimos registros</span>
+          <span style="font-size:11px;color:var(--text3)" id="reg-tabla-lbl">Últimos 10</span>
         </div>
         <div class="tbl-wrap">
-          <table><thead><tr><th>Período</th><th>Área</th><th>Indicador</th><th>Resultado</th><th>Análisis</th><th>Usuario</th></tr></thead>
+          <table><thead><tr><th>Período</th><th>Área</th><th>Indicador</th><th>Numerador</th><th>Denominador</th><th>Resultado</th><th>Análisis</th><th>Usuario</th></tr></thead>
           <tbody id="reg-tbody"></tbody></table>
+        </div>
+      </div>
+
+      <!-- HISTÓRICO -->
+      <div class="page" id="page-historico">
+        <div class="sec-hdr"><span class="sec-title">Histórico de indicadores</span></div>
+        <div class="filter-bar">
+          <label>Área:</label>
+          <select id="hist-area" onchange="loadHistInd()">
+            <option value="">Todas las áreas</option>
+          </select>
+          <label>Indicador:</label>
+          <select id="hist-ind" onchange="loadHistorico()">
+            <option value="">Todos</option>
+          </select>
+          <label>Desde:</label>
+          <input type="month" id="hist-desde"/>
+          <label>Hasta:</label>
+          <input type="month" id="hist-hasta"/>
+          <button class="btn btn-sm btn-p" onclick="loadHistorico()"><i class="ti ti-refresh"></i> Filtrar</button>
+        </div>
+        <div id="hist-content">
+          <div style="text-align:center;padding:40px;color:var(--text3)">Selecciona un indicador para ver su trazabilidad completa</div>
         </div>
       </div>
 
@@ -340,7 +377,7 @@ tr:hover td{background:#fafdf5}
           <tbody id="user-tbody"></tbody></table>
         </div>
         <div style="margin-top:14px;padding:12px 14px;background:var(--pera-bg);border-radius:var(--radius-sm);font-size:12px;color:var(--pera-dk)">
-          <b>Administrador</b> — acceso total &nbsp;·&nbsp; <b>Editor</b> — registra valores &nbsp;·&nbsp; <b>Visualizador</b> — solo lectura
+          <b>Administrador</b> — acceso total &nbsp;·&nbsp; <b>Editor</b> — registra resultados &nbsp;·&nbsp; <b>Visualizador</b> — solo lectura
         </div>
       </div>
 
@@ -362,7 +399,7 @@ tr:hover td{background:#fafdf5}
             <thead><tr><th>Función</th><th>Admin</th><th>Editor</th><th>Visualizador</th></tr></thead>
             <tbody>
               <tr><td>Ver dashboard e informes</td><td>✅</td><td>✅</td><td>✅</td></tr>
-              <tr><td>Registrar valores</td><td>✅</td><td>✅</td><td>❌</td></tr>
+              <tr><td>Registrar resultados</td><td>✅</td><td>✅</td><td>❌</td></tr>
               <tr><td>Crear/editar indicadores</td><td>✅</td><td>❌</td><td>❌</td></tr>
               <tr><td>Gestionar usuarios</td><td>✅</td><td>❌</td><td>❌</td></tr>
               <tr><td>Configuración</td><td>✅</td><td>❌</td><td>❌</td></tr>
@@ -374,7 +411,26 @@ tr:hover td{background:#fafdf5}
   </div>
 </div>
 
-<!-- MODALES -->
+<!-- MODAL TRAZABILIDAD -->
+<div class="modal-ov" id="modal-traza">
+  <div class="modal modal-wide">
+    <div class="modal-title"><i class="ti ti-history" style="color:var(--pera)"></i><span id="m-traza-title">Trazabilidad</span></div>
+    <div id="m-traza-ficha" class="ficha-header"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+      <div><canvas id="m-traza-chart" style="height:180px"></canvas></div>
+      <div id="m-traza-resumen" style="display:flex;flex-direction:column;gap:8px;justify-content:center"></div>
+    </div>
+    <div class="tbl-wrap">
+      <table class="traza-table">
+        <thead><tr><th>Período</th><th id="m-traza-th-num">Numerador</th><th id="m-traza-th-den">Denominador</th><th>Resultado</th><th>vs Meta</th><th>Análisis</th><th>Usuario</th></tr></thead>
+        <tbody id="m-traza-tbody"></tbody>
+      </table>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal('modal-traza')">Cerrar</button></div>
+  </div>
+</div>
+
+<!-- MODALES INDICADOR, ÁREA, USUARIO, PW, CONFIRM -->
 <div class="modal-ov" id="modal-ind">
   <div class="modal">
     <div class="modal-title"><i class="ti ti-chart-line" style="color:var(--pera)"></i><span id="m-ind-title">Nuevo indicador</span></div>
@@ -405,7 +461,6 @@ tr:hover td{background:#fafdf5}
     </div>
   </div>
 </div>
-
 <div class="modal-ov" id="modal-area">
   <div class="modal">
     <div class="modal-title"><i class="ti ti-folder" style="color:var(--pera)"></i><span id="m-area-title">Nueva área</span></div>
@@ -418,7 +473,6 @@ tr:hover td{background:#fafdf5}
     </div>
   </div>
 </div>
-
 <div class="modal-ov" id="modal-user">
   <div class="modal">
     <div class="modal-title"><i class="ti ti-user-plus" style="color:var(--pera)"></i><span id="m-user-title">Nuevo usuario</span></div>
@@ -454,7 +508,6 @@ tr:hover td{background:#fafdf5}
     </div>
   </div>
 </div>
-
 <div class="modal-ov" id="modal-pw">
   <div class="modal">
     <div class="modal-title"><i class="ti ti-key" style="color:var(--pera)"></i> Gestionar contraseña</div>
@@ -462,7 +515,7 @@ tr:hover td{background:#fafdf5}
     <p style="font-size:12px;color:var(--text2);margin-bottom:14px">Usuario: <b id="m-pw-nombre"></b></p>
     <div class="form-g"><label class="form-l">Nueva contraseña</label>
       <div style="position:relative">
-        <input class="form-i" type="password" id="m-pw-new" placeholder="Mínimo 8 caracteres" style="padding-right:38px" oninput="pwStrength('m-pw-new','m-pw-str')"/>
+        <input class="form-i" type="password" id="m-pw-new" style="padding-right:38px" oninput="pwStrength('m-pw-new','m-pw-str')"/>
         <i class="ti ti-eye" onclick="togglePw('m-pw-new',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--text3);font-size:17px"></i>
       </div>
       <div class="pw-strength"><div class="pw-fill" id="m-pw-str" style="width:0%"></div></div>
@@ -475,7 +528,6 @@ tr:hover td{background:#fafdf5}
     </div>
   </div>
 </div>
-
 <div class="modal-ov" id="modal-confirm">
   <div class="modal" style="width:360px">
     <div class="modal-title"><i class="ti ti-alert-triangle" style="color:var(--red)"></i> Confirmar</div>
@@ -495,8 +547,8 @@ const{createClient}=supabase;
 const sb=createClient(SUPABASE_URL,SUPABASE_KEY);
 
 let CU=null,CP=null,AREAS=[],INDS=[],currentAreaId=null;
-let CH={nomina:null,contratos:null,areas:null,area:[]};
-let pwEmail=null,pwUid=null;
+let CH={nomina:null,contratos:null,areas:null,area:[],traza:null};
+let pwEmail=null,pwUid=null,indActual=null;
 
 // UTILS
 const fmt=v=>v==null?'—':isNaN(v)?v:parseFloat(v).toFixed(1);
@@ -504,7 +556,7 @@ const mes=m=>{const n=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oc
 const pa=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');};
 function subM(p,n){let[y,m]=p.split('-').map(Number);m-=n;while(m<=0){m+=12;y--;}return y+'-'+String(m).padStart(2,'0');}
 function periodos(from,to){const l=[];let[fy,fm]=from.split('-').map(Number);const[ty,tm]=to.split('-').map(Number);while(fy<ty||(fy===ty&&fm<=tm)){l.push(fy+'-'+String(fm).padStart(2,'0'));fm++;if(fm>12){fm=1;fy++;}}return l;}
-function togglePw(id,el){const i=document.getElementById(id);i.type=i.type==='password'?'text':'password';el.className=i.type==='password'?'ti ti-eye':'ti ti-eye-off';}
+function togglePw(id,el){const i=typeof id==='string'?document.getElementById(id):id;if(!i)return;i.type=i.type==='password'?'text':'password';el.className=i.type==='password'?'ti ti-eye':'ti ti-eye-off';}
 function pwStrength(id,bid){const v=document.getElementById(id).value,b=document.getElementById(bid);let s=0;if(v.length>=8)s++;if(v.length>=12)s++;if(/[A-Z]/.test(v))s++;if(/[0-9]/.test(v))s++;if(/[^A-Za-z0-9]/.test(v))s++;b.style.width=[0,20,40,60,80,100][s]+'%';b.style.background=['#ccc','#E24B4A','#EFC832','#EFC832','#8BBF3A','#3B6D11'][s];}
 function sAlert(id,msg,t='ok'){const e=document.getElementById(id);e.className='alert al-'+(t==='ok'?'ok':t==='info'?'info':'err');e.innerHTML='<i class="ti ti-'+(t==='ok'?'check':'info-circle')+'"></i> '+msg;e.style.display='flex';if(t==='ok')setTimeout(()=>e.style.display='none',3000);}
 function openModal(id){document.getElementById(id).classList.add('open');}
@@ -528,15 +580,12 @@ async function doLogin(){
 }
 async function initApp(user){
   CU=user;
-  const{data:p,error:perfilError}=await sb.from('perfiles').select('*,areas(nombre)').eq('id',user.id).single();
+  const{data:p}=await sb.from('perfiles').select('*,areas(nombre)').eq('id',user.id).single();
   if(!p){
-    // Perfil no existe — crearlo automáticamente
     const nombre=user.email.split('@')[0];
     const{data:nuevo}=await sb.from('perfiles').insert({id:user.id,nombre,email:user.email,rol:'administrador',habilitado:true}).select().single();
     CP=nuevo||{id:user.id,nombre,email:user.email,rol:'administrador',habilitado:true};
-  } else {
-    CP=p;
-  }
+  }else{CP=p;}
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='flex';
   document.getElementById('sb-name').textContent=CP.nombre;
@@ -550,49 +599,40 @@ async function initApp(user){
   document.getElementById('area-period-from').value=subM(now,4);
   document.getElementById('inf-p1').value=subM(now,1);
   document.getElementById('inf-p2').value=now;
+  document.getElementById('hist-desde').value=subM(now,11);
+  document.getElementById('hist-hasta').value=now;
   document.getElementById('periodo-lbl').textContent=mes(now);
   await loadAreas();
   await loadDashboard();
 }
-
-
 async function doLogout(){
   await sb.auth.signOut();CU=null;CP=null;
   document.getElementById('app').style.display='none';
   document.getElementById('login-screen').style.display='flex';
   Object.values(CH).flat().forEach(c=>{if(c?.destroy)c.destroy();});
-  CH={nomina:null,contratos:null,areas:null,area:[]};
+  CH={nomina:null,contratos:null,areas:null,area:[],traza:null};
 }
 (async()=>{const{data:{session}}=await sb.auth.getSession();if(session?.user)await initApp(session.user);})();
 
 // ÁREAS
 async function loadAreas(){
-  const{data,error}=await sb.from('areas').select('*').order('nombre');
-  if(error){console.error('Error cargando áreas:',error);return;}
+  const{data}=await sb.from('areas').select('*').order('nombre');
   AREAS=data||[];
   pintarAreaBtns();
-  // Tabs indicadores
   const tabs=document.getElementById('area-tabs');
-  if(tabs) tabs.innerHTML='<div class="tab active" onclick="filterInd(null,this)">Todas</div>'+AREAS.map(a=>`<div class="tab" onclick="filterInd('${a.id}',this)">${a.nombre}</div>`).join('');
-  // Selects
-  ['m-ind-area','m-user-area','reg-area'].forEach(id=>{
+  if(tabs)tabs.innerHTML='<div class="tab active" onclick="filterInd(null,this)">Todas</div>'+AREAS.map(a=>`<div class="tab" onclick="filterInd('${a.id}',this)">${a.nombre}</div>`).join('');
+  ['m-ind-area','m-user-area','reg-area','hist-area'].forEach(id=>{
     const s=document.getElementById(id);if(!s)return;
-    const first=id==='m-user-area'?'<option value="">Todas</option>':id==='reg-area'?'<option value="">Seleccionar...</option>':'';
+    const first=id==='m-user-area'?'<option value="">Todas</option>':id==='reg-area'||id==='hist-area'?'<option value="">Seleccionar...</option>':'';
     s.innerHTML=first+AREAS.map(a=>`<option value="${a.id}">${a.nombre}</option>`).join('');
   });
   renderCfgAreas();
 }
-
 function pintarAreaBtns(){
-  const el=document.getElementById('area-btns');
-  if(!el)return;
+  const el=document.getElementById('area-btns');if(!el)return;
   if(!AREAS.length){el.innerHTML='<span style="font-size:11px;color:var(--text3)">Sin áreas</span>';return;}
-  el.innerHTML=AREAS.map(a=>{
-    const nombre=a.nombre.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-    return`<button class="btn btn-sm" style="border-color:var(--pera);color:var(--pera-dk);background:#fff" onclick="verArea('${a.id}','${nombre}')"><i class="ti ti-folder" style="font-size:11px"></i> ${a.nombre}</button>`;
-  }).join('');
+  el.innerHTML=AREAS.map(a=>`<button class="btn btn-sm" style="border-color:var(--pera);color:var(--pera-dk);background:#fff" onclick="verArea('${a.id}','${a.nombre.replace(/'/g,"&#39;")}')"><i class="ti ti-folder" style="font-size:11px"></i> ${a.nombre}</button>`).join('');
 }
-
 function verArea(id,nombre){
   currentAreaId=id;
   document.getElementById('dash-general-view').style.display='none';
@@ -607,12 +647,10 @@ function volverDash(){
 }
 function changeAreaPeriod(){
   const t=document.getElementById('area-period-type').value,now=pa();
-  const w=document.getElementById('area-to-wrap');
-  w.style.display=t==='mensual'?'none':'inline-flex';
+  document.getElementById('area-to-wrap').style.display=t==='mensual'?'none':'inline-flex';
   if(t!=='mensual'){const m={bimestral:1,trimestral:2,semestral:5,anual:11};document.getElementById('area-period-from').value=subM(now,m[t]||0);document.getElementById('area-period-to').value=now;}
   else document.getElementById('area-period-from').value=now;
 }
-
 async function loadAreaView(areaId){
   const div=document.getElementById('area-view-content');
   div.innerHTML='<div style="text-align:center;padding:40px"><div class="spinner"></div></div>';
@@ -622,25 +660,26 @@ async function loadAreaView(areaId){
   const to=t==='mensual'?from:(document.getElementById('area-period-to').value||from);
   const ps=periodos(from,to);
   const{data:inds}=await sb.from('indicadores').select('*').eq('area_id',areaId).eq('habilitado',true).order('nombre');
-  if(!inds?.length){div.innerHTML='<div class="alert al-info"><i class="ti ti-info-circle"></i> No hay indicadores habilitados en esta área.</div>';return;}
+  if(!inds?.length){div.innerHTML='<div class="alert al-info"><i class="ti ti-info-circle"></i> No hay indicadores habilitados.</div>';return;}
   const ids=inds.map(i=>i.id);
-  const{data:regs}=await sb.from('registros').select('indicador_id,valor,periodo,comentario,perfiles(nombre)').in('indicador_id',ids).order('periodo',{ascending:false});
+  const{data:regs}=await sb.from('registros').select('indicador_id,valor,periodo,comentario,numerador_label,denominador_label,numerador_valor,denominador_valor,perfiles(nombre)').in('indicador_id',ids).order('periodo',{ascending:false});
   let html='';
   inds.forEach((ind,idx)=>{
     const ir=(regs||[]).filter(r=>r.indicador_id===ind.id);
     const ult=ir[0],est=ult?calcEst(ult.valor,ind.meta_numerica,ind.tipo_meta):'nd';
     const coms=ir.filter(r=>r.comentario).slice(0,5);
     html+=`<div class="card" style="margin-bottom:16px">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-        <div style="flex:1"><div style="font-size:14px;font-weight:600">${ind.nombre}</div><div style="font-size:11px;color:var(--text3)">${ind.objetivo||''}</div></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px"><div style="font-size:14px;font-weight:600">${ind.nombre}</div><div style="font-size:11px;color:var(--text3)">${ind.objetivo||''}</div></div>
         ${estBadge(est)}
         <div style="text-align:right"><div style="font-size:20px;font-weight:600">${ult?fmt(ult.valor)+' '+ind.unidad:'—'}</div><div style="font-size:11px;color:var(--text3)">Meta: ${ind.meta}</div></div>
+        <button class="btn btn-sm btn-p" onclick="abrirTraza('${ind.id}','${ind.nombre.replace(/'/g,"&#39;")}')"><i class="ti ti-history"></i> Ver trazabilidad</button>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
         <div><div style="font-size:12px;font-weight:600;margin-bottom:8px;color:var(--text)">Tendencia</div><div style="position:relative;height:160px"><canvas id="ac-${idx}"></canvas></div></div>
-        <div>          <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:8px">Análisis</div>
+        <div><div style="font-size:12px;font-weight:600;margin-bottom:8px;color:var(--text)">Análisis recientes</div>
           <div style="border:var(--border);border-radius:var(--radius-sm);max-height:160px;overflow-y:auto">
-            ${coms.length?coms.map(r=>`<div class="comentario-item">${r.comentario}<div class="comentario-meta">${mes(r.periodo)} · ${r.perfiles?.nombre||'—'}</div></div>`).join(''):'<div class="comentario-item" style="color:var(--text3)">Sin comentarios</div>'}
+            ${coms.length?coms.map(r=>`<div style="padding:8px 12px;border-bottom:var(--border);font-size:12px">${r.comentario}<div style="font-size:10px;color:var(--text3);margin-top:2px">${mes(r.periodo)} · ${r.perfiles?.nombre||'—'}</div></div>`).join(''):'<div style="padding:12px;font-size:12px;color:var(--text3)">Sin análisis registrados</div>'}
           </div>
         </div>
       </div>
@@ -656,20 +695,120 @@ async function loadAreaView(areaId){
   });
 }
 
-// DASHBOARD GENERAL
+// TRAZABILIDAD
+async function abrirTraza(indId,indNombre){
+  const{data:ind}=await sb.from('indicadores').select('*').eq('id',indId).single();
+  const{data:regs}=await sb.from('registros').select('*,perfiles(nombre)').eq('indicador_id',indId).order('periodo',{ascending:true});
+  document.getElementById('m-traza-title').textContent='Trazabilidad — '+indNombre;
+  document.getElementById('m-traza-ficha').innerHTML=`
+    <div class="ficha-nombre">${ind.nombre}</div>
+    <div class="ficha-meta">Objetivo: ${ind.objetivo||'—'} &nbsp;·&nbsp; Fórmula: ${ind.formula||'—'} &nbsp;·&nbsp; Meta: ${ind.meta||'—'}</div>`;
+  // Headers dinámicos
+  const primerReg=(regs||[]).find(r=>r.numerador_label);
+  document.getElementById('m-traza-th-num').textContent=primerReg?.numerador_label||'Numerador';
+  document.getElementById('m-traza-th-den').textContent=primerReg?.denominador_label||'Denominador';
+  // Tabla
+  document.getElementById('m-traza-tbody').innerHTML=(regs||[]).length===0?
+    '<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:20px">Sin registros aún</td></tr>':
+    (regs||[]).map(r=>{
+      const est=calcEst(r.valor,ind.meta_numerica,ind.tipo_meta);
+      const numStr=r.numerador_valor!=null?`${r.numerador_label?'<span style="font-size:10px;color:var(--text3);display:block">'+r.numerador_label+'</span>':''}${r.numerador_valor}`:'—';
+      const denStr=r.denominador_valor!=null?`${r.denominador_label?'<span style="font-size:10px;color:var(--text3);display:block">'+r.denominador_label+'</span>':''}${r.denominador_valor}`:'—';
+      return`<tr>
+        <td><b>${mes(r.periodo)}</b></td>
+        <td>${numStr}</td>
+        <td>${denStr}</td>
+        <td style="font-weight:600">${fmt(r.valor)} ${ind.unidad}</td>
+        <td>${estBadge(est)}</td>
+        <td>${r.comentario||'—'}</td>
+        <td style="color:var(--text3)">${r.perfiles?.nombre||'—'}</td>
+      </tr>`;
+    }).join('');
+  // Gráfica mini
+  if(CH.traza)CH.traza.destroy();
+  const labels=(regs||[]).map(r=>mes(r.periodo));
+  const vals=(regs||[]).map(r=>parseFloat(r.valor));
+  const canvas=document.getElementById('m-traza-chart');
+  if(canvas&&labels.length){
+    CH.traza=new Chart(canvas,{type:'line',data:{labels,datasets:[{data:vals,borderColor:'#8BBF3A',backgroundColor:'rgba(139,191,58,.1)',tension:.3,pointRadius:4,fill:true,pointBackgroundColor:vals.map(v=>calcEst(v,ind.meta_numerica,ind.tipo_meta)==='ok'?'#8BBF3A':calcEst(v,ind.meta_numerica,ind.tipo_meta)==='warn'?'#EFC832':'#E24B4A')}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>v+' '+ind.unidad,font:{size:10}}},x:{ticks:{font:{size:10}}}}}});}
+  // Resumen estadístico
+  if(vals.length){
+    const max=Math.max(...vals),min=Math.min(...vals),avg=vals.reduce((a,b)=>a+b,0)/vals.length;
+    document.getElementById('m-traza-resumen').innerHTML=`
+      <div class="card" style="text-align:center"><div style="font-size:18px;font-weight:600;color:var(--pera-dk)">${fmt(avg)}${ind.unidad}</div><div style="font-size:11px;color:var(--text3)">Promedio</div></div>
+      <div class="card" style="text-align:center"><div style="font-size:18px;font-weight:600;color:#3B6D11">${fmt(max)}${ind.unidad}</div><div style="font-size:11px;color:var(--text3)">Máximo</div></div>
+      <div class="card" style="text-align:center"><div style="font-size:18px;font-weight:600;color:#A32D2D">${fmt(min)}${ind.unidad}</div><div style="font-size:11px;color:var(--text3)">Mínimo</div></div>
+      <div class="card" style="text-align:center"><div style="font-size:18px;font-weight:600">${vals.length}</div><div style="font-size:11px;color:var(--text3)">Períodos registrados</div></div>`;
+  } else {
+    document.getElementById('m-traza-resumen').innerHTML='<div style="color:var(--text3);font-size:12px">Sin datos suficientes</div>';
+  }
+  openModal('modal-traza');
+}
+
+// HISTÓRICO (página completa)
+async function loadHistInd(){
+  const aId=document.getElementById('hist-area').value;
+  const sel=document.getElementById('hist-ind');
+  sel.innerHTML='<option value="">Todos los indicadores</option>';
+  if(!aId)return;
+  const{data}=await sb.from('indicadores').select('id,nombre').eq('area_id',aId).order('nombre');
+  (data||[]).forEach(i=>{const o=document.createElement('option');o.value=i.id;o.textContent=i.nombre;sel.appendChild(o);});
+}
+async function loadHistorico(){
+  const aId=document.getElementById('hist-area').value;
+  const iId=document.getElementById('hist-ind').value;
+  const desde=document.getElementById('hist-desde').value;
+  const hasta=document.getElementById('hist-hasta').value;
+  const div=document.getElementById('hist-content');
+  div.innerHTML='<div style="text-align:center;padding:40px"><div class="spinner"></div></div>';
+  let qInds=sb.from('indicadores').select('*,areas(nombre)').eq('habilitado',true).order('nombre');
+  if(aId)qInds=qInds.eq('area_id',aId);
+  if(iId)qInds=qInds.eq('id',iId);
+  const{data:inds}=await qInds;
+  if(!inds?.length){div.innerHTML='<div class="alert al-info"><i class="ti ti-info-circle"></i> No hay indicadores para los filtros seleccionados.</div>';return;}
+  const ids=inds.map(i=>i.id);
+  let qRegs=sb.from('registros').select('*,perfiles(nombre)').in('indicador_id',ids).order('periodo',{ascending:false});
+  if(desde)qRegs=qRegs.gte('periodo',desde);
+  if(hasta)qRegs=qRegs.lte('periodo',hasta);
+  const{data:regs}=await qRegs;
+  let html='';
+  inds.forEach(ind=>{
+    const ir=(regs||[]).filter(r=>r.indicador_id===ind.id);
+    const primerReg=ir.find(r=>r.numerador_label);
+    html+=`<div class="card" style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+        <div style="flex:1"><div style="font-size:14px;font-weight:600">${ind.nombre}</div>
+        <div style="font-size:11px;color:var(--text3)">${ind.areas?.nombre||''} &nbsp;·&nbsp; Meta: ${ind.meta||'—'} &nbsp;·&nbsp; ${ir.length} registro(s)</div></div>
+        <button class="btn btn-sm btn-p" onclick="abrirTraza('${ind.id}','${ind.nombre.replace(/'/g,"&#39;")}')"><i class="ti ti-history"></i> Ver detalle completo</button>
+      </div>
+      ${ir.length===0?'<div style="font-size:12px;color:var(--text3);padding:8px">Sin registros en el período seleccionado</div>':
+      `<div class="tbl-wrap"><table class="traza-table">
+        <thead><tr><th>Período</th><th>${primerReg?.numerador_label||'Numerador'}</th><th>${primerReg?.denominador_label||'Denominador'}</th><th>Resultado</th><th>Estado</th><th>Análisis</th><th>Usuario</th></tr></thead>
+        <tbody>${ir.map(r=>{const est=calcEst(r.valor,ind.meta_numerica,ind.tipo_meta);return`<tr>
+          <td><b>${mes(r.periodo)}</b></td>
+          <td>${r.numerador_valor!=null?r.numerador_valor:'—'}</td>
+          <td>${r.denominador_valor!=null?r.denominador_valor:'—'}</td>
+          <td style="font-weight:600">${fmt(r.valor)} ${ind.unidad}</td>
+          <td>${estBadge(est)}</td>
+          <td>${r.comentario||'—'}</td>
+          <td style="color:var(--text3)">${r.perfiles?.nombre||'—'}</td>
+        </tr>`;}).join('')}</tbody>
+      </table></div>`}
+    </div>`;
+  });
+  div.innerHTML=html;
+}
+
+// DASHBOARD
 function changePeriodType(){
   const t=document.getElementById('dash-period-type').value,now=pa();
-  const w=document.getElementById('dash-to-wrap');
-  w.style.display=t==='mensual'?'none':'inline-flex';
+  document.getElementById('dash-to-wrap').style.display=t==='mensual'?'none':'inline-flex';
   if(t!=='mensual'){const m={bimestral:1,trimestral:2,semestral:5,anual:11};document.getElementById('dash-period-from').value=subM(now,m[t]||0);document.getElementById('dash-period-to').value=now;}
   else document.getElementById('dash-period-from').value=now;
 }
-
 async function loadDashboard(){
-  const loaderEl=document.getElementById('dash-loader');
-  const dataEl=document.getElementById('dash-data');
-  if(loaderEl)loaderEl.style.display='block';
-  if(dataEl)dataEl.style.display='none';
+  const loaderEl=document.getElementById('dash-loader'),dataEl=document.getElementById('dash-data');
+  if(loaderEl)loaderEl.style.display='block';if(dataEl)dataEl.style.display='none';
   const t=document.getElementById('dash-period-type')?.value||'mensual';
   const from=document.getElementById('dash-period-from')?.value||pa();
   const to=t==='mensual'?from:(document.getElementById('dash-period-to')?.value||from);
@@ -678,30 +817,24 @@ async function loadDashboard(){
   const ids=(inds||[]).map(i=>i.id);
   const{data:regs}=await sb.from('registros').select('indicador_id,valor,periodo').in('indicador_id',ids).order('periodo',{ascending:false});
   const ult={};(regs||[]).forEach(r=>{if(!ult[r.indicador_id])ult[r.indicador_id]={valor:r.valor,periodo:r.periodo};});
-  // KPIs
   const kpiN=['Exactitud de nómina','Tiempo promedio de pago de liquidación','Errores en contratos','Afiliaciones oportunas'];
-  document.getElementById('kpi-grid').innerHTML=(inds||[]).filter(i=>kpiN.includes(i.nombre)).sort((a,b)=>kpiN.indexOf(a.nombre)-kpiN.indexOf(b.nombre)).map(i=>{
-    const u=ult[i.id],e=u?calcEst(u.valor,i.meta_numerica,i.tipo_meta):'nd';
-    const cls=e==='ok'?'':e==='warn'?'warn':'bad',col=e==='ok'?'#3B6D11':e==='warn'?'#BA7517':'#A32D2D';
-    return`<div class="kpi-card ${cls}"><div class="kpi-lbl">${i.nombre}</div><div class="kpi-val">${u?fmt(u.valor)+' '+i.unidad:'—'}</div><div class="kpi-sub" style="color:${col}">Meta: ${i.meta}${u?' · '+mes(u.periodo):''}</div></div>`;
-  }).join('');
-  // Alertas
+  const kpiEl=document.getElementById('kpi-grid');
+  if(kpiEl)kpiEl.innerHTML=(inds||[]).filter(i=>kpiN.includes(i.nombre)).sort((a,b)=>kpiN.indexOf(a.nombre)-kpiN.indexOf(b.nombre)).map(i=>{const u=ult[i.id],e=u?calcEst(u.valor,i.meta_numerica,i.tipo_meta):'nd';const cls=e==='ok'?'':e==='warn'?'warn':'bad',col=e==='ok'?'#3B6D11':e==='warn'?'#BA7517':'#A32D2D';return`<div class="kpi-card ${cls}"><div class="kpi-lbl">${i.nombre}</div><div class="kpi-val">${u?fmt(u.valor)+' '+i.unidad:'—'}</div><div class="kpi-sub" style="color:${col}">Meta: ${i.meta}${u?' · '+mes(u.periodo):''}</div></div>`;}).join('');
   const al=(inds||[]).filter(i=>{const u=ult[i.id];return u&&calcEst(u.valor,i.meta_numerica,i.tipo_meta)!=='ok';});
-  document.getElementById('dash-alerts').innerHTML=al.length?`<div class="alert al-info"><i class="ti ti-alert-triangle"></i> ${al.length} indicador(es) requieren atención: <b>${al.map(i=>i.nombre).join(', ')}</b></div>`:'<div class="alert al-ok"><i class="ti ti-check"></i> Todos los indicadores con datos están en meta.</div>';
-  // Gráfica nómina
+  const alEl=document.getElementById('dash-alerts');
+  if(alEl)alEl.innerHTML=al.length?`<div class="alert al-info"><i class="ti ti-alert-triangle"></i> ${al.length} indicador(es) requieren atención: <b>${al.map(i=>i.nombre).join(', ')}</b></div>`:'<div class="alert al-ok"><i class="ti ti-check"></i> Todos los indicadores con datos están en meta.</div>';
   const iN=(inds||[]).find(i=>i.nombre==='Exactitud de nómina');
   const iC=(inds||[]).find(i=>i.nombre==='Errores en contratos');
-  if(CH.nomina)CH.nomina.destroy();
-  if(CH.contratos)CH.contratos.destroy();
-  if(iN){const d=ps.map(p=>{const r=(regs||[]).find(x=>x.indicador_id===iN.id&&x.periodo===p);return r?parseFloat(r.valor):null;});CH.nomina=new Chart(document.getElementById('c-nomina'),{type:'line',data:{labels:ps.map(mes),datasets:[{data:d,borderColor:'#8BBF3A',backgroundColor:'rgba(139,191,58,.1)',tension:.3,pointRadius:4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>v+'%'}},x:{ticks:{font:{size:10}}}}}})}
-  if(iC){const d=ps.map(p=>{const r=(regs||[]).find(x=>x.indicador_id===iC.id&&x.periodo===p);return r?parseFloat(r.valor):null;});CH.contratos=new Chart(document.getElementById('c-contratos'),{type:'bar',data:{labels:ps.map(mes),datasets:[{data:d,backgroundColor:d.map(v=>v==null?'#ccc':v<=2?'rgba(139,191,58,.7)':v<=3?'rgba(239,200,50,.8)':'rgba(226,75,74,.8)'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>v+'%'}},x:{ticks:{font:{size:10}}}}}})}
-  // Gráfica por áreas
+  if(CH.nomina)CH.nomina.destroy();if(CH.contratos)CH.contratos.destroy();
+  const cN=document.getElementById('c-nomina'),cC=document.getElementById('c-contratos');
+  if(iN&&cN){const d=ps.map(p=>{const r=(regs||[]).find(x=>x.indicador_id===iN.id&&x.periodo===p);return r?parseFloat(r.valor):null;});CH.nomina=new Chart(cN,{type:'line',data:{labels:ps.map(mes),datasets:[{data:d,borderColor:'#8BBF3A',backgroundColor:'rgba(139,191,58,.1)',tension:.3,pointRadius:4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>v+'%'}},x:{ticks:{font:{size:10}}}}}});}
+  if(iC&&cC){const d=ps.map(p=>{const r=(regs||[]).find(x=>x.indicador_id===iC.id&&x.periodo===p);return r?parseFloat(r.valor):null;});CH.contratos=new Chart(cC,{type:'bar',data:{labels:ps.map(mes),datasets:[{data:d,backgroundColor:d.map(v=>v==null?'#ccc':v<=2?'rgba(139,191,58,.7)':v<=3?'rgba(239,200,50,.8)':'rgba(226,75,74,.8)'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>v+'%'}},x:{ticks:{font:{size:10}}}}}});}
   if(CH.areas)CH.areas.destroy();
   const aS=AREAS.map(a=>{const aI=(inds||[]).filter(i=>i.area_id===a.id);const tot=aI.length;if(!tot)return{n:a.nombre.split(' ').slice(0,2).join(' '),p:0};const ok=aI.filter(i=>{const u=ult[i.id];return u&&calcEst(u.valor,i.meta_numerica,i.tipo_meta)==='ok';}).length;return{n:a.nombre.split(' ').slice(0,2).join(' '),p:tot?Math.round(ok/tot*100):0};});
-  CH.areas=new Chart(document.getElementById('c-areas'),{type:'bar',data:{labels:aS.map(a=>a.n),datasets:[{data:aS.map(a=>a.p),backgroundColor:'rgba(139,191,58,.75)',borderColor:'#5a8c0a',borderWidth:1,borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{min:0,max:100,ticks:{callback:v=>v+'%'}},y:{ticks:{font:{size:11}}}}}});
+  const cA=document.getElementById('c-areas');
+  if(cA)CH.areas=new Chart(cA,{type:'bar',data:{labels:aS.map(a=>a.n),datasets:[{data:aS.map(a=>a.p),backgroundColor:'rgba(139,191,58,.75)',borderColor:'#5a8c0a',borderWidth:1,borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{min:0,max:100,ticks:{callback:v=>v+'%'}},y:{ticks:{font:{size:11}}}}}});
   pintarAreaBtns();
-  if(loaderEl)loaderEl.style.display='none';
-  if(dataEl)dataEl.style.display='block';
+  if(loaderEl)loaderEl.style.display='none';if(dataEl)dataEl.style.display='block';
 }
 
 // INDICADORES
@@ -713,9 +846,13 @@ async function loadIndicadores(){
   const ids=INDS.map(i=>i.id);
   const{data:regs}=await sb.from('registros').select('indicador_id,valor,periodo').in('indicador_id',ids).order('periodo',{ascending:false});
   const uv={};(regs||[]).forEach(r=>{if(!uv[r.indicador_id])uv[r.indicador_id]={valor:r.valor,periodo:r.periodo};});
-  document.getElementById('ind-tbody').innerHTML=INDS.map(i=>{
-    const u=uv[i.id],e=u?calcEst(u.valor,i.meta_numerica,i.tipo_meta):'nd';
-    return`<tr><td><b>${i.nombre}</b><br><span style="font-size:11px;color:var(--text3)">${i.objetivo||''}</span></td><td>${i.areas?.nombre||'—'}</td><td>${i.meta||'—'}</td><td style="display:flex;align-items:center;gap:6px">${u?fmt(u.valor)+' '+i.unidad:'Sin datos'}${semDiv(e)}</td><td>${estBadge(e)}</td><td><input type="checkbox" ${i.habilitado?'checked':''} style="accent-color:var(--pera)" onchange="toggleInd('${i.id}',this.checked)"></td><td><div style="display:flex;gap:4px">${CP?.rol==='administrador'?`<button class="btn btn-sm" onclick="editInd('${i.id}')"><i class="ti ti-edit"></i></button><button class="btn btn-sm btn-danger" onclick="delInd('${i.id}')"><i class="ti ti-trash"></i></button>`:''}</div></td></tr>`;
+  document.getElementById('ind-tbody').innerHTML=INDS.map(i=>{const u=uv[i.id],e=u?calcEst(u.valor,i.meta_numerica,i.tipo_meta):'nd';
+    return`<tr><td><b>${i.nombre}</b><br><span style="font-size:11px;color:var(--text3)">${i.objetivo||''}</span></td><td>${i.areas?.nombre||'—'}</td><td>${i.meta||'—'}</td><td style="display:flex;align-items:center;gap:6px">${u?fmt(u.valor)+' '+i.unidad:'Sin datos'}${semDiv(e)}</td><td>${estBadge(e)}</td>
+    <td><input type="checkbox" ${i.habilitado?'checked':''} style="accent-color:var(--pera)" onchange="toggleInd('${i.id}',this.checked)"></td>
+    <td><div style="display:flex;gap:4px">
+      <button class="btn btn-sm" onclick="abrirTraza('${i.id}','${i.nombre.replace(/'/g,"&#39;")}')"><i class="ti ti-history"></i></button>
+      ${CP?.rol==='administrador'?`<button class="btn btn-sm" onclick="editInd('${i.id}')"><i class="ti ti-edit"></i></button><button class="btn btn-sm btn-danger" onclick="delInd('${i.id}')"><i class="ti ti-trash"></i></button>`:''}
+    </div></td></tr>`;
   }).join('');
 }
 async function filterInd(id,el){filterAreaId=id;document.querySelectorAll('#area-tabs .tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');await loadIndicadores();}
@@ -742,18 +879,13 @@ function renderCfgAreas(){
   </div>`).join('');
   AREAS.forEach(a=>loadCfgInds(a.id));
 }
-async function loadCfgInds(aId){
-  const{data}=await sb.from('indicadores').select('id,nombre,habilitado').eq('area_id',aId);
-  const div=document.getElementById('ci-'+aId.replace(/-/g,''));if(!div)return;
-  div.innerHTML=(data||[]).map(i=>`<label style="background:var(--pera-bg);color:var(--pera-dk);padding:3px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" ${i.habilitado?'checked':''} style="accent-color:var(--pera);width:12px;height:12px" onchange="toggleInd('${i.id}',this.checked)"> ${i.nombre}</label>`).join('');
-}
+async function loadCfgInds(aId){const{data}=await sb.from('indicadores').select('id,nombre,habilitado').eq('area_id',aId);const div=document.getElementById('ci-'+aId.replace(/-/g,''));if(!div)return;div.innerHTML=(data||[]).map(i=>`<label style="background:var(--pera-bg);color:var(--pera-dk);padding:3px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" ${i.habilitado?'checked':''} style="accent-color:var(--pera);width:12px;height:12px" onchange="toggleInd('${i.id}',this.checked)"> ${i.nombre}</label>`).join('');}
 function openModalArea(){document.getElementById('m-area-title').textContent='Nueva área';document.getElementById('m-area-id').value='';document.getElementById('m-area-nombre').value='';document.getElementById('m-area-desc').value='';openModal('modal-area');}
 function editArea(id){const a=AREAS.find(x=>x.id===id);if(!a)return;document.getElementById('m-area-title').textContent='Editar área';document.getElementById('m-area-id').value=id;document.getElementById('m-area-nombre').value=a.nombre;document.getElementById('m-area-desc').value=a.descripcion||'';openModal('modal-area');}
 async function guardarArea(){const n=document.getElementById('m-area-nombre').value.trim();if(!n)return;const id=document.getElementById('m-area-id').value;const p={nombre:n,descripcion:document.getElementById('m-area-desc').value};if(id)await sb.from('areas').update(p).eq('id',id);else await sb.from('areas').insert(p);closeModal('modal-area');await loadAreas();}
 function delArea(id){const a=AREAS.find(x=>x.id===id);confirm2(`¿Eliminar área "${a?.nombre}" y todos sus indicadores?`,async()=>{await sb.from('areas').delete().eq('id',id);await loadAreas();});}
 
 // REGISTRO
-let indActual=null;
 function cambiarTipoReg(){
   const t=document.querySelector('input[name="reg-tipo"]:checked')?.value||'calculo';
   document.getElementById('reg-calculo-wrap').style.display=t==='calculo'?'block':'none';
@@ -763,30 +895,22 @@ function cambiarTipoReg(){
 function calcularResultado(){
   const n=parseFloat(document.getElementById('reg-numerador').value);
   const d=parseFloat(document.getElementById('reg-denominador').value);
-  const resEl=document.getElementById('reg-resultado-calc');
-  const estEl=document.getElementById('reg-estado-calc');
-  if(isNaN(n)||isNaN(d)||d===0){resEl.textContent='—';estEl.innerHTML='';return;}
+  const resEl=document.getElementById('reg-resultado-calc'),estEl=document.getElementById('reg-estado-calc'),prevEl=document.getElementById('reg-formula-preview');
+  if(isNaN(n)||isNaN(d)||d===0){resEl.textContent='—';estEl.innerHTML='';prevEl.textContent='';return;}
   const res=Math.round((n/d)*100*100)/100;
   resEl.textContent=res+'%';
-  if(indActual){
-    const est=calcEst(res,indActual.meta_numerica,indActual.tipo_meta);
-    estEl.innerHTML=estBadge(est);
-  }
+  const nl=document.getElementById('reg-num-label').value||'Numerador';
+  const dl=document.getElementById('reg-den-label').value||'Denominador';
+  prevEl.textContent=`(${nl}: ${n} / ${dl}: ${d}) × 100`;
+  if(indActual)estEl.innerHTML=estBadge(calcEst(res,indActual.meta_numerica,indActual.tipo_meta));
 }
 async function loadRegInd(){
   const aId=document.getElementById('reg-area').value,sel=document.getElementById('reg-ind');
   indActual=null;
   sel.innerHTML='<option value="">Seleccionar indicador...</option>';
   if(!aId){await loadUltRegs();return;}
-  const{data,error}=await sb.from('indicadores').select('id,nombre,unidad,meta_numerica,tipo_meta').eq('area_id',aId).eq('habilitado',true);
-  if(error){console.error('Error cargando indicadores:',error);return;}
-  (data||[]).forEach(i=>{
-    const opt=document.createElement('option');
-    opt.value=i.id;
-    opt.textContent=i.nombre;
-    sel.appendChild(opt);
-  });
-  console.log('Indicadores cargados:',(data||[]).map(i=>({id:i.id,nombre:i.nombre})));
+  const{data}=await sb.from('indicadores').select('id,nombre,unidad,meta_numerica,tipo_meta').eq('area_id',aId).eq('habilitado',true);
+  (data||[]).forEach(i=>{const o=document.createElement('option');o.value=i.id;o.textContent=i.nombre;sel.appendChild(o);});
   await loadUltRegs();
 }
 async function onIndChange(){
@@ -803,45 +927,56 @@ async function guardarRegistro(){
   if(!iId||!per){sAlert('reg-alert','Selecciona área, indicador y período.','err');return;}
   if(!iId.includes('-')){sAlert('reg-alert','Error: indicador sin ID válido. Recarga la página.','err');return;}
   const tipo=document.querySelector('input[name="reg-tipo"]:checked')?.value||'calculo';
-  let valor,resultado_texto='';
+  let valor,numLabel='',denLabel='',numVal=null,denVal=null;
   if(tipo==='calculo'){
     const n=parseFloat(document.getElementById('reg-numerador').value);
     const d=parseFloat(document.getElementById('reg-denominador').value);
-    if(isNaN(n)||isNaN(d)||d===0){sAlert('reg-alert','Ingresa numerador y denominador válidos.','err');return;}
+    if(isNaN(n)||isNaN(d)||d===0){sAlert('reg-alert','Ingresa numerador y denominador válidos (denominador ≠ 0).','err');return;}
     valor=Math.round((n/d)*100*100)/100;
-    resultado_texto=`${n} / ${d} = ${valor}%`;
-  } else {
+    numLabel=document.getElementById('reg-num-label').value||'Numerador';
+    denLabel=document.getElementById('reg-den-label').value||'Denominador';
+    numVal=n;denVal=d;
+  }else{
     const rv=document.getElementById('reg-resultado-info').value.trim();
-    const ru=document.getElementById('reg-unidad-info').value;
     if(!rv){sAlert('reg-alert','Ingresa el resultado.','err');return;}
-    const num=parseFloat(rv);
-    valor=isNaN(num)?0:num;
-    resultado_texto=`${rv} ${ru}`;
+    const num=parseFloat(rv);valor=isNaN(num)?0:num;
   }
   const{error}=await sb.from('registros').upsert({
     indicador_id:iId,periodo:per,valor,
     comentario:document.getElementById('reg-comentario').value,
-    usuario_id:CU.id
+    usuario_id:CU.id,
+    numerador_label:numLabel,denominador_label:denLabel,
+    numerador_valor:numVal,denominador_valor:denVal
   },{onConflict:'indicador_id,periodo'});
   if(error){sAlert('reg-alert','Error: '+error.message,'err');return;}
   sAlert('reg-alert','Resultado guardado correctamente.');
   await loadUltRegs();
 }
 function limpiarReg(){
-  ['reg-area','reg-valor','reg-comentario','reg-numerador','reg-denominador','reg-resultado-info'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  ['reg-area','reg-comentario','reg-numerador','reg-denominador','reg-resultado-info','reg-num-label','reg-den-label'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
   document.getElementById('reg-ind').innerHTML='<option value="">Seleccione área primero</option>';
   document.getElementById('reg-resultado-calc').textContent='—';
   document.getElementById('reg-estado-calc').innerHTML='';
+  document.getElementById('reg-formula-preview').textContent='';
   indActual=null;
 }
 async function loadUltRegs(){
   const indId=document.getElementById('reg-ind')?.value;
   const lbl=document.getElementById('reg-tabla-lbl');
-  let q=sb.from('registros').select('periodo,valor,comentario,indicadores(nombre,unidad,areas(nombre)),perfiles(nombre)').order('created_at',{ascending:false}).limit(10);
-  if(indId){q=q.eq('indicador_id',indId);if(lbl)lbl.textContent='Filtrando por indicador seleccionado';}
-  else{if(lbl)lbl.textContent='Mostrando últimos 10';}
+  let q=sb.from('registros').select('periodo,valor,comentario,numerador_label,denominador_label,numerador_valor,denominador_valor,indicadores(nombre,unidad,areas(nombre)),perfiles(nombre)').order('created_at',{ascending:false}).limit(10);
+  if(indId)q=q.eq('indicador_id',indId);
+  if(lbl)lbl.textContent=indId?'Filtrando por indicador':'Últimos 10';
   const{data}=await q;
-  document.getElementById('reg-tbody').innerHTML=(data||[]).map(r=>`<tr><td>${mes(r.periodo)}</td><td>${r.indicadores?.areas?.nombre||'—'}</td><td>${r.indicadores?.nombre||'—'}</td><td>${fmt(r.valor)} ${r.indicadores?.unidad||''}</td><td>${r.comentario||'—'}</td><td>${r.perfiles?.nombre||'—'}</td></tr>`).join('');
+  document.getElementById('reg-tbody').innerHTML=(data||[]).map(r=>`<tr>
+    <td>${mes(r.periodo)}</td>
+    <td>${r.indicadores?.areas?.nombre||'—'}</td>
+    <td>${r.indicadores?.nombre||'—'}</td>
+    <td style="font-size:11px">${r.numerador_valor!=null?`<span style="color:var(--text3)">${r.numerador_label||'N'}:</span> ${r.numerador_valor}`:'—'}</td>
+    <td style="font-size:11px">${r.denominador_valor!=null?`<span style="color:var(--text3)">${r.denominador_label||'D'}:</span> ${r.denominador_valor}`:'—'}</td>
+    <td style="font-weight:600">${fmt(r.valor)} ${r.indicadores?.unidad||''}</td>
+    <td>${r.comentario||'—'}</td>
+    <td style="color:var(--text3)">${r.perfiles?.nombre||'—'}</td>
+  </tr>`).join('');
 }
 
 // INFORMES
@@ -855,7 +990,7 @@ function editUser(id,nombre,email,rol,aId){document.getElementById('m-user-title
 async function guardarUsuario(){const id=document.getElementById('m-user-id').value,nombre=document.getElementById('m-user-nombre').value.trim(),email=document.getElementById('m-user-email').value.trim(),rol=document.getElementById('m-user-rol').value,aId=document.getElementById('m-user-area').value||null;if(!nombre||!email){sAlert('m-user-alert','Completa nombre y correo.','err');return;}if(id){await sb.from('perfiles').update({nombre,rol,area_id:aId}).eq('id',id);closeModal('modal-user');sAlert('user-alert','Usuario actualizado.');await loadUsuarios();return;}const pw=document.getElementById('m-user-pass').value;if(pw.length<8){sAlert('m-user-alert','Contraseña mínimo 8 caracteres.','err');return;}const{data,error}=await sb.auth.signUp({email,password:pw,options:{data:{nombre,rol}}});if(error){sAlert('m-user-alert',error.message,'err');return;}if(data.user)await sb.from('perfiles').upsert({id:data.user.id,nombre,email,rol,area_id:aId,habilitado:true});closeModal('modal-user');sAlert('user-alert','Usuario creado correctamente.');await loadUsuarios();}
 function delUser(id,n){confirm2(`¿Eliminar al usuario "${n}"?`,async()=>{await sb.from('perfiles').delete().eq('id',id);await loadUsuarios();});}
 function openPwModal(uid,email,nombre){pwUid=uid;pwEmail=email;document.getElementById('m-pw-nombre').textContent=nombre+' ('+email+')';document.getElementById('m-pw-new').value='';document.getElementById('m-pw-confirm').value='';document.getElementById('m-pw-str').style.width='0%';document.getElementById('m-pw-alert').style.display='none';openModal('modal-pw');}
-async function guardarPw(){const np=document.getElementById('m-pw-new').value,cp=document.getElementById('m-pw-confirm').value;if(np.length<8){sAlert('m-pw-alert','Mínimo 8 caracteres.','err');return;}if(np!==cp){sAlert('m-pw-alert','Las contraseñas no coinciden.','err');return;}if(pwUid===CU.id){const{error}=await sb.auth.updateUser({password:np});if(error){sAlert('m-pw-alert','Error: '+error.message,'err');return;}sAlert('m-pw-alert','Contraseña actualizada.');setTimeout(()=>closeModal('modal-pw'),2000);}else{sAlert('m-pw-alert','Usa "Enviar enlace" para cambiar la contraseña de otros usuarios.','info');}}
+async function guardarPw(){const np=document.getElementById('m-pw-new').value,cp=document.getElementById('m-pw-confirm').value;if(np.length<8){sAlert('m-pw-alert','Mínimo 8 caracteres.','err');return;}if(np!==cp){sAlert('m-pw-alert','Las contraseñas no coinciden.','err');return;}if(pwUid===CU.id){const{error}=await sb.auth.updateUser({password:np});if(error){sAlert('m-pw-alert','Error: '+error.message,'err');return;}sAlert('m-pw-alert','Contraseña actualizada.');setTimeout(()=>closeModal('modal-pw'),2000);}else{sAlert('m-pw-alert','Usa "Enviar enlace" para cambiar contraseña de otros usuarios.','info');}}
 async function enviarEnlace(){if(!pwEmail)return;const{error}=await sb.auth.resetPasswordForEmail(pwEmail,{redirectTo:window.location.origin});if(error){sAlert('m-pw-alert','Error: '+error.message,'err');return;}sAlert('m-pw-alert','Enlace enviado a '+pwEmail);}
 
 // NAVEGACIÓN
@@ -864,11 +999,12 @@ async function goTo(page,el){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
   if(el?.classList)el.classList.add('active');
-  const titles={dashboard:'Dashboard',indicadores:'Indicadores',registro:'Registrar resultados',informes:'Informes',usuarios:'Usuarios',config:'Configuración'};
+  const titles={dashboard:'Dashboard',indicadores:'Indicadores',registro:'Registrar resultados',historico:'Histórico de indicadores',informes:'Informes',usuarios:'Usuarios',config:'Configuración'};
   document.getElementById('page-title').textContent=titles[page]||page;
   if(page==='dashboard'){document.getElementById('dash-general-view').style.display='block';document.getElementById('dash-area-view').style.display='none';await loadDashboard();}
   if(page==='indicadores')await loadIndicadores();
   if(page==='registro')await loadUltRegs();
+  if(page==='historico')await loadHistorico();
   if(page==='usuarios')await loadUsuarios();
   if(page==='config')renderCfgAreas();
 }
