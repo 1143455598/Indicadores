@@ -572,11 +572,7 @@ async function loadAreas(){
 }
 
 function renderAreaBtns(){
-  const grid=document.getElementById('area-quick-btns');if(!grid)return;
-  grid.innerHTML=areas.map(a=>`
-    <button class="btn btn-sm" onclick="showAreaDetail('${a.id}','${a.nombre}')" style="border-color:var(--pera);color:var(--pera-dk)">
-      <i class="ti ti-folder" style="font-size:13px"></i> ${a.nombre.split(' ')[0]}
-    </button>`).join('');
+  // Ya se renderiza dentro de loadDashboardGeneral
 }
 
 function abrirNuevaArea(){
@@ -779,7 +775,14 @@ async function loadDashboardGeneral(){
     options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{min:0,max:100,ticks:{callback:v=>v+'%'}},y:{ticks:{font:{size:11}}}}}
   });
 
-  renderAreaBtns();
+  // Botones de área en la barra de filtros
+  const qb=document.getElementById('area-quick-btns');
+  if(qb){
+    qb.innerHTML=areas.map(a=>`
+      <button class="btn btn-sm" onclick="showAreaDetail('${a.id}','${a.nombre}')" style="border-color:var(--pera);color:var(--pera-dk);white-space:nowrap">
+        <i class="ti ti-folder" style="font-size:12px"></i> ${a.nombre.split(' ')[0]}
+      </button>`).join('');
+  }
   document.getElementById('dash-loader').style.display='none';
   document.getElementById('dash-general').style.display='block';
 }
