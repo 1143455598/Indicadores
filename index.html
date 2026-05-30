@@ -499,6 +499,8 @@ async function initApp(user){
   await loadAreas();
   await loadDashboard();
 }
+
+
 async function doLogout(){
   await sb.auth.signOut();CU=null;CP=null;
   document.getElementById('app').style.display='none';
@@ -510,22 +512,30 @@ async function doLogout(){
 
 // ÁREAS
 async function loadAreas(){
-  const{data}=await sb.from('areas').select('*').order('nombre');
+  const{data,error}=await sb.from('areas').select('*').order('nombre');
+  if(error){console.error('Error cargando áreas:',error);return;}
   AREAS=data||[];
+  pintarAreaBtns();
   // Tabs indicadores
-  document.getElementById('area-tabs').innerHTML='<div class="tab active" onclick="filterInd(null,this)">Todas</div>'+AREAS.map(a=>`<div class="tab" onclick="filterInd('${a.id}',this)">${a.nombre}</div>`).join('');
+  const tabs=document.getElementById('area-tabs');
+  if(tabs) tabs.innerHTML='<div class="tab active" onclick="filterInd(null,this)">Todas</div>'+AREAS.map(a=>`<div class="tab" onclick="filterInd('${a.id}',this)">${a.nombre}</div>`).join('');
   // Selects
   ['m-ind-area','m-user-area','reg-area'].forEach(id=>{
     const s=document.getElementById(id);if(!s)return;
     const first=id==='m-user-area'?'<option value="">Todas</option>':id==='reg-area'?'<option value="">Seleccionar...</option>':'';
     s.innerHTML=first+AREAS.map(a=>`<option value="${a.id}">${a.nombre}</option>`).join('');
   });
-  // BOTONES DE ÁREA EN DASHBOARD
-  document.getElementById('area-btns').innerHTML=AREAS.map(a=>`
-    <button class="btn btn-sm" style="border-color:var(--pera);color:var(--pera-dk);background:#fff" onclick="verArea('${a.id}','${a.nombre.replace(/'/g,"\\'")}')">
-      <i class="ti ti-folder" style="font-size:11px"></i> ${a.nombre}
-    </button>`).join('');
   renderCfgAreas();
+}
+
+function pintarAreaBtns(){
+  const el=document.getElementById('area-btns');
+  if(!el)return;
+  if(!AREAS.length){el.innerHTML='<span style="font-size:11px;color:var(--text3)">Sin áreas</span>';return;}
+  el.innerHTML=AREAS.map(a=>{
+    const nombre=a.nombre.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    return`<button class="btn btn-sm" style="border-color:var(--pera);color:var(--pera-dk);background:#fff" onclick="verArea('${a.id}','${nombre}')"><i class="ti ti-folder" style="font-size:11px"></i> ${a.nombre}</button>`;
+  }).join('');
 }
 
 function verArea(id,nombre){
@@ -601,11 +611,13 @@ function changePeriodType(){
 }
 
 async function loadDashboard(){
-  document.getElementById('dash-loader').style.display='block';
-  document.getElementById('dash-data').style.display='none';
-  const t=document.getElementById('dash-period-type').value;
-  const from=document.getElementById('dash-period-from').value;
-  const to=t==='mensual'?from:(document.getElementById('dash-period-to').value||from);
+  const loaderEl=document.getElementById('dash-loader');
+  const dataEl=document.getElementById('dash-data');
+  if(loaderEl)loaderEl.style.display='block';
+  if(dataEl)dataEl.style.display='none';
+  const t=document.getElementById('dash-period-type')?.value||'mensual';
+  const from=document.getElementById('dash-period-from')?.value||pa();
+  const to=t==='mensual'?from:(document.getElementById('dash-period-to')?.value||from);
   const ps=periodos(from,to);
   const{data:inds}=await sb.from('indicadores').select('id,nombre,meta,meta_numerica,tipo_meta,unidad,area_id,areas(nombre)').eq('habilitado',true);
   const ids=(inds||[]).map(i=>i.id);
@@ -632,8 +644,9 @@ async function loadDashboard(){
   if(CH.areas)CH.areas.destroy();
   const aS=AREAS.map(a=>{const aI=(inds||[]).filter(i=>i.area_id===a.id);const tot=aI.length;if(!tot)return{n:a.nombre.split(' ').slice(0,2).join(' '),p:0};const ok=aI.filter(i=>{const u=ult[i.id];return u&&calcEst(u.valor,i.meta_numerica,i.tipo_meta)==='ok';}).length;return{n:a.nombre.split(' ').slice(0,2).join(' '),p:tot?Math.round(ok/tot*100):0};});
   CH.areas=new Chart(document.getElementById('c-areas'),{type:'bar',data:{labels:aS.map(a=>a.n),datasets:[{data:aS.map(a=>a.p),backgroundColor:'rgba(139,191,58,.75)',borderColor:'#5a8c0a',borderWidth:1,borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{min:0,max:100,ticks:{callback:v=>v+'%'}},y:{ticks:{font:{size:11}}}}}});
-  document.getElementById('dash-loader').style.display='none';
-  document.getElementById('dash-data').style.display='block';
+  pintarAreaBtns();
+  if(loaderEl)loaderEl.style.display='none';
+  if(dataEl)dataEl.style.display='block';
 }
 
 // INDICADORES
