@@ -921,7 +921,12 @@ async function loadAreaView(areaId) {
             anchor: 'top',
             font: { size: 10, weight: '600' },
             color: function(ctx) { return ctx.raw == null ? '#ccc' : lblColor(ctx.raw, ind.meta_numerica, ind.tipo_meta); },
-            formatter: function(v) { return v == null ? '' : fmtValor(v, ind.unidad); }
+            formatter: function(v, ctx) {
+              if (v == null) return '';
+              var r = ir.find(function(x) { return x.periodo === ps[ctx.dataIndex]; });
+              var u = (r && r.unidad_resultado) ? r.unidad_resultado : ind.unidad;
+              return fmtValor(v, u);
+            }
           }
         },
         scales: {
@@ -1106,10 +1111,10 @@ async function loadDashboard() {
   var rInds = await sbClient.from('indicadores').select('id,nombre,meta,meta_numerica,tipo_meta,unidad,area_id,areas(nombre)').eq('habilitado', true);
   var inds = rInds.data || [];
   var ids = inds.map(function(i) { return i.id; });
-  var rRegs = await sbClient.from('registros').select('indicador_id,valor,periodo').in('indicador_id', ids).order('periodo', { ascending: false });
+  var rRegs = await sbClient.from('registros').select('indicador_id,valor,periodo,unidad_resultado').in('indicador_id', ids).order('periodo', { ascending: false });
   var regs = rRegs.data || [];
   var ult = {};
-  regs.forEach(function(r) { if (!ult[r.indicador_id]) ult[r.indicador_id] = { valor: r.valor, periodo: r.periodo }; });
+  regs.forEach(function(r) { if (!ult[r.indicador_id]) ult[r.indicador_id] = { valor: r.valor, periodo: r.periodo, unidad_resultado: r.unidad_resultado }; });
   var kpiN = ['Exactitud de nomina', 'Tiempo promedio de pago de liquidacion', 'Errores en contratos', 'Afiliaciones oportunas'];
   var kpiEl = document.getElementById('kpi-grid');
   if (kpiEl) {
@@ -1119,8 +1124,9 @@ async function loadDashboard() {
         var u = ult[i.id]; var e = u ? calcEst(u.valor, i.meta_numerica, i.tipo_meta) : 'nd';
         var cls = e === 'ok' ? '' : e === 'warn' ? 'warn' : 'bad';
         var col = e === 'ok' ? '#3B6D11' : e === 'warn' ? '#BA7517' : '#A32D2D';
+        var dispU = u ? (u.unidad_resultado || i.unidad) : i.unidad;
         return '<div class="kpi-card ' + cls + '"><div class="kpi-lbl">' + i.nombre + '</div>' +
-          '<div class="kpi-val">' + (u ? fmtValor(u.valor, i.unidad) : '--') + '</div>' +
+          '<div class="kpi-val">' + (u ? fmtValor(u.valor, dispU) : '--') + '</div>' +
           '<div class="kpi-sub" style="color:' + col + '">Meta: ' + i.meta + (u ? ' - ' + mes(u.periodo) : '') + '</div></div>';
       }).join('');
   }
@@ -1166,14 +1172,15 @@ async function loadIndicadores() {
   var res = await q;
   INDS = res.data || [];
   var ids = INDS.map(function(i) { return i.id; });
-  var rRegs = await sbClient.from('registros').select('indicador_id,valor,periodo').in('indicador_id', ids).order('periodo', { ascending: false });
+  var rRegs = await sbClient.from('registros').select('indicador_id,valor,periodo,unidad_resultado').in('indicador_id', ids).order('periodo', { ascending: false });
   var uv = {};
-  (rRegs.data || []).forEach(function(r) { if (!uv[r.indicador_id]) uv[r.indicador_id] = { valor: r.valor, periodo: r.periodo }; });
+  (rRegs.data || []).forEach(function(r) { if (!uv[r.indicador_id]) uv[r.indicador_id] = { valor: r.valor, periodo: r.periodo, unidad_resultado: r.unidad_resultado }; });
   document.getElementById('ind-tbody').innerHTML = INDS.map(function(i) {
     var u = uv[i.id]; var e = u ? calcEst(u.valor, i.meta_numerica, i.tipo_meta) : 'nd';
+    var dispU = u ? (u.unidad_resultado || i.unidad) : i.unidad;
     return '<tr><td><b>' + i.nombre + '</b><br><span style="font-size:11px;color:var(--text3)">' + (i.objetivo || '') + '</span></td>' +
       '<td>' + (i.areas ? i.areas.nombre : '--') + '</td><td>' + (i.meta || '--') + '</td>' +
-      '<td style="display:flex;align-items:center;gap:6px">' + (u ? fmtValor(u.valor, i.unidad) : 'Sin datos') + semDiv(e) + '</td>' +
+      '<td style="display:flex;align-items:center;gap:6px">' + (u ? fmtValor(u.valor, dispU) : 'Sin datos') + semDiv(e) + '</td>' +
       '<td>' + estBadge(e) + '</td>' +
       '<td><input type="checkbox" ' + (i.habilitado ? 'checked' : '') + ' style="accent-color:var(--pera)" onchange="toggleInd(\'' + i.id + '\',this.checked)"></td>' +
       '<td><div style="display:flex;gap:4px">' +
