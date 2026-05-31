@@ -930,7 +930,11 @@ async function loadAreaView(areaId) {
           }
         },
         scales: {
-          y: { ticks: { font: { size: 10 }, callback: function(v) { return v + ' ' + ind.unidad; } } },
+          y: { ticks: { font: { size: 10 }, callback: function(v) {
+            var r = ir.find(function(x) { return parseFloat(x.valor) === v; });
+            var u = (r && r.unidad_resultado) ? r.unidad_resultado : ind.unidad;
+            return fmtValor(v, u);
+          }}},
           x: { ticks: { font: { size: 9 } } }
         }
       }
@@ -997,11 +1001,11 @@ async function abrirTraza(indId, indNombre) {
             anchor: 'top',
             font: { size: 10, weight: '600' },
             color: function(ctx) { return lblColor(ctx.raw, ind.meta_numerica, ind.tipo_meta); },
-            formatter: function(v) { return fmtValor(v, ind.unidad); }
+            formatter: function(v) { return fmtValor(v, indUnidad); }
           }
         },
         scales: {
-          y: { ticks: { callback: function(v) { return v + ' ' + ind.unidad; }, font: { size: 10 } } },
+          y: { ticks: { callback: function(v) { return fmtValor(v, indUnidad); }, font: { size: 10 } } },
           x: { ticks: { font: { size: 10 } } }
         }
       }
@@ -1012,9 +1016,9 @@ async function abrirTraza(indId, indNombre) {
     var min = Math.min.apply(null, vals);
     var avg = vals.reduce(function(a, b) { return a + b; }, 0) / vals.length;
     document.getElementById('m-traza-resumen').innerHTML =
-      '<div class="card" style="text-align:center"><div style="font-size:18px;font-weight:600;color:var(--pera-dk)">' + fmt(avg) + ' ' + ind.unidad + '</div><div style="font-size:11px;color:var(--text3)">Promedio</div></div>' +
-      '<div class="card" style="text-align:center"><div style="font-size:18px;font-weight:600;color:#3B6D11">' + fmt(max) + ' ' + ind.unidad + '</div><div style="font-size:11px;color:var(--text3)">Maximo</div></div>' +
-      '<div class="card" style="text-align:center"><div style="font-size:18px;font-weight:600;color:#A32D2D">' + fmt(min) + ' ' + ind.unidad + '</div><div style="font-size:11px;color:var(--text3)">Minimo</div></div>' +
+      '<div class="card" style="text-align:center"><div style="font-size:18px;font-weight:600;color:var(--pera-dk)">' + fmtValor(avg, indUnidad) + '</div><div style="font-size:11px;color:var(--text3)">Promedio</div></div>' +
+      '<div class="card" style="text-align:center"><div style="font-size:18px;font-weight:600;color:#3B6D11">' + fmtValor(max, indUnidad) + '</div><div style="font-size:11px;color:var(--text3)">Maximo</div></div>' +
+      '<div class="card" style="text-align:center"><div style="font-size:18px;font-weight:600;color:#A32D2D">' + fmtValor(min, indUnidad) + '</div><div style="font-size:11px;color:var(--text3)">Minimo</div></div>' +
       '<div class="card" style="text-align:center"><div style="font-size:18px;font-weight:600">' + vals.length + '</div><div style="font-size:11px;color:var(--text3)">Periodos</div></div>';
   } else {
     document.getElementById('m-traza-resumen').innerHTML = '<div style="color:var(--text3);font-size:12px">Sin datos</div>';
