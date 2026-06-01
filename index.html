@@ -911,7 +911,11 @@ function setIndAlto(indId,alto,btn){
 }
 async function guardarPersonalizacion(){
   // Eliminar configuracion actual
-  await sb.from('dashboard_config').delete().neq('id','00000000-0000-0000-0000-000000000000');
+  var existing = await sb.from('dashboard_config').select('id');
+  if(existing.data && existing.data.length){
+    var existingIds = existing.data.map(function(r){return r.id;});
+    await sb.from('dashboard_config').delete().in('id', existingIds);
+  }
   // Insertar nueva
   if(pendingConfig.length){
     var toInsert=pendingConfig.map(function(c,i){return{indicador_id:c.indicador_id,tipo_widget:c.tipo_widget||'kpi',tamano:c.tamano||'w-4',altura:c.altura||'h-md',orden:i,visible:true};});
