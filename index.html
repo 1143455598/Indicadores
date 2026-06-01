@@ -815,7 +815,7 @@ var editWidgetId=null;
 function abrirEditWidget(cfgId){
   editWidgetId=cfgId;
   var cfg=DASH_CONFIG.find(function(c){return c.id===cfgId;});
-  if(!cfg)return;
+  if(!cfg){console.error('Widget no encontrado:',cfgId);return;}
   var ind=cfg.indicadores;
   document.getElementById('edit-widget-nombre').textContent=ind?ind.nombre:'--';
   // Tipos
@@ -846,14 +846,21 @@ function selAlto(btn,v){
 }
 async function aplicarEditWidget(){
   if(!editWidgetId)return;
-  var tipo=document.querySelector('#edit-tipo-grid .tipo-btn.selected');
-  var ancho=document.querySelector('#edit-ancho-grid .tam-btn.selected');
-  var alto=document.querySelector('#edit-alto-grid .tam-btn.selected');
-  var updates={};
-  if(tipo)updates.tipo_widget=tipo.getAttribute('data-val');
-  if(ancho)updates.tamano=ancho.getAttribute('data-val');
-  if(alto)updates.altura=alto.getAttribute('data-val');
-  await sb.from('dashboard_config').update(updates).eq('id',editWidgetId);
+  var tipoBtn=document.querySelector('#edit-tipo-grid .tipo-btn.selected');
+  var anchoBtn=document.querySelector('#edit-ancho-grid .tam-btn.selected');
+  var altoBtn=document.querySelector('#edit-alto-grid .tam-btn.selected');
+  if(!tipoBtn||!anchoBtn||!altoBtn){alert('Selecciona tipo, ancho y alto.');return;}
+  var tipoVal=tipoBtn.getAttribute('data-val');
+  var anchoVal=anchoBtn.getAttribute('data-val');
+  var altoVal=altoBtn.getAttribute('data-val');
+  // Actualizar en BD
+  var res=await sb.from('dashboard_config')
+    .update({tipo_widget:tipoVal,tamano:anchoVal,altura:altoVal})
+    .eq('id',editWidgetId);
+  if(res.error){console.error('Error al actualizar widget:',res.error);alert('Error: '+res.error.message);return;}
+  // Actualizar en memoria
+  var cfg=DASH_CONFIG.find(function(c){return c.id===editWidgetId;});
+  if(cfg){cfg.tipo_widget=tipoVal;cfg.tamano=anchoVal;cfg.altura=altoVal;}
   closeModal('modal-widget');
   await loadDashboard();
 }
