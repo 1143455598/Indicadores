@@ -728,13 +728,48 @@ async function loadDashboard(){
         (u?'<span class="widget-badge" style="background:'+(est==='ok'?'var(--pera-bg)':est==='warn'?'var(--yellow-bg)':'var(--red-bg)')+';color:'+(est==='ok'?'var(--pera-dk)':est==='warn'?'var(--yellow-dk)':'var(--red-dk)')+';margin-left:6px">'+(est==='ok'?'En meta':est==='warn'?'Alerta':'Critico')+'</span>':'')+
         '<button class="widget-edit-btn" onclick="abrirEditWidget(\''+cfg.id+'\')" title="Editar widget"><i class="ti ti-pencil"></i> Editar</button>'+
       '</div>'+
-      '<div class="widget-body" id="wbody-'+cfg.id+'"></div>';
+      '<div class="widget-body" id="wbody-'+cfg.id+'"></div>'+
+      '<div class="resize-handle" title="Arrastra para redimensionar"><svg viewBox="0 0 10 10"><path d="M9 1L1 9M5 1L1 5M9 5L5 9" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></div>';
     // Drag events
     div.addEventListener('dragstart',function(e){dragSrcId=cfg.id;div.classList.add('dragging');e.dataTransfer.effectAllowed='move';});
     div.addEventListener('dragend',function(){div.classList.remove('dragging');document.querySelectorAll('.widget').forEach(function(w){w.classList.remove('drag-over');});});
     div.addEventListener('dragover',function(e){e.preventDefault();if(dragSrcId!==cfg.id)div.classList.add('drag-over');});
     div.addEventListener('dragleave',function(){div.classList.remove('drag-over');});
     div.addEventListener('drop',function(e){e.preventDefault();div.classList.remove('drag-over');if(dragSrcId&&dragSrcId!==cfg.id)swapWidgets(dragSrcId,cfg.id);});
+    // Resize por arrastre
+    var handle=div.querySelector('.resize-handle');
+    handle.addEventListener('mousedown',function(e){
+      e.preventDefault();
+      var startX=e.clientX,startY=e.clientY;
+      var startW=div.offsetWidth,startH=div.offsetHeight;
+      function onMove(ev){
+        var newW=Math.max(160,startW+(ev.clientX-startX));
+        var newH=Math.max(120,startH+(ev.clientY-startY));
+        div.style.gridColumn='';
+        div.style.width=newW+'px';
+        div.style.height=newH+'px';
+        var body=document.getElementById('wbody-'+cfg.id);
+        if(body)body.style.height=(newH-44)+'px';
+        // Redibujar chart si existe
+        if(DASH_CHARTS[cfg.id]){DASH_CHARTS[cfg.id].resize();}
+      }
+      async function onUp(ev){
+        document.removeEventListener('mousemove',onMove);
+        document.removeEventListener('mouseup',onUp);
+        // Guardar altura aproximada en BD
+        var h=div.offsetHeight;
+        var altoCls=h<180?'h-sm':h<280?'h-md':h<360?'h-lg':'h-xl';
+        var w=div.offsetWidth;
+        var grid=document.getElementById('dash-grid');
+        var gridW=grid?grid.offsetWidth:1200;
+        var pct=w/gridW;
+        var anchoCls=pct<0.28?'w-3':pct<0.38?'w-4':pct<0.58?'w-6':pct<0.75?'w-8':'w-12';
+        await sb.from('dashboard_config').update({altura:altoCls,tamano:anchoCls}).eq('id',cfg.id);
+      }
+      document.addEventListener('mousemove',onMove);
+      document.addEventListener('mouseup',onUp);
+    });
+
     grid.appendChild(div);
     // Renderizar contenido del widget
     renderWidgetContent(cfg,ind,u,hist,ps,dispU,est,colEstado);
