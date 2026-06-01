@@ -935,7 +935,7 @@ async function loadAreaView(areaId) {
             var u = (r && r.unidad_resultado) ? r.unidad_resultado : ind.unidad;
             return fmtValor(v, u);
           }}},
-          x: { ticks: { font: { size: 9 } } }
+          x: { ticks: { font: { size: 9 } }, min: undefined, offset: true }
         }
       }
     });
@@ -1006,7 +1006,7 @@ async function abrirTraza(indId, indNombre) {
         },
         scales: {
           y: { ticks: { callback: function(v) { return fmtValor(v, indUnidad); }, font: { size: 10 } } },
-          x: { ticks: { font: { size: 10 } } }
+          x: { ticks: { font: { size: 10 } }, offset: true }
         }
       }
     });
