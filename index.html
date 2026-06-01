@@ -973,6 +973,7 @@ async function abrirTraza(indId, indNombre) {
   if (CH.traza) CH.traza.destroy();
   var labels = regs.map(function(r) { return mes(r.periodo); });
   var vals = regs.map(function(r) { return parseFloat(r.valor); });
+  var unidadGrafica = indUnidad; // captura local para los callbacks
   var canvas = document.getElementById('m-traza-chart');
   if (canvas && labels.length) {
     CH.traza = new Chart(canvas, {
@@ -1001,11 +1002,11 @@ async function abrirTraza(indId, indNombre) {
             anchor: 'top',
             font: { size: 10, weight: '600' },
             color: function(ctx) { return lblColor(ctx.raw, ind.meta_numerica, ind.tipo_meta); },
-            formatter: function(v) { return fmtValor(v, indUnidad); }
+            formatter: function(v) { return fmtValor(v, unidadGrafica); }
           }
         },
         scales: {
-          y: { ticks: { callback: function(v) { return fmtValor(v, indUnidad); }, font: { size: 10 } } },
+          y: { ticks: { callback: function(v) { return fmtValor(v, unidadGrafica); }, font: { size: 10 } } },
           x: { ticks: { font: { size: 10 } }, offset: true }
         }
       }
