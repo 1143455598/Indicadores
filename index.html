@@ -89,11 +89,11 @@ tr:hover td{background:#fafdf5}
 .widget-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:var(--border);background:var(--surface)}
 .widget-title{font-size:13px;font-weight:600;color:var(--text);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .widget-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:500}
-.widget-body{padding:14px 16px;height:calc(100% - 44px)}
+.widget-body{padding:14px 16px;height:calc(100% - 44px);overflow:hidden}
 /* Tamanios via grid-column */
 .w-3{grid-column:span 3}.w-4{grid-column:span 4}.w-6{grid-column:span 6}.w-8{grid-column:span 8}.w-12{grid-column:span 12}
-/* Alturas */
-.h-sm{min-height:140px}.h-md{min-height:200px}.h-lg{min-height:280px}.h-xl{min-height:360px}
+/* Alturas FIJAS para que Chart.js no se expanda infinito */
+.h-sm{height:160px}.h-md{height:240px}.h-lg{height:320px}.h-xl{height:420px}
 /* KPI widget */
 .kpi-widget-val{font-size:28px;font-weight:700;line-height:1;margin:8px 0 4px}
 .kpi-widget-meta{font-size:11px;color:var(--text3)}
@@ -768,7 +768,8 @@ function renderWidgetContent(cfg,ind,u,hist,ps,dispU,est,colEstado){
   }
   // Graficas
   var canvasId='canvas-'+cfg.id;
-  body.innerHTML='<div class="chart-container" style="height:100%"><canvas id="'+canvasId+'"></canvas></div>';
+  var chartH='calc(100% - 8px)';
+  body.innerHTML='<div style="position:relative;width:100%;height:100%"><canvas id="'+canvasId+'" style="max-height:100%"></canvas></div>';
   setTimeout(function(){
     var canvas=document.getElementById(canvasId);if(!canvas)return;
     var metaN=ind.meta_numerica,tipoM=ind.tipo_meta,uLocal=dispU;
@@ -828,18 +829,30 @@ function abrirEditWidget(cfgId){
   document.getElementById('edit-alto-grid').innerHTML=altos.map(function(a){return'<button class="tam-btn'+(cfg.altura===a.v?' selected':'')+'" onclick="selAlto(this,\''+a.v+'\')">'+a.l+'</button>';}).join('');
   openModal('modal-widget');
 }
-function selTipo(btn,v){document.querySelectorAll('#edit-tipo-grid .tipo-btn').forEach(function(b){b.classList.remove('selected');});btn.classList.add('selected');}
-function selAncho(btn,v){document.querySelectorAll('#edit-ancho-grid .tam-btn').forEach(function(b){b.classList.remove('selected');});btn.classList.add('selected');}
-function selAlto(btn,v){document.querySelectorAll('#edit-alto-grid .tam-btn').forEach(function(b){b.classList.remove('selected');});btn.classList.add('selected');}
+function selTipo(btn,v){
+  document.querySelectorAll('#edit-tipo-grid .tipo-btn').forEach(function(b){b.classList.remove('selected');});
+  btn.classList.add('selected');
+  btn.setAttribute('data-val',v);
+}
+function selAncho(btn,v){
+  document.querySelectorAll('#edit-ancho-grid .tam-btn').forEach(function(b){b.classList.remove('selected');});
+  btn.classList.add('selected');
+  btn.setAttribute('data-val',v);
+}
+function selAlto(btn,v){
+  document.querySelectorAll('#edit-alto-grid .tam-btn').forEach(function(b){b.classList.remove('selected');});
+  btn.classList.add('selected');
+  btn.setAttribute('data-val',v);
+}
 async function aplicarEditWidget(){
   if(!editWidgetId)return;
   var tipo=document.querySelector('#edit-tipo-grid .tipo-btn.selected');
   var ancho=document.querySelector('#edit-ancho-grid .tam-btn.selected');
   var alto=document.querySelector('#edit-alto-grid .tam-btn.selected');
   var updates={};
-  if(tipo)updates.tipo_widget=tipo.onclick.toString().match(/'([^']+)'/)[1];
-  if(ancho)updates.tamano=ancho.onclick.toString().match(/'([^']+)'/)[1];
-  if(alto)updates.altura=alto.onclick.toString().match(/'([^']+)'/)[1];
+  if(tipo)updates.tipo_widget=tipo.getAttribute('data-val');
+  if(ancho)updates.tamano=ancho.getAttribute('data-val');
+  if(alto)updates.altura=alto.getAttribute('data-val');
   await sb.from('dashboard_config').update(updates).eq('id',editWidgetId);
   closeModal('modal-widget');
   await loadDashboard();
