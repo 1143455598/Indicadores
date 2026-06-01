@@ -952,7 +952,6 @@ async function abrirTraza(indId, indNombre) {
   document.getElementById('m-traza-title').textContent = 'Trazabilidad - ' + indNombre;
   document.getElementById('m-traza-ficha').innerHTML = '<div class="ficha-nombre">' + ind.nombre + '</div>' +
     '<div class="ficha-meta">Objetivo: ' + (ind.objetivo || '--') + ' | Formula: ' + (ind.formula || '--') + ' | Meta: ' + (ind.meta || '--') + '</div>';
-  var primerReg = regs.find(function(r) { return r.numerador_label; });
   document.getElementById('m-traza-th-num').textContent = (primerReg && primerReg.numerador_label) ? primerReg.numerador_label : 'Numerador';
   document.getElementById('m-traza-th-den').textContent = (primerReg && primerReg.denominador_label) ? primerReg.denominador_label : 'Denominador';
   document.getElementById('m-traza-tbody').innerHTML = !regs.length ?
