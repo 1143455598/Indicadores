@@ -735,6 +735,45 @@ async function loadDashboard(){
     div.addEventListener('dragover',function(e){e.preventDefault();if(dragSrcId!==cfg.id)div.classList.add('drag-over');});
     div.addEventListener('dragleave',function(){div.classList.remove('drag-over');});
     div.addEventListener('drop',function(e){e.preventDefault();div.classList.remove('drag-over');if(dragSrcId&&dragSrcId!==cfg.id)swapWidgets(dragSrcId,cfg.id);});
+    // Resize con mousedown en esquina inferior derecha
+    div.addEventListener('mousedown', function(e){
+      if(!editMode) return;
+      var rect = div.getBoundingClientRect();
+      var inCorner = (e.clientX > rect.right - 20) && (e.clientY > rect.bottom - 20);
+      if(!inCorner) return;
+      e.preventDefault();
+      e.stopPropagation();
+      var startX = e.clientX, startY = e.clientY;
+      var startW = div.offsetWidth, startH = div.offsetHeight;
+      div.style.gridColumn = 'unset';
+      div.style.gridRow = 'unset';
+      function onMove(ev){
+        var nw = Math.max(180, startW + ev.clientX - startX);
+        var nh = Math.max(120, startH + ev.clientY - startY);
+        div.style.width = nw + 'px';
+        div.style.height = nh + 'px';
+        var body = document.getElementById('wbody-' + cfg.id);
+        if(body) body.style.height = Math.max(60, nh - 44) + 'px';
+        if(DASH_CHARTS[cfg.id]) DASH_CHARTS[cfg.id].resize();
+      }
+      async function onUp(){
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        div.style.cursor = '';
+        // Mapear tamaño a clases y guardar
+        var nh = div.offsetHeight;
+        var nw = div.offsetWidth;
+        var gridW = (document.getElementById('dash-grid')||{offsetWidth:1200}).offsetWidth;
+        var pct = nw / gridW;
+        var aC = pct < 0.28 ? 'w-3' : pct < 0.38 ? 'w-4' : pct < 0.58 ? 'w-6' : pct < 0.75 ? 'w-8' : 'w-12';
+        var hC = nh < 180 ? 'h-sm' : nh < 280 ? 'h-md' : nh < 360 ? 'h-lg' : 'h-xl';
+        await sb.from('dashboard_config').update({tamano: aC, altura: hC}).eq('id', cfg.id);
+      }
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+      div.style.cursor = 'se-resize';
+    });
+
     grid.appendChild(div);
     renderWidgetContent(cfg,ind,u,hist,ps,dispU,est,colEstado);
     // Renderizar contenido del widget
