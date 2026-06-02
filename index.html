@@ -106,11 +106,8 @@ tr:hover td{background:#fafdf5}
 .drag-handle:active{cursor:grabbing}
 .widget.drag-over{border:2px dashed var(--pera);background:var(--pera-bg)}
 .widget.dragging{opacity:.4}
-/* Edit mode overlay */
-.edit-mode .widget{border:1.5px dashed var(--pera)}
-.edit-mode .widget:hover{box-shadow:0 0 0 2px var(--pera)}
-.widget-edit-btn{display:none;position:absolute;top:6px;right:6px;background:var(--pera);color:#fff;border:none;border-radius:var(--radius-sm);padding:3px 8px;font-size:11px;gap:4px;align-items:center;z-index:10}
-.edit-mode .widget-edit-btn{display:inline-flex}
+// Quitar boton Editar del widget-edit-btn del HTML
+.widget-edit-btn{display:none !important}
 
 /* ── PANEL PERSONALIZACION ──────────────────── */
 .panel-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:300}
@@ -935,7 +932,9 @@ function renderPanelList(inds){
     var tipos=[{v:'kpi',i:'ti-number',l:'KPI'},{v:'linea',i:'ti-chart-line',l:'Linea'},{v:'barras',i:'ti-chart-bar',l:'Barras'},{v:'dona',i:'ti-chart-donut',l:'Dona'},{v:'tabla',i:'ti-table',l:'Tabla'}];
     var anchos=[{v:'w-3',l:'25%'},{v:'w-4',l:'33%'},{v:'w-6',l:'50%'},{v:'w-8',l:'66%'},{v:'w-12',l:'100%'}];
     var altos=[{v:'h-sm',l:'Bajo'},{v:'h-md',l:'Medio'},{v:'h-lg',l:'Alto'},{v:'h-xl',l:'Extra alto'}];
-    return'<div class="ind-config-card'+(activo?' active':'')+'" id="icc-'+ind.id+'">'+'<div class="ind-config-top'+(activo?' expanded':'')+'" id="ict-'+ind.id+'"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;flex:1"><input type="checkbox"'+(activo?' checked':'')+' style="accent-color:var(--pera);width:16px;height:16px;flex-shrink:0" onchange="toggleIndConfig(\''+ind.id+'\',this.checked)"><div><div class="ind-config-nombre">'+ind.nombre+'</div><div class="ind-config-area">'+(ind.areas?ind.areas.nombre:'')+'</div></div></label></div>'+(activo?'<div id="ico-'+ind.id+'">'+'<div style="margin-bottom:8px"><div style="font-size:11px;color:var(--text2);font-weight:500;margin-bottom:6px">Tipo de grafica</div><div class="ind-config-options">'+tipos.map(function(t){return'<button class="tipo-btn'+(tipo===t.v?' selected':'')+'" onclick="setIndTipo(\''+ind.id+'\',\''+t.v+'\',this)"><i class="ti '+t.i+'"></i>'+t.l+'</button>';}).join('')+'</div></div>'+'<div style="margin-bottom:8px"><div style="font-size:11px;color:var(--text2);font-weight:500;margin-bottom:6px">Ancho</div><div class="tamano-selector">'+anchos.map(function(a){return'<button class="tam-btn'+(ancho===a.v?' selected':'')+'" onclick="setIndAncho(\''+ind.id+'\',\''+a.v+'\',this)">'+a.l+'</button>';}).join('')+'</div></div>'+'<div><div style="font-size:11px;color:var(--text2);font-weight:500;margin-bottom:6px">Alto</div><div class="altura-selector">'+altos.map(function(a){return'<button class="tam-btn'+(alto===a.v?' selected':'')+'" onclick="setIndAlto(\''+ind.id+'\',\''+a.v+'\',this)">'+a.l+'</button>';}).join('')+'</div></div>'+'</div>':'')+'</div>';
+    var mEtiq=existing?existing.mostrar_etiquetas!==false:true;
+    var mEst=existing?existing.mostrar_estado!==false:true;
+    return'<div class="ind-config-card'+(activo?' active':'')+'" id="icc-'+ind.id+'">'+'<div class="ind-config-top'+(activo?' expanded':'')+'" id="ict-'+ind.id+'"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;flex:1"><input type="checkbox"'+(activo?' checked':'')+' style="accent-color:var(--pera);width:16px;height:16px;flex-shrink:0" onchange="toggleIndConfig(\''+ind.id+'\',this.checked)"><div><div class="ind-config-nombre">'+ind.nombre+'</div><div class="ind-config-area">'+(ind.areas?ind.areas.nombre:'')+'</div></div></label></div>'+(activo?'<div id="ico-'+ind.id+'">'+'<div style="margin-bottom:8px"><div style="font-size:11px;color:var(--text2);font-weight:500;margin-bottom:6px">Tipo de grafica</div><div class="ind-config-options">'+tipos.map(function(t){return'<button class="tipo-btn"+(tipo===t.v?" selected":"")+" onclick="setIndTipo(\'"+ind.id+"\',\'"+t.v+"\',this)"><i class="ti "+t.i+""></i>"+t.l+"</button>";}).join('')+'</div></div>'+'<div style="margin-bottom:8px"><div style="font-size:11px;color:var(--text2);font-weight:500;margin-bottom:6px">Ancho</div><div class="tamano-selector">'+anchos.map(function(a){return'<button class="tam-btn'+(ancho===a.v?' selected':'')+'" onclick="setIndAncho(\''+ind.id+'\',\''+a.v+'\',this)">'+a.l+'</button>';}).join('')+'</div></div>'+'<div style="margin-bottom:8px"><div style="font-size:11px;color:var(--text2);font-weight:500;margin-bottom:6px">Alto</div><div class="altura-selector">'+altos.map(function(a){return'<button class="tam-btn'+(alto===a.v?' selected':'')+'" onclick="setIndAlto(\''+ind.id+'\',\''+a.v+'\',this)">'+a.l+'</button>';}).join('')+'</div></div>'+'<div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:4px"><label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox"'+(mEtiq?' checked':'')+' style="accent-color:var(--pera)" onchange="setIndEtiq(\''+ind.id+'\',this.checked)"> Mostrar etiquetas de datos</label><label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox"'+(mEst?' checked':'')+' style="accent-color:var(--pera)" onchange="setIndEst(\''+ind.id+'\',this.checked)"> Mostrar estado (critico/alerta)</label></div>'+'</div>':'')+'</div>';
   }).join('');
 }
 function toggleIndConfig(indId,checked){
@@ -957,6 +956,8 @@ function toggleIndConfig(indId,checked){
     var old=document.getElementById('ico-'+indId);if(old)old.remove();
   }
 }
+function setIndEtiq(indId,v){var cfg=pendingConfig.find(function(c){return c.indicador_id===indId;});if(cfg)cfg.mostrar_etiquetas=v;}
+function setIndEst(indId,v){var cfg=pendingConfig.find(function(c){return c.indicador_id===indId;});if(cfg)cfg.mostrar_estado=v;}
 function setIndTipo(indId,tipo,btn){
   var cfg=pendingConfig.find(function(c){return c.indicador_id===indId;});if(cfg)cfg.tipo_widget=tipo;
   var parent=btn.parentElement;parent.querySelectorAll('.tipo-btn').forEach(function(b){b.classList.remove('selected');});btn.classList.add('selected');
@@ -978,7 +979,7 @@ async function guardarPersonalizacion(){
   }
   // Insertar nueva
   if(pendingConfig.length){
-    var toInsert=pendingConfig.map(function(c,i){return{indicador_id:c.indicador_id,tipo_widget:c.tipo_widget||'kpi',tamano:c.tamano||'w-4',altura:c.altura||'h-md',orden:i,visible:true};});
+    var toInsert=pendingConfig.map(function(c,i){return{indicador_id:c.indicador_id,tipo_widget:c.tipo_widget||'kpi',tamano:c.tamano||'w-4',altura:c.altura||'h-md',orden:i,visible:true,mostrar_etiquetas:c.mostrar_etiquetas!==undefined?c.mostrar_etiquetas:true,mostrar_estado:c.mostrar_estado!==undefined?c.mostrar_estado:true};});
     await sb.from('dashboard_config').insert(toInsert);
   }
   cerrarPersonalizacion();
