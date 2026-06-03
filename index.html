@@ -737,7 +737,7 @@ async function loadDashboard(){
         '<i class="drag-handle ti ti-grip-horizontal" title="Arrastrar"></i>'+
         '<span class="widget-title" title="'+ind.nombre+'">'+ind.nombre+'</span>'+
         (ind.areas?'<span style="font-size:10px;color:var(--text3);margin-left:6px;white-space:nowrap">'+ind.areas.nombre+'</span>':'')+
-        (cfg.mostrar_estado!==false&&u?'<span class="widget-badge" style="background:'+(est==='ok'?'var(--pera-bg)':est==='warn'?'var(--yellow-bg)':'var(--red-bg)')+';color:'+(est==='ok'?'var(--pera-dk)':est==='warn'?'var(--yellow-dk)':'var(--red-dk)');margin-left:6px">'+(est==='ok'?'En meta':est==='warn'?'Alerta':'Critico')+'</span>':'')+
+        (cfg.mostrar_estado!==false&&u?'<span class="widget-badge" style="background:'+(est==='ok'?'var(--pera-bg)':est==='warn'?'var(--yellow-bg)':'var(--red-bg)')+';color:'+(est==='ok'?'var(--pera-dk)':est==='warn'?'var(--yellow-dk)':'var(--red-dk)')+';margin-left:6px">'+(est==='ok'?'En meta':est==='warn'?'Alerta':'Critico')+'</span>':'')+
         '<button class="widget-edit-btn" onclick="abrirEditWidget(\''+cfg.id+'\')" title="Editar widget"><i class="ti ti-pencil"></i> Editar</button>'+
       '</div>'+
       '<div class="widget-body" id="wbody-'+cfg.id+'"></div>'+'<div class="resize-handle" id="rh-'+cfg.id+'"></div>';
