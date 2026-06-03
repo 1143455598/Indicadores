@@ -85,29 +85,37 @@ tr:hover td{background:#fafdf5}
 
 /* ── DASHBOARD GRID ─────────────────────────── */
 .dash-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;margin-bottom:20px}
-.widget{background:var(--surface);border:var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;position:relative;min-height:160px}
-.widget-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:var(--border);background:var(--surface)}
-.widget-title{font-size:13px;font-weight:600;color:var(--text);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.widget{background:var(--surface);border:var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;position:relative;display:flex;flex-direction:column}
+.widget-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:var(--border);background:var(--surface);flex-shrink:0;height:44px;gap:6px;overflow:hidden}
+.widget-title{font-size:12px;font-weight:600;color:var(--text);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .widget-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:500}
-.widget-body{padding:14px 16px;height:calc(100% - 44px);overflow:hidden}
+.widget-body{flex:1;overflow:hidden;min-height:0;position:relative;padding:10px 14px}
 /* Tamanios via grid-column */
 .w-3{grid-column:span 3}.w-4{grid-column:span 4}.w-6{grid-column:span 6}.w-8{grid-column:span 8}.w-12{grid-column:span 12}
-/* Alturas FIJAS para que Chart.js no se expanda infinito */
-.h-sm{height:160px}.h-md{height:240px}.h-lg{height:320px}.h-xl{height:420px}
+/* FIX3: Alturas totales del widget. Header=44px fijo, body ocupa el resto */
+.h-sm{height:180px}.h-md{height:260px}.h-lg{height:340px}.h-xl{height:440px}
 /* KPI widget */
 .kpi-widget-val{font-size:28px;font-weight:700;line-height:1;margin:8px 0 4px}
 .kpi-widget-meta{font-size:11px;color:var(--text3)}
 .kpi-widget-trend{font-size:12px;margin-top:6px;display:flex;align-items:center;gap:4px}
-/* Chart container */
-.chart-container{position:relative;width:100%}
-/* Drag handle */
-.drag-handle{cursor:grab;color:var(--text3);font-size:16px;padding:2px 4px;border-radius:4px;transition:background .12s}
+/* FIX3: Chart container ocupa absolutamente todo el body */
+.chart-container{position:absolute;inset:8px}
+/* FIX4: drag handle oculto, visible en edit-mode */
+.drag-handle{display:none;cursor:grab;color:var(--text3);font-size:16px;padding:2px 4px;border-radius:4px;transition:background .12s;flex-shrink:0}
 .drag-handle:hover{background:var(--pera-bg);color:var(--pera-dk)}
 .drag-handle:active{cursor:grabbing}
+.dash-grid.edit-mode .drag-handle{display:flex;align-items:center}
 .widget.drag-over{border:2px dashed var(--pera);background:var(--pera-bg)}
 .widget.dragging{opacity:.4}
-// Quitar boton Editar del widget-edit-btn del HTML
-.widget-edit-btn{display:none !important}
+/* FIX3: Resize handle esquina inferior derecha */
+.resize-handle{display:none;position:absolute;bottom:0;right:0;width:18px;height:18px;cursor:se-resize;z-index:10}
+.resize-handle::after{content:'';position:absolute;bottom:3px;right:3px;width:9px;height:9px;border-right:2px solid var(--pera-dk);border-bottom:2px solid var(--pera-dk);border-radius:1px;opacity:.6}
+.dash-grid.edit-mode .resize-handle{display:block}
+.dash-grid.edit-mode .widget{border-color:var(--pera-l)}
+/* FIX1: boton editar OCULTO por defecto, visible solo en edit-mode */
+.widget-edit-btn{display:none;align-items:center;gap:4px;padding:3px 8px;border-radius:var(--radius-sm);font-size:10px;font-weight:500;border:var(--border);background:var(--surface);color:var(--text);white-space:nowrap;flex-shrink:0;cursor:pointer}
+.widget-edit-btn:hover{background:var(--pera-bg);color:var(--pera-dk)}
+.dash-grid.edit-mode .widget-edit-btn{display:inline-flex}
 
 /* ── PANEL PERSONALIZACION ──────────────────── */
 .panel-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:300}
@@ -389,6 +397,13 @@ tr:hover td{background:#fafdf5}
     <div class="form-g">
       <label class="form-l">Alto del widget</label>
       <div class="altura-selector" id="edit-alto-grid"></div>
+    </div>
+    <div class="form-g">
+      <label class="form-l">Opciones de visualizacion</label>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:6px">
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox" id="edit-mostrar-etiquetas" style="accent-color:var(--pera)"> Mostrar etiquetas en grafica</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox" id="edit-mostrar-estado" style="accent-color:var(--pera)"> Mostrar badge de estado</label>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeModal('modal-widget')">Cancelar</button>
@@ -719,61 +734,64 @@ async function loadDashboard(){
     div.draggable=editMode;
     div.innerHTML=
       '<div class="widget-header">'+
-        '<span class="drag-handle" title="Arrastrar"><i class="ti ti-grip-horizontal"></i></span>'+
+        '<i class="drag-handle ti ti-grip-horizontal" title="Arrastrar"></i>'+
         '<span class="widget-title" title="'+ind.nombre+'">'+ind.nombre+'</span>'+
         (ind.areas?'<span style="font-size:10px;color:var(--text3);margin-left:6px;white-space:nowrap">'+ind.areas.nombre+'</span>':'')+
-        (u?'<span class="widget-badge" style="background:'+(est==='ok'?'var(--pera-bg)':est==='warn'?'var(--yellow-bg)':'var(--red-bg)')+';color:'+(est==='ok'?'var(--pera-dk)':est==='warn'?'var(--yellow-dk)':'var(--red-dk)')+';margin-left:6px">'+(est==='ok'?'En meta':est==='warn'?'Alerta':'Critico')+'</span>':'')+
+        (cfg.mostrar_estado!==false&&u?'<span class="widget-badge" style="background:'+(est==='ok'?'var(--pera-bg)':est==='warn'?'var(--yellow-bg)':'var(--red-bg)')+';color:'+(est==='ok'?'var(--pera-dk)':est==='warn'?'var(--yellow-dk)':'var(--red-dk)');margin-left:6px">'+(est==='ok'?'En meta':est==='warn'?'Alerta':'Critico')+'</span>':'')+
         '<button class="widget-edit-btn" onclick="abrirEditWidget(\''+cfg.id+'\')" title="Editar widget"><i class="ti ti-pencil"></i> Editar</button>'+
       '</div>'+
-      '<div class="widget-body" id="wbody-'+cfg.id+'"></div>';
+      '<div class="widget-body" id="wbody-'+cfg.id+'"></div>'+'<div class="resize-handle" id="rh-'+cfg.id+'"></div>';
     // Drag events
     div.addEventListener('dragstart',function(e){dragSrcId=cfg.id;div.classList.add('dragging');e.dataTransfer.effectAllowed='move';});
     div.addEventListener('dragend',function(){div.classList.remove('dragging');document.querySelectorAll('.widget').forEach(function(w){w.classList.remove('drag-over');});});
     div.addEventListener('dragover',function(e){e.preventDefault();if(dragSrcId!==cfg.id)div.classList.add('drag-over');});
     div.addEventListener('dragleave',function(){div.classList.remove('drag-over');});
     div.addEventListener('drop',function(e){e.preventDefault();div.classList.remove('drag-over');if(dragSrcId&&dragSrcId!==cfg.id)swapWidgets(dragSrcId,cfg.id);});
-    // Resize con mousedown en esquina inferior derecha
-    div.addEventListener('mousedown', function(e){
-      if(!editMode) return;
-      var rect = div.getBoundingClientRect();
-      var inCorner = (e.clientX > rect.right - 20) && (e.clientY > rect.bottom - 20);
-      if(!inCorner) return;
-      e.preventDefault();
-      e.stopPropagation();
-      var startX = e.clientX, startY = e.clientY;
-      var startW = div.offsetWidth, startH = div.offsetHeight;
-      div.style.gridColumn = 'unset';
-      div.style.gridRow = 'unset';
-      function onMove(ev){
-        var nw = Math.max(180, startW + ev.clientX - startX);
-        var nh = Math.max(120, startH + ev.clientY - startY);
-        div.style.width = nw + 'px';
-        div.style.height = nh + 'px';
-        var body = document.getElementById('wbody-' + cfg.id);
-        if(body) body.style.height = Math.max(60, nh - 44) + 'px';
-        if(DASH_CHARTS[cfg.id]) DASH_CHARTS[cfg.id].resize();
-      }
-      async function onUp(){
-        document.removeEventListener('mousemove', onMove);
-        document.removeEventListener('mouseup', onUp);
-        div.style.cursor = '';
-        // Mapear tamaño a clases y guardar
-        var nh = div.offsetHeight;
-        var nw = div.offsetWidth;
-        var gridW = (document.getElementById('dash-grid')||{offsetWidth:1200}).offsetWidth;
-        var pct = nw / gridW;
-        var aC = pct < 0.28 ? 'w-3' : pct < 0.38 ? 'w-4' : pct < 0.58 ? 'w-6' : pct < 0.75 ? 'w-8' : 'w-12';
-        var hC = nh < 180 ? 'h-sm' : nh < 280 ? 'h-md' : nh < 360 ? 'h-lg' : 'h-xl';
-        await sb.from('dashboard_config').update({tamano: aC, altura: hC}).eq('id', cfg.id);
-      }
-      document.addEventListener('mousemove', onMove);
-      document.addEventListener('mouseup', onUp);
-      div.style.cursor = 'se-resize';
-    });
+    // FIX3+4: drag libre entre widgets ya en div events arriba.
+    // Resize via resize-handle (se adjunta despues del append al DOM)
 
     grid.appendChild(div);
-    renderWidgetContent(cfg,ind,u,hist,ps,dispU,est,colEstado);
-    // Renderizar contenido del widget
+    // FIX3: attach resize handler DESPUES del append (el elemento ya existe en DOM)
+    (function(cfgId,indRef,histRef,psRef,dispURef,estRef,colRef){
+      var rhEl=document.getElementById('rh-'+cfgId);
+      if(rhEl){
+        rhEl.addEventListener('mousedown',function(e){
+          if(!editMode)return;
+          e.preventDefault();e.stopPropagation();
+          var wEl=document.getElementById('widget-'+cfgId);
+          var startX=e.clientX,startY=e.clientY;
+          var origW=wEl.offsetWidth,origH=wEl.offsetHeight;
+          var gridEl=document.getElementById('dash-grid');
+          var gridW=gridEl?gridEl.offsetWidth:1200;
+          function onMove(ev){
+            var nw=origW+(ev.clientX-startX);
+            var nh=origH+(ev.clientY-startY);
+            var pct=nw/gridW;
+            // Snap a clase CSS mas cercana
+            var aC=pct<0.27?'w-3':pct<0.38?'w-4':pct<0.58?'w-6':pct<0.75?'w-8':'w-12';
+            var hC=nh<210?'h-sm':nh<300?'h-md':nh<380?'h-lg':'h-xl';
+            // Preview en tiempo real con clases (mantiene proporciones titulo/body/chart)
+            wEl.className='widget '+aC+' '+hC;
+            if(DASH_CHARTS[cfgId])DASH_CHARTS[cfgId].resize();
+          }
+          async function onUp(){
+            document.removeEventListener('mousemove',onMove);
+            document.removeEventListener('mouseup',onUp);
+            var cl=wEl.className.split(' ');
+            var anchoFinal=cl.find(function(c){return c.startsWith('w-');})||'w-4';
+            var altoFinal=cl.find(function(c){return c.startsWith('h-');})||'h-md';
+            var cfgObj=DASH_CONFIG.find(function(c){return c.id===cfgId;});
+            if(cfgObj){cfgObj.tamano=anchoFinal;cfgObj.altura=altoFinal;}
+            await sb.from('dashboard_config').update({tamano:anchoFinal,altura:altoFinal}).eq('id',cfgId);
+            if(DASH_CHARTS[cfgId]){DASH_CHARTS[cfgId].destroy();delete DASH_CHARTS[cfgId];}
+            setTimeout(function(){renderWidgetContent(cfgObj||{id:cfgId},indRef,ultMap[cfgId],histRef,psRef,dispURef,estRef,colRef);},50);
+          }
+          document.addEventListener('mousemove',onMove);
+          document.addEventListener('mouseup',onUp);
+        });
+      }
+    })(cfg.id,ind,hist,ps,dispU,est,colEstado);
+    // FIX: single renderWidgetContent call
     renderWidgetContent(cfg,ind,u,hist,ps,dispU,est,colEstado);
   });
   document.getElementById('dash-loader').style.display='none';
@@ -781,6 +799,8 @@ async function loadDashboard(){
 }
 
 function renderWidgetContent(cfg,ind,u,hist,ps,dispU,est,colEstado){
+  // FIX2: leer mostrar_etiquetas y mostrar_estado de la config
+  var mostrarEtiquetas=cfg.mostrar_etiquetas!==false;
   var body=document.getElementById('wbody-'+cfg.id);if(!body)return;
   var tipo=cfg.tipo_widget||'kpi';
   var vals=hist.map(function(r){return parseFloat(r.valor);});
@@ -806,15 +826,15 @@ function renderWidgetContent(cfg,ind,u,hist,ps,dispU,est,colEstado){
   // Graficas
   var canvasId='canvas-'+cfg.id;
   var chartH='calc(100% - 8px)';
-  body.innerHTML='<div style="position:relative;width:100%;height:100%"><canvas id="'+canvasId+'" style="max-height:100%"></canvas></div>';
+  body.innerHTML='<div class="chart-container"><canvas id="'+canvasId+'"></canvas></div>';
   setTimeout(function(){
     var canvas=document.getElementById(canvasId);if(!canvas)return;
     var metaN=ind.meta_numerica,tipoM=ind.tipo_meta,uLocal=dispU;
     if(DASH_CHARTS[cfg.id])DASH_CHARTS[cfg.id].destroy();
     if(tipo==='linea'){
-      DASH_CHARTS[cfg.id]=new Chart(canvas,{type:'line',data:{labels:labels,datasets:[{data:vals,borderColor:'#8BBF3A',backgroundColor:'rgba(139,191,58,.1)',tension:.3,pointRadius:4,pointHoverRadius:6,fill:true,pointBackgroundColor:vals.map(function(v){return ptColor(v,metaN,tipoM);})}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{display:true,align:'top',anchor:'top',font:{size:9,weight:'600'},color:function(ctx){return lblColor(ctx.raw,metaN,tipoM);},formatter:function(v){return fmtValor(v,uLocal);}}},scales:{y:{ticks:{callback:function(v){return fmtValor(v,uLocal);},font:{size:9}}},x:{ticks:{font:{size:9}},offset:true}}}});
+      DASH_CHARTS[cfg.id]=new Chart(canvas,{type:'line',data:{labels:labels,datasets:[{data:vals,borderColor:'#8BBF3A',backgroundColor:'rgba(139,191,58,.1)',tension:.3,pointRadius:4,pointHoverRadius:6,fill:true,pointBackgroundColor:vals.map(function(v){return ptColor(v,metaN,tipoM);})}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{display:mostrarEtiquetas,align:'top',anchor:'top',font:{size:9,weight:'600'},color:function(ctx){return lblColor(ctx.raw,metaN,tipoM);},formatter:function(v){return fmtValor(v,uLocal);}}},scales:{y:{ticks:{callback:function(v){return fmtValor(v,uLocal);},font:{size:9}}},x:{ticks:{font:{size:9}},offset:true}}}});
     } else if(tipo==='barras'){
-      DASH_CHARTS[cfg.id]=new Chart(canvas,{type:'bar',data:{labels:labels,datasets:[{data:vals,backgroundColor:vals.map(function(v){var e=calcEst(v,metaN,tipoM);return e==='ok'?'rgba(139,191,58,.75)':e==='warn'?'rgba(239,200,50,.75)':'rgba(226,75,74,.75)';}),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'end',font:{size:9,weight:'600'},color:function(ctx){return lblColor(ctx.raw,metaN,tipoM);},formatter:function(v){return fmtValor(v,uLocal);}}},scales:{y:{ticks:{callback:function(v){return fmtValor(v,uLocal);},font:{size:9}}},x:{ticks:{font:{size:9}},offset:true}}}});
+      DASH_CHARTS[cfg.id]=new Chart(canvas,{type:'bar',data:{labels:labels,datasets:[{data:vals,backgroundColor:vals.map(function(v){var e=calcEst(v,metaN,tipoM);return e==='ok'?'rgba(139,191,58,.75)':e==='warn'?'rgba(239,200,50,.75)':'rgba(226,75,74,.75)';}),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{display:mostrarEtiquetas,anchor:'end',align:'end',font:{size:9,weight:'600'},color:function(ctx){return lblColor(ctx.raw,metaN,tipoM);},formatter:function(v){return fmtValor(v,uLocal);}}},scales:{y:{ticks:{callback:function(v){return fmtValor(v,uLocal);},font:{size:9}}},x:{ticks:{font:{size:9}},offset:true}}}});
     } else if(tipo==='dona'){
       var ultV=vals.length?vals[vals.length-1]:0;var maxV=parseFloat(ind.meta_numerica)||100;var pct=Math.min(Math.round(ultV/maxV*100),100);
       DASH_CHARTS[cfg.id]=new Chart(canvas,{type:'doughnut',data:{datasets:[{data:[pct,100-pct],backgroundColor:[est==='ok'?'#8BBF3A':est==='warn'?'#EFC832':'#E24B4A','#e8f0d8'],borderWidth:0,circumference:270,rotation:225}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{display:false},tooltip:{enabled:false}},cutout:'75%'}});
@@ -864,6 +884,9 @@ function abrirEditWidget(cfgId){
   // Altos
   var altos=[{v:'h-sm',l:'Bajo'},{v:'h-md',l:'Medio'},{v:'h-lg',l:'Alto'},{v:'h-xl',l:'Extra alto'}];
   document.getElementById('edit-alto-grid').innerHTML=altos.map(function(a){return'<button class="tam-btn'+(cfg.altura===a.v?' selected':'')+'" onclick="selAlto(this,\''+a.v+'\')">'+a.l+'</button>';}).join('');
+  // FIX2: cargar valores actuales de mostrar_etiquetas y mostrar_estado
+  var meEl=document.getElementById('edit-mostrar-etiquetas');if(meEl)meEl.checked=cfg.mostrar_etiquetas!==false;
+  var msEl=document.getElementById('edit-mostrar-estado');if(msEl)msEl.checked=cfg.mostrar_estado!==false;
   openModal('modal-widget');
 }
 function selTipo(btn,v){
@@ -891,13 +914,15 @@ async function aplicarEditWidget(){
   var anchoVal=anchoBtn.getAttribute('data-val');
   var altoVal=altoBtn.getAttribute('data-val');
   // Actualizar en BD
+  var mostEtiq=document.getElementById('edit-mostrar-etiquetas')?document.getElementById('edit-mostrar-etiquetas').checked:true;
+  var mostEst=document.getElementById('edit-mostrar-estado')?document.getElementById('edit-mostrar-estado').checked:true;
   var res=await sb.from('dashboard_config')
-    .update({tipo_widget:tipoVal,tamano:anchoVal,altura:altoVal})
+    .update({tipo_widget:tipoVal,tamano:anchoVal,altura:altoVal,mostrar_etiquetas:mostEtiq,mostrar_estado:mostEst})
     .eq('id',editWidgetId);
   if(res.error){console.error('Error al actualizar widget:',res.error);alert('Error: '+res.error.message);return;}
   // Actualizar en memoria
   var cfg=DASH_CONFIG.find(function(c){return c.id===editWidgetId;});
-  if(cfg){cfg.tipo_widget=tipoVal;cfg.tamano=anchoVal;cfg.altura=altoVal;}
+  if(cfg){cfg.tipo_widget=tipoVal;cfg.tamano=anchoVal;cfg.altura=altoVal;cfg.mostrar_etiquetas=mostEtiq;cfg.mostrar_estado=mostEst;}
   closeModal('modal-widget');
   await loadDashboard();
 }
