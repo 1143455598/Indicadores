@@ -1060,7 +1060,7 @@ async function loadDashboard(){
         '<span class="widget-title" title="'+ind.nombre+'">'+ind.nombre+'</span>'+
         (ind.areas?'<span style="font-size:10px;color:var(--text3);margin-left:6px;white-space:nowrap">'+ind.areas.nombre+'</span>':'')+
         (cfg.mostrar_estado!==false&&u?'<span class="widget-badge" style="background:'+(est==='ok'?'var(--pera-bg)':est==='warn'?'var(--yellow-bg)':'var(--red-bg)')+';color:'+(est==='ok'?'var(--pera-dk)':est==='warn'?'var(--yellow-dk)':'var(--red-dk)')+';margin-left:6px">'+(est==='ok'?'En meta':est==='warn'?'Alerta':'Critico')+'</span>':'')+
-        '<button class="widget-edit-btn" onclick="abrirEditWidget('"+cfg.id+"')" title="Editar widget"><i class="ti ti-pencil"></i> Editar</button>'+
+        '<button class="widget-edit-btn" id="wedit-'+cfg.id+'" title="Editar widget"><i class="ti ti-pencil"></i> Editar</button>'+
       '</div>'+
       '<div class="widget-body" id="wbody-'+cfg.id+'"></div>'+'<div class="resize-handle" id="rh-'+cfg.id+'"></div>';
     // Drag events
@@ -1073,6 +1073,7 @@ async function loadDashboard(){
     // Resize via resize-handle (se adjunta despues del append al DOM)
 
     grid.appendChild(div);
+    (function(cfgId){var eb=document.getElementById('wedit-'+cfgId);if(eb)eb.addEventListener('click',function(){abrirEditWidget(cfgId);});})(cfg.id);
     // FIX3: attach resize handler DESPUES del append (el elemento ya existe en DOM)
     (function(cfgId,indRef,histRef,psRef,dispURef,estRef,colRef){
       var rhEl=document.getElementById('rh-'+cfgId);
@@ -1976,11 +1977,17 @@ async function abrirTarea(id){
 
   // Estado
   var estadoSel=document.getElementById('mt-estado-selector');
+  estadoSel.innerHTML='';
   var estados=['pendiente','en_progreso','en_revision','completada','cancelada'];
-  estadoSel.innerHTML=estados.map(function(e){
-    var i=estadoInfo(e);
-    return'<button class="estado-btn'+(t.estado===e?' selected':'')+'" style="background:'+i.bg+';color:'+i.color+'" onclick="cambiarEstadoModal(''+e+'',this)"><i class="ti '+i.icon+'"></i> '+i.label+'</button>';
-  }).join('');
+  estados.forEach(function(estado){
+    var inf=estadoInfo(estado);
+    var btn=document.createElement('button');
+    btn.className='estado-btn'+(t.estado===estado?' selected':'');
+    btn.style.cssText='background:'+inf.bg+';color:'+inf.color;
+    btn.innerHTML='<i class="ti '+inf.icon+'"></i> '+inf.label;
+    (function(e){btn.addEventListener('click',function(){cambiarEstadoModal(e,btn);});})(estado);
+    estadoSel.appendChild(btn);
+  });
 
   // Descripcion
   document.getElementById('mt-desc-display').textContent=t.descripcion||'Haz clic para agregar descripcion...';
@@ -2155,18 +2162,19 @@ async function cargarEvidencias(tareaId){
 }
 function renderEvidencias(evs){
   var lista=document.getElementById('mt-evidencias-list');if(!lista)return;
+  lista.innerHTML='';
   if(!evs.length){lista.innerHTML='<div style="font-size:12px;color:var(--text3);padding:4px 0">Sin evidencias adjuntas</div>';return;}
-  lista.innerHTML=evs.map(function(e){
-    return'<div class="evidencia-item">'+
-      '<div class="evidencia-ico"><i class="ti ti-link"></i></div>'+
-      '<div style="flex:1;min-width:0">'+
-        '<div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+e.nombre+'</div>'+
-        '<a href="'+e.url+'" target="_blank" style="font-size:11px;color:var(--pera-dk);text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block">'+e.url+'</a>'+
-      '</div>'+
-      '<button class="btn btn-sm btn-danger" onclick="eliminarEvidencia(''+e.id+'')"><i class="ti ti-trash"></i></button>'+
-    '</div>';
-  }).join('');
+  evs.forEach(function(ev){
+    var item=document.createElement('div');item.className='evidencia-item';
+    item.innerHTML='<div class="evidencia-ico"><i class="ti ti-link"></i></div>'+
+      '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+ev.nombre+'</div>'+
+      '<a href="'+ev.url+'" target="_blank" style="font-size:11px;color:var(--pera-dk);text-decoration:none;display:block;overflow:hidden;text-overflow:ellipsis">'+ev.url+'</a></div>';
+    var del=document.createElement('button');del.className='btn btn-sm btn-danger';del.innerHTML='<i class="ti ti-trash"></i>';
+    (function(id){del.addEventListener('click',function(){eliminarEvidencia(id);});})(ev.id);
+    item.appendChild(del);lista.appendChild(item);
+  });
 }
+
 async function agregarEvidencia(){
   if(!TAREA_ACTUAL)return;
   var nombre=document.getElementById('mt-ev-nombre').value.trim();
