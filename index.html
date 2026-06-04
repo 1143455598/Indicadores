@@ -144,21 +144,21 @@ tr:hover td{background:#fafdf5}
 .altura-selector{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 
 /* ── MÓDULO TAREAS ──────────────────────────── */
-.tareas-topbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px}
-.tareas-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
-.tstat{background:var(--surface);border:var(--border);border-radius:var(--radius);padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);cursor:pointer;transition:border-color .15s}
+.tareas-topbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.tareas-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px}
+.tstat{background:var(--surface);border:var(--border);border-radius:var(--radius);padding:10px 14px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow);cursor:pointer;transition:border-color .15s}
 .tstat:hover{border-color:var(--pera)}
 .tstat.active{border-color:var(--pera);background:var(--pera-bg)}
-.tstat-ico{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
-.tstat-num{font-size:22px;font-weight:700;line-height:1}
+.tstat-ico{width:32px;height:32px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.tstat-num{font-size:20px;font-weight:700;line-height:1}
 .tstat-lbl{font-size:11px;color:var(--text3);margin-top:2px}
 /* Vistas */
 .view-tabs{display:flex;gap:4px;background:var(--bg);border:var(--border);border-radius:var(--radius-sm);padding:3px}
 .view-tab{padding:5px 12px;border-radius:4px;font-size:12px;font-weight:500;cursor:pointer;color:var(--text3);border:none;background:transparent;display:flex;align-items:center;gap:5px;transition:all .15s}
 .view-tab.active{background:var(--surface);color:var(--pera-dk);box-shadow:0 1px 3px rgba(0,0,0,.1)}
 /* Kanban */
-.kanban-board{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;min-height:500px;align-items:start}
-.kanban-col{background:var(--bg);border:var(--border);border-radius:var(--radius);min-height:200px}
+.kanban-board{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;align-items:start}
+.kanban-col{background:var(--bg);border:var(--border);border-radius:var(--radius);min-height:160px}
 .kanban-col-head{padding:10px 14px;border-bottom:var(--border);display:flex;align-items:center;justify-content:space-between;border-radius:var(--radius) var(--radius) 0 0}
 .kanban-col-title{font-size:12px;font-weight:600;display:flex;align-items:center;gap:7px}
 .kanban-col-count{background:rgba(0,0,0,.08);border-radius:20px;padding:1px 7px;font-size:11px;font-weight:600}
@@ -225,7 +225,7 @@ tr:hover td{background:#fafdf5}
 .progress-bar-wrap{background:#e8f0d8;border-radius:20px;height:6px;overflow:hidden;margin-top:4px}
 .progress-bar-fill{height:100%;border-radius:20px;background:var(--pera);transition:width .4s}
 /* Filtros tareas */
-.tareas-filters{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;padding:10px 14px;background:var(--surface);border:var(--border);border-radius:var(--radius)}
+.tareas-filters{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 10px;background:var(--surface);border:var(--border);border-radius:var(--radius)}
 .tareas-filters select,.tareas-filters input{padding:5px 8px;border-radius:var(--radius-sm);border:var(--border);font-size:12px;background:var(--surface);color:var(--text)}
 /* Empty state */
 .empty-tareas{text-align:center;padding:60px 20px;color:var(--text3)}
@@ -450,9 +450,8 @@ tr:hover td{background:#fafdf5}
 
       <!-- TAREAS -->
       <div class="page" id="page-tareas">
-
-        <!-- Stats bar -->
-        <div id="tareas-alert" class="alert al-ok" style="display:none;margin-bottom:12px"></div>
+        <div id="tareas-alert" class="alert al-ok" style="display:none;margin-bottom:10px"></div>
+        <!-- stats -->
         <div class="tareas-stats" id="tareas-stats">
           <div class="tstat active" id="tstat-todas" onclick="filtrarEstadoRapido('todas',this)">
             <div class="tstat-ico" style="background:#e8f0f8;color:#185FA5"><i class="ti ti-list-check"></i></div>
@@ -486,7 +485,7 @@ tr:hover td{background:#fafdf5}
           </div>
           <div style="flex:1"></div>
           <!-- Filtros -->
-          <div class="tareas-filters" style="margin-bottom:0;padding:6px 10px">
+          <div class="tareas-filters">
             <i class="ti ti-filter" style="color:var(--text3);font-size:15px"></i>
             <select id="tf-area" onchange="renderTareas()"><option value="">Todas las areas</option></select>
             <select id="tf-asignado" onchange="renderTareas()"><option value="">Todos</option></select>
@@ -1622,6 +1621,7 @@ async function enviarEnlace(){if(!pwEmail)return;var res=await sb.auth.resetPass
 // ── NAVEGACION ───────────────────────────────────
 async function goTo(page,el){
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  var contentDiv=document.querySelector('.content');if(contentDiv)contentDiv.scrollTop=0;
   document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
   document.getElementById('page-'+page).classList.add('active');
   if(el&&el.classList)el.classList.add('active');
@@ -1643,7 +1643,14 @@ async function goTo(page,el){
   if(page==='historico')await loadHistorico();
   if(page==='usuarios')await loadUsuarios();
   if(page==='config')renderCfgAreas();
-  if(page==='tareas'){initFiltrosTareas();await loadTareas();}
+  if(page==='tareas'){
+    document.getElementById('tareas-kanban').style.display='none';
+    document.getElementById('tareas-lista').style.display='none';
+    document.getElementById('tareas-calendario').style.display='none';
+    initFiltrosTareas();
+    await loadTareas();
+    cambiarVistaT(VISTA_T, document.getElementById('vtab-'+VISTA_T));
+  }
 }
 function cfgTab(t,el){document.querySelectorAll('#page-config .tab').forEach(function(x){x.classList.remove('active');});el.classList.add('active');document.getElementById('cfg-areas').style.display=t==='areas'?'block':'none';document.getElementById('cfg-permisos').style.display=t==='permisos'?'block':'none';}
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&document.getElementById('login-screen').style.display!=='none')doLogin();});
