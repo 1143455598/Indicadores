@@ -142,6 +142,94 @@ tr:hover td{background:#fafdf5}
 .tam-btn:hover{border-color:var(--pera);color:var(--pera-dk)}
 .tam-btn.selected{border-color:var(--pera);background:var(--pera-bg);color:var(--pera-dk);font-weight:600}
 .altura-selector{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+
+/* ── MÓDULO TAREAS ──────────────────────────── */
+.tareas-topbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.tareas-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+.tstat{background:var(--surface);border:var(--border);border-radius:var(--radius);padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);cursor:pointer;transition:border-color .15s}
+.tstat:hover{border-color:var(--pera)}
+.tstat.active{border-color:var(--pera);background:var(--pera-bg)}
+.tstat-ico{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.tstat-num{font-size:22px;font-weight:700;line-height:1}
+.tstat-lbl{font-size:11px;color:var(--text3);margin-top:2px}
+/* Vistas */
+.view-tabs{display:flex;gap:4px;background:var(--bg);border:var(--border);border-radius:var(--radius-sm);padding:3px}
+.view-tab{padding:5px 12px;border-radius:4px;font-size:12px;font-weight:500;cursor:pointer;color:var(--text3);border:none;background:transparent;display:flex;align-items:center;gap:5px;transition:all .15s}
+.view-tab.active{background:var(--surface);color:var(--pera-dk);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+/* Kanban */
+.kanban-board{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;min-height:500px;align-items:start}
+.kanban-col{background:var(--bg);border:var(--border);border-radius:var(--radius);min-height:200px}
+.kanban-col-head{padding:10px 14px;border-bottom:var(--border);display:flex;align-items:center;justify-content:space-between;border-radius:var(--radius) var(--radius) 0 0}
+.kanban-col-title{font-size:12px;font-weight:600;display:flex;align-items:center;gap:7px}
+.kanban-col-count{background:rgba(0,0,0,.08);border-radius:20px;padding:1px 7px;font-size:11px;font-weight:600}
+.kanban-col-body{padding:10px;display:flex;flex-direction:column;gap:8px;min-height:120px}
+.kanban-col-body.drag-over-col{background:var(--pera-bg);border-radius:0 0 var(--radius) var(--radius)}
+/* Tarjeta de tarea */
+.tarea-card{background:var(--surface);border:var(--border);border-radius:var(--radius-sm);padding:12px 14px;cursor:pointer;transition:all .15s;position:relative}
+.tarea-card:hover{box-shadow:0 3px 12px rgba(0,0,0,.1);border-color:var(--pera-l);transform:translateY(-1px)}
+.tarea-card.dragging{opacity:.4}
+.tarea-card.drag-over{border:2px dashed var(--pera);background:var(--pera-bg)}
+.tc-prioridad{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;margin-bottom:8px}
+.p-alta{background:#FCEBEB;color:#A32D2D}.p-media{background:#FFF8DC;color:#8a6000}.p-baja{background:#e6f1fb;color:#185FA5}
+.tc-titulo{font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px;line-height:1.4}
+.tc-desc{font-size:11px;color:var(--text3);margin-bottom:10px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tc-footer{display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap}
+.tc-assignee{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)}
+.tc-av{width:20px;height:20px;border-radius:50%;background:var(--pera);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:#fff;flex-shrink:0}
+.tc-fecha{display:flex;align-items:center;gap:3px;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500}
+.tc-fecha.ok{background:var(--pera-bg);color:var(--pera-dk)}
+.tc-fecha.warn{background:var(--yellow-bg);color:var(--yellow-dk)}
+.tc-fecha.venc{background:var(--red-bg);color:var(--red-dk)}
+.tc-fecha.nd{background:#f0f0ee;color:#777}
+.tc-badges{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}
+.tc-badge{font-size:10px;padding:1px 6px;border-radius:20px;background:#f0f0ee;color:#555}
+.tc-icons{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text3)}
+.tc-vencida-bar{position:absolute;top:0;left:0;width:3px;height:100%;border-radius:var(--radius-sm) 0 0 var(--radius-sm);background:var(--red)}
+/* Vista lista */
+.lista-tareas{display:flex;flex-direction:column;gap:8px}
+.lista-tarea-row{background:var(--surface);border:var(--border);border-radius:var(--radius-sm);padding:12px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .15s}
+.lista-tarea-row:hover{box-shadow:var(--shadow);border-color:var(--pera-l)}
+.ltr-check{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
+.ltr-check.done{background:var(--pera);border-color:var(--pera);color:#fff}
+.ltr-info{flex:1;min-width:0}
+.ltr-titulo{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ltr-titulo.done{text-decoration:line-through;color:var(--text3)}
+.ltr-sub{font-size:11px;color:var(--text3);margin-top:2px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+/* Vista calendario */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-header-day{text-align:center;font-size:11px;font-weight:600;color:var(--text3);padding:6px 0}
+.cal-day{background:var(--surface);border:var(--border);border-radius:6px;min-height:80px;padding:6px}
+.cal-day.hoy{border-color:var(--pera);background:var(--pera-bg)}
+.cal-day.otro-mes{opacity:.4}
+.cal-day-num{font-size:11px;font-weight:600;color:var(--text3);margin-bottom:4px}
+.cal-day.hoy .cal-day-num{color:var(--pera-dk)}
+.cal-task-dot{font-size:10px;padding:1px 5px;border-radius:3px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+/* Modal tarea */
+.modal-tarea{width:860px;max-width:96vw}
+.tarea-detail-grid{display:grid;grid-template-columns:1fr 320px;gap:20px}
+.tarea-detail-main{}
+.tarea-detail-side{border-left:var(--border);padding-left:20px}
+.estado-selector{display:flex;gap:6px;flex-wrap:wrap}
+.estado-btn{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;border:1.5px solid transparent;cursor:pointer;transition:all .15s;background:var(--bg)}
+.estado-btn:hover{border-color:var(--pera)}
+.estado-btn.selected{border-color:var(--pera);background:var(--pera-bg);color:var(--pera-dk)}
+.comentario-item{background:var(--bg);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:8px}
+.comentario-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.evidencia-item{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg);border-radius:var(--radius-sm);margin-bottom:6px}
+.evidencia-ico{width:32px;height:32px;border-radius:6px;background:var(--pera-bg);display:flex;align-items:center;justify-content:center;color:var(--pera-dk);font-size:16px;flex-shrink:0}
+.subtarea-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:var(--border)}
+.subtarea-check{width:16px;height:16px;border-radius:3px;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.subtarea-check.done{background:var(--pera);border-color:var(--pera);color:#fff}
+.historial-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:var(--border);font-size:12px}
+.hist-dot{width:8px;height:8px;border-radius:50%;background:var(--pera);flex-shrink:0;margin-top:4px}
+.progress-bar-wrap{background:#e8f0d8;border-radius:20px;height:6px;overflow:hidden;margin-top:4px}
+.progress-bar-fill{height:100%;border-radius:20px;background:var(--pera);transition:width .4s}
+/* Filtros tareas */
+.tareas-filters{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;padding:10px 14px;background:var(--surface);border:var(--border);border-radius:var(--radius)}
+.tareas-filters select,.tareas-filters input{padding:5px 8px;border-radius:var(--radius-sm);border:var(--border);font-size:12px;background:var(--surface);color:var(--text)}
+/* Empty state */
+.empty-tareas{text-align:center;padding:60px 20px;color:var(--text3)}
+.empty-tareas i{font-size:52px;display:block;margin-bottom:14px;color:var(--pera-l)}
 </style>
 </head>
 <body>
@@ -174,6 +262,7 @@ tr:hover td{background:#fafdf5}
       <div class="nav-item" onclick="goTo('registro',this)"><i class="ti ti-edit"></i><span>Registrar resultados</span></div>
       <div class="nav-item" onclick="goTo('historico',this)"><i class="ti ti-history"></i><span>Historico</span></div>
       <div class="nav-item" onclick="goTo('informes',this)"><i class="ti ti-file-analytics"></i><span>Informes</span></div>
+      <div class="nav-item" onclick="goTo('tareas',this)" id="nav-tareas"><i class="ti ti-checkup-list"></i><span>Tareas</span><span id="nav-tareas-badge" style="margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:20px;display:none">0</span></div>
     </div>
     <div class="nav-sec" id="nav-admin">
       <div class="nav-lbl">Administracion</div>
@@ -358,6 +447,84 @@ tr:hover td{background:#fafdf5}
   </div>
 </div>
 
+
+      <!-- TAREAS -->
+      <div class="page" id="page-tareas">
+
+        <!-- Stats bar -->
+        <div id="tareas-alert" class="alert al-ok" style="display:none;margin-bottom:12px"></div>
+        <div class="tareas-stats" id="tareas-stats">
+          <div class="tstat active" id="tstat-todas" onclick="filtrarEstadoRapido('todas',this)">
+            <div class="tstat-ico" style="background:#e8f0f8;color:#185FA5"><i class="ti ti-list-check"></i></div>
+            <div><div class="tstat-num" id="tcount-todas">0</div><div class="tstat-lbl">Total</div></div>
+          </div>
+          <div class="tstat" id="tstat-pendiente" onclick="filtrarEstadoRapido('pendiente',this)">
+            <div class="tstat-ico" style="background:#f0f0ee;color:#555"><i class="ti ti-clock"></i></div>
+            <div><div class="tstat-num" id="tcount-pendiente">0</div><div class="tstat-lbl">Pendientes</div></div>
+          </div>
+          <div class="tstat" id="tstat-en_progreso" onclick="filtrarEstadoRapido('en_progreso',this)">
+            <div class="tstat-ico" style="background:#FFF8DC;color:#8a6000"><i class="ti ti-player-play"></i></div>
+            <div><div class="tstat-num" id="tcount-en_progreso">0</div><div class="tstat-lbl">En progreso</div></div>
+          </div>
+          <div class="tstat" id="tstat-vencidas" onclick="filtrarEstadoRapido('vencidas',this)">
+            <div class="tstat-ico" style="background:var(--red-bg);color:var(--red-dk)"><i class="ti ti-alert-circle"></i></div>
+            <div><div class="tstat-num" id="tcount-vencidas">0</div><div class="tstat-lbl">Vencidas</div></div>
+          </div>
+          <div class="tstat" id="tstat-completada" onclick="filtrarEstadoRapido('completada',this)">
+            <div class="tstat-ico" style="background:var(--pera-bg);color:var(--pera-dk)"><i class="ti ti-circle-check"></i></div>
+            <div><div class="tstat-num" id="tcount-completada">0</div><div class="tstat-lbl">Completadas</div></div>
+          </div>
+        </div>
+
+        <!-- Topbar acciones -->
+        <div class="tareas-topbar">
+          <button class="btn btn-p btn-sm" onclick="abrirNuevaTarea()"><i class="ti ti-plus"></i> Nueva tarea</button>
+          <div class="view-tabs">
+            <button class="view-tab active" id="vtab-kanban" onclick="cambiarVistaT('kanban',this)"><i class="ti ti-layout-kanban"></i> Kanban</button>
+            <button class="view-tab" id="vtab-lista" onclick="cambiarVistaT('lista',this)"><i class="ti ti-list"></i> Lista</button>
+            <button class="view-tab" id="vtab-cal" onclick="cambiarVistaT('calendario',this)"><i class="ti ti-calendar"></i> Calendario</button>
+          </div>
+          <div style="flex:1"></div>
+          <!-- Filtros -->
+          <div class="tareas-filters" style="margin-bottom:0;padding:6px 10px">
+            <i class="ti ti-filter" style="color:var(--text3);font-size:15px"></i>
+            <select id="tf-area" onchange="renderTareas()"><option value="">Todas las areas</option></select>
+            <select id="tf-asignado" onchange="renderTareas()"><option value="">Todos</option></select>
+            <select id="tf-prioridad" onchange="renderTareas()">
+              <option value="">Prioridad</option>
+              <option value="alta">Alta</option>
+              <option value="media">Media</option>
+              <option value="baja">Baja</option>
+            </select>
+            <input type="text" id="tf-buscar" placeholder="Buscar..." oninput="renderTareas()" style="width:140px"/>
+            <button class="btn btn-sm" onclick="limpiarFiltrosT()"><i class="ti ti-x"></i></button>
+          </div>
+        </div>
+
+        <!-- VISTA KANBAN -->
+        <div id="tareas-kanban">
+          <div class="kanban-board" id="kanban-board"></div>
+        </div>
+
+        <!-- VISTA LISTA -->
+        <div id="tareas-lista" style="display:none">
+          <div class="lista-tareas" id="lista-tareas-body"></div>
+        </div>
+
+        <!-- VISTA CALENDARIO -->
+        <div id="tareas-calendario" style="display:none">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+            <button class="btn btn-sm" onclick="navCal(-1)"><i class="ti ti-chevron-left"></i></button>
+            <span id="cal-mes-lbl" style="font-size:14px;font-weight:600;min-width:160px;text-align:center"></span>
+            <button class="btn btn-sm" onclick="navCal(1)"><i class="ti ti-chevron-right"></i></button>
+            <button class="btn btn-sm" onclick="irHoyCal()">Hoy</button>
+          </div>
+          <div class="cal-grid" id="cal-headers"></div>
+          <div class="cal-grid" id="cal-body" style="margin-top:4px"></div>
+        </div>
+
+      </div>
+
 <!-- PANEL DE PERSONALIZACION -->
 <div class="panel-overlay" id="panel-overlay" onclick="cerrarPersonalizacion()"></div>
 <div class="panel-drawer" id="panel-drawer">
@@ -408,6 +575,139 @@ tr:hover td{background:#fafdf5}
     <div class="modal-footer">
       <button class="btn" onclick="closeModal('modal-widget')">Cancelar</button>
       <button class="btn btn-p" onclick="aplicarEditWidget()"><i class="ti ti-check"></i> Aplicar</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODAL TAREA DETALLE -->
+<div class="modal-ov" id="modal-tarea">
+  <div class="modal modal-tarea">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;gap:12px">
+      <div style="flex:1">
+        <div id="mt-prioridad-badge" style="margin-bottom:8px"></div>
+        <div id="mt-titulo-display" style="font-size:18px;font-weight:700;color:var(--text);line-height:1.3;cursor:pointer" onclick="editarCampoTarea('titulo')" title="Click para editar"></div>
+        <div id="mt-titulo-edit" style="display:none">
+          <input class="form-i" id="mt-titulo-input" style="font-size:16px;font-weight:600" onblur="guardarCampoTarea('titulo')" onkeydown="if(event.key==='Enter')guardarCampoTarea('titulo')"/>
+        </div>
+      </div>
+      <button class="btn btn-sm" onclick="closeModal('modal-tarea')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="tarea-detail-grid">
+      <!-- Columna principal -->
+      <div class="tarea-detail-main">
+        <!-- Estado -->
+        <div class="form-g">
+          <label class="form-l"><i class="ti ti-flag"></i> Estado</label>
+          <div class="estado-selector" id="mt-estado-selector"></div>
+        </div>
+        <!-- Descripcion -->
+        <div class="form-g">
+          <label class="form-l"><i class="ti ti-align-left"></i> Descripcion</label>
+          <div id="mt-desc-display" style="font-size:13px;color:var(--text);line-height:1.6;min-height:36px;padding:8px;border-radius:var(--radius-sm);border:var(--border);cursor:pointer;background:var(--bg)" onclick="editarCampoTarea('descripcion')"></div>
+          <div id="mt-desc-edit" style="display:none">
+            <textarea class="form-i" id="mt-desc-input" rows="4" onblur="guardarCampoTarea('descripcion')"></textarea>
+          </div>
+        </div>
+        <!-- Subtareas -->
+        <div class="form-g">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <label class="form-l" style="margin:0"><i class="ti ti-subtask"></i> Subtareas <span id="mt-sub-progress" style="font-weight:400;color:var(--text3)"></span></label>
+          </div>
+          <div class="progress-bar-wrap"><div class="progress-bar-fill" id="mt-sub-bar" style="width:0%"></div></div>
+          <div id="mt-subtareas-list" style="margin-top:10px"></div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <input class="form-i" id="mt-nueva-subtarea" placeholder="Agregar subtarea..." style="flex:1" onkeydown="if(event.key==='Enter')agregarSubtarea()"/>
+            <button class="btn btn-sm btn-p" onclick="agregarSubtarea()"><i class="ti ti-plus"></i></button>
+          </div>
+        </div>
+        <!-- Evidencias -->
+        <div class="form-g">
+          <label class="form-l"><i class="ti ti-paperclip"></i> Evidencias y archivos</label>
+          <div id="mt-evidencias-list"></div>
+          <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+            <input class="form-i" id="mt-ev-nombre" placeholder="Nombre del archivo/link" style="flex:1;min-width:120px"/>
+            <input class="form-i" id="mt-ev-url" placeholder="URL o enlace" style="flex:1;min-width:160px"/>
+            <button class="btn btn-sm btn-p" onclick="agregarEvidencia()"><i class="ti ti-upload"></i> Agregar</button>
+          </div>
+        </div>
+        <!-- Comentarios -->
+        <div class="form-g">
+          <label class="form-l"><i class="ti ti-message-circle"></i> Comentarios y seguimiento</label>
+          <div id="mt-comentarios-list" style="max-height:260px;overflow-y:auto"></div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <textarea class="form-i" id="mt-nuevo-comentario" rows="2" placeholder="Escribe un comentario, actualización o novedad..." style="flex:1"></textarea>
+            <button class="btn btn-sm btn-p" style="align-self:flex-end" onclick="agregarComentario()"><i class="ti ti-send"></i></button>
+          </div>
+        </div>
+      </div>
+      <!-- Columna lateral -->
+      <div class="tarea-detail-side">
+        <div class="form-g">
+          <label class="form-l"><i class="ti ti-user"></i> Asignado a</label>
+          <select class="form-i" id="mt-asignado" onchange="guardarCampoTarea('asignado_a')"></select>
+        </div>
+        <div class="form-g">
+          <label class="form-l"><i class="ti ti-user-check"></i> Asignado por</label>
+          <div id="mt-asignado-por" style="font-size:13px;color:var(--text2);padding:4px 0"></div>
+        </div>
+        <div class="form-g">
+          <label class="form-l"><i class="ti ti-building"></i> Area</label>
+          <select class="form-i" id="mt-area" onchange="guardarCampoTarea('area_id')"></select>
+        </div>
+        <div class="form-g">
+          <label class="form-l"><i class="ti ti-urgent"></i> Prioridad</label>
+          <select class="form-i" id="mt-prioridad" onchange="guardarCampoTarea('prioridad')">
+            <option value="alta">🔴 Alta</option>
+            <option value="media">🟡 Media</option>
+            <option value="baja">🔵 Baja</option>
+          </select>
+        </div>
+        <div class="form-g">
+          <label class="form-l"><i class="ti ti-calendar-due"></i> Fecha limite</label>
+          <input type="date" class="form-i" id="mt-fecha-limite" onchange="guardarCampoTarea('fecha_limite')"/>
+        </div>
+        <div class="form-g">
+          <label class="form-l"><i class="ti ti-tag"></i> Etiquetas</label>
+          <input class="form-i" id="mt-etiquetas" placeholder="ej: urgente, reunión, informe" onblur="guardarCampoTarea('etiquetas')"/>
+          <div style="font-size:10px;color:var(--text3);margin-top:3px">Separadas por coma</div>
+        </div>
+        <div class="form-g">
+          <label class="form-l"><i class="ti ti-history"></i> Historial</label>
+          <div id="mt-historial" style="max-height:200px;overflow-y:auto"></div>
+        </div>
+        <div style="padding-top:12px;border-top:var(--border);display:flex;justify-content:flex-end">
+          <button class="btn btn-sm btn-danger" onclick="eliminarTareaActual()"><i class="ti ti-trash"></i> Eliminar tarea</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NUEVA TAREA -->
+<div class="modal-ov" id="modal-nueva-tarea">
+  <div class="modal" style="width:560px">
+    <div class="modal-title"><i class="ti ti-checkup-list" style="color:var(--pera)"></i> Nueva tarea</div>
+    <div class="form-g"><label class="form-l">Titulo *</label><input class="form-i" id="nt-titulo" placeholder="¿Qué hay que hacer?"/></div>
+    <div class="form-g"><label class="form-l">Descripcion</label><textarea class="form-i" id="nt-desc" rows="3" placeholder="Contexto, instrucciones, detalles..."></textarea></div>
+    <div class="form-row">
+      <div class="form-g"><label class="form-l">Asignar a</label><select class="form-i" id="nt-asignado"><option value="">Sin asignar</option></select></div>
+      <div class="form-g"><label class="form-l">Area</label><select class="form-i" id="nt-area"><option value="">Sin area</option></select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-g"><label class="form-l">Prioridad</label>
+        <select class="form-i" id="nt-prioridad">
+          <option value="media">🟡 Media</option>
+          <option value="alta">🔴 Alta</option>
+          <option value="baja">🔵 Baja</option>
+        </select>
+      </div>
+      <div class="form-g"><label class="form-l">Fecha limite</label><input type="date" class="form-i" id="nt-fecha-limite"/></div>
+    </div>
+    <div class="form-g"><label class="form-l">Etiquetas (separadas por coma)</label><input class="form-i" id="nt-etiquetas" placeholder="ej: urgente, revisión, informe"/></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-nueva-tarea')">Cancelar</button>
+      <button class="btn btn-p" onclick="crearTarea()"><i class="ti ti-check"></i> Crear tarea</button>
     </div>
   </div>
 </div>
@@ -1091,7 +1391,7 @@ async function goTo(page,el){
   document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
   document.getElementById('page-'+page).classList.add('active');
   if(el&&el.classList)el.classList.add('active');
-  var titles={dashboard:'Dashboard',indicadores:'Indicadores',registro:'Registrar resultados',historico:'Historico de indicadores',informes:'Informes',usuarios:'Usuarios',config:'Configuracion'};
+  var titles={dashboard:'Dashboard',indicadores:'Indicadores',registro:'Registrar resultados',historico:'Historico de indicadores',informes:'Informes',tareas:'Tareas',usuarios:'Usuarios',config:'Configuracion'};
   document.getElementById('page-title').textContent=titles[page]||page;
   var isAdmin=CP&&CP.rol==='administrador';
   var dashActions=document.getElementById('dash-topbar-actions');
@@ -1109,9 +1409,594 @@ async function goTo(page,el){
   if(page==='historico')await loadHistorico();
   if(page==='usuarios')await loadUsuarios();
   if(page==='config')renderCfgAreas();
+  if(page==='tareas'){initFiltrosTareas();await loadTareas();}
 }
 function cfgTab(t,el){document.querySelectorAll('#page-config .tab').forEach(function(x){x.classList.remove('active');});el.classList.add('active');document.getElementById('cfg-areas').style.display=t==='areas'?'block':'none';document.getElementById('cfg-permisos').style.display=t==='permisos'?'block':'none';}
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&document.getElementById('login-screen').style.display!=='none')doLogin();});
+
+// ══════════════════════════════════════════════════
+// ── MÓDULO TAREAS ─────────────────────────────────
+// ══════════════════════════════════════════════════
+var TAREAS_ALL = [];
+var TAREA_ACTUAL = null;
+var SUBTAREAS_ACTUAL = [];
+var VISTA_T = 'kanban';
+var FILTRO_ESTADO_RAPIDO = 'todas';
+var CAL_MES = new Date().getMonth();
+var CAL_ANIO = new Date().getFullYear();
+
+// ── UTILS TAREAS ──────────────────────────────────
+function prioBadge(p){
+  if(p==='alta')return'<span class="tc-prioridad p-alta"><i class="ti ti-flame"></i> Alta</span>';
+  if(p==='media')return'<span class="tc-prioridad p-media"><i class="ti ti-minus"></i> Media</span>';
+  return'<span class="tc-prioridad p-baja"><i class="ti ti-arrow-down"></i> Baja</span>';
+}
+function estadoInfo(e){
+  var m={
+    pendiente:{label:'Pendiente',bg:'#f0f0ee',color:'#555',icon:'ti-clock'},
+    en_progreso:{label:'En progreso',bg:'#FFF8DC',color:'#8a6000',icon:'ti-player-play'},
+    en_revision:{label:'En revision',bg:'#e6f1fb',color:'#185FA5',icon:'ti-eye'},
+    completada:{label:'Completada',bg:'var(--pera-bg)',color:'var(--pera-dk)',icon:'ti-circle-check'},
+    cancelada:{label:'Cancelada',bg:'var(--red-bg)',color:'var(--red-dk)',icon:'ti-circle-x'}
+  };
+  return m[e]||m['pendiente'];
+}
+function estadoBadgeT(e){var i=estadoInfo(e);return'<span style="background:'+i.bg+';color:'+i.color+';padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;display:inline-flex;align-items:center;gap:4px"><i class="ti '+i.icon+'"></i>'+i.label+'</span>';}
+function fechaInfo(fl,estado){
+  if(!fl||estado==='completada'||estado==='cancelada')return{cls:'nd',txt:fl?formatFecha(fl):'Sin fecha'};
+  var hoy=new Date();hoy.setHours(0,0,0,0);
+  var lim=new Date(fl+'T00:00:00');
+  var diff=Math.round((lim-hoy)/(1000*60*60*24));
+  if(diff<0)return{cls:'venc',txt:'Vencida hace '+Math.abs(diff)+'d'};
+  if(diff===0)return{cls:'warn',txt:'Vence hoy'};
+  if(diff<=3)return{cls:'warn',txt:'Vence en '+diff+'d'};
+  return{cls:'ok',txt:formatFecha(fl)};
+}
+function formatFecha(f){if(!f)return'';var p=f.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+function avatarIni(nombre){if(!nombre)return'?';return nombre.split(' ').map(function(x){return x[0];}).join('').substring(0,2).toUpperCase();}
+
+// ── CARGA PRINCIPAL ───────────────────────────────
+async function loadTareas(){
+  var res=await sb.from('tareas').select('*,asignado_a_perfil:perfiles!tareas_asignado_a_fkey(id,nombre),asignado_por_perfil:perfiles!tareas_asignado_por_fkey(id,nombre),areas(nombre)').order('created_at',{ascending:false});
+  TAREAS_ALL=res.data||[];
+  actualizarStats();
+  renderTareas();
+  actualizarBadgeNav();
+}
+function actualizarStats(){
+  var hoy=new Date();hoy.setHours(0,0,0,0);
+  var counts={todas:TAREAS_ALL.length,pendiente:0,en_progreso:0,completada:0,vencidas:0};
+  TAREAS_ALL.forEach(function(t){
+    if(t.estado==='pendiente')counts.pendiente++;
+    if(t.estado==='en_progreso')counts.en_progreso++;
+    if(t.estado==='completada')counts.completada++;
+    if(t.fecha_limite&&t.estado!=='completada'&&t.estado!=='cancelada'){
+      var lim=new Date(t.fecha_limite+'T00:00:00');
+      if(lim<hoy)counts.vencidas++;
+    }
+  });
+  ['todas','pendiente','en_progreso','completada','vencidas'].forEach(function(k){
+    var el=document.getElementById('tcount-'+k);
+    if(el)el.textContent=counts[k];
+  });
+}
+function actualizarBadgeNav(){
+  var hoy=new Date();hoy.setHours(0,0,0,0);
+  var vencidas=TAREAS_ALL.filter(function(t){
+    if(t.estado==='completada'||t.estado==='cancelada')return false;
+    if(!t.fecha_limite)return false;
+    return new Date(t.fecha_limite+'T00:00:00')<hoy;
+  }).length;
+  var badge=document.getElementById('nav-tareas-badge');
+  if(badge){badge.textContent=vencidas;badge.style.display=vencidas>0?'inline':'none';}
+}
+function filtrarEstadoRapido(estado,el){
+  FILTRO_ESTADO_RAPIDO=estado;
+  document.querySelectorAll('.tstat').forEach(function(s){s.classList.remove('active');});
+  if(el)el.classList.add('active');
+  renderTareas();
+}
+function getFiltradas(){
+  var area=document.getElementById('tf-area')?document.getElementById('tf-area').value:'';
+  var asig=document.getElementById('tf-asignado')?document.getElementById('tf-asignado').value:'';
+  var prio=document.getElementById('tf-prioridad')?document.getElementById('tf-prioridad').value:'';
+  var busq=(document.getElementById('tf-buscar')?document.getElementById('tf-buscar').value:'').toLowerCase();
+  var hoy=new Date();hoy.setHours(0,0,0,0);
+  return TAREAS_ALL.filter(function(t){
+    if(FILTRO_ESTADO_RAPIDO==='vencidas'){
+      if(t.estado==='completada'||t.estado==='cancelada')return false;
+      if(!t.fecha_limite)return false;
+      if(new Date(t.fecha_limite+'T00:00:00')>=hoy)return false;
+    } else if(FILTRO_ESTADO_RAPIDO!=='todas'){
+      if(t.estado!==FILTRO_ESTADO_RAPIDO)return false;
+    }
+    if(area&&t.area_id!==area)return false;
+    if(asig&&t.asignado_a!==asig)return false;
+    if(prio&&t.prioridad!==prio)return false;
+    if(busq&&t.titulo.toLowerCase().indexOf(busq)<0&&(!t.descripcion||t.descripcion.toLowerCase().indexOf(busq)<0))return false;
+    return true;
+  });
+}
+function limpiarFiltrosT(){
+  ['tf-area','tf-asignado','tf-prioridad'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
+  var b=document.getElementById('tf-buscar');if(b)b.value='';
+  FILTRO_ESTADO_RAPIDO='todas';
+  document.querySelectorAll('.tstat').forEach(function(s){s.classList.remove('active');});
+  var ta=document.getElementById('tstat-todas');if(ta)ta.classList.add('active');
+  renderTareas();
+}
+function cambiarVistaT(vista,btn){
+  VISTA_T=vista;
+  document.querySelectorAll('.view-tab').forEach(function(b){b.classList.remove('active');});
+  if(btn)btn.classList.add('active');
+  document.getElementById('tareas-kanban').style.display=vista==='kanban'?'block':'none';
+  document.getElementById('tareas-lista').style.display=vista==='lista'?'block':'none';
+  document.getElementById('tareas-calendario').style.display=vista==='calendario'?'block':'none';
+  if(vista==='calendario')renderCalendario();
+  else renderTareas();
+}
+function renderTareas(){
+  if(VISTA_T==='kanban')renderKanban();
+  else if(VISTA_T==='lista')renderLista();
+  else renderCalendario();
+}
+
+// ── KANBAN ────────────────────────────────────────
+var COLUMNAS=[
+  {id:'pendiente',label:'Pendiente',ico:'ti-clock',bg:'#f0f0ee',color:'#555'},
+  {id:'en_progreso',label:'En progreso',ico:'ti-player-play',bg:'#FFF8DC',color:'#8a6000'},
+  {id:'en_revision',label:'En revision',ico:'ti-eye',bg:'#e6f1fb',color:'#185FA5'},
+  {id:'completada',label:'Completada',ico:'ti-circle-check',bg:'var(--pera-bg)',color:'var(--pera-dk)'},
+  {id:'cancelada',label:'Cancelada',ico:'ti-circle-x',bg:'var(--red-bg)',color:'var(--red-dk)'}
+];
+var dragTareaId=null;
+function renderKanban(){
+  var filtradas=getFiltradas();
+  var board=document.getElementById('kanban-board');
+  if(!board)return;
+  board.innerHTML='';
+  var hoy=new Date();hoy.setHours(0,0,0,0);
+  COLUMNAS.forEach(function(col){
+    var tareas=filtradas.filter(function(t){return t.estado===col.id;});
+    var colEl=document.createElement('div');
+    colEl.className='kanban-col';
+    colEl.dataset.estado=col.id;
+    colEl.innerHTML='<div class="kanban-col-head" style="background:'+col.bg+'"><div class="kanban-col-title" style="color:'+col.color+'"><i class="ti '+col.ico+'"></i>'+col.label+'</div><span class="kanban-col-count" style="background:'+col.bg+';color:'+col.color+'">'+tareas.length+'</span></div><div class="kanban-col-body" id="kbody-'+col.id+'"></div>';
+    board.appendChild(colEl);
+    var body=document.getElementById('kbody-'+col.id);
+    // Drag over columna
+    body.addEventListener('dragover',function(e){e.preventDefault();body.classList.add('drag-over-col');});
+    body.addEventListener('dragleave',function(){body.classList.remove('drag-over-col');});
+    body.addEventListener('drop',function(e){
+      e.preventDefault();body.classList.remove('drag-over-col');
+      if(dragTareaId)cambiarEstadoTarea(dragTareaId,col.id);
+    });
+    if(!tareas.length){
+      body.innerHTML='<div style="text-align:center;padding:20px 10px;color:var(--text3);font-size:12px"><i class="ti ti-inbox" style="font-size:24px;display:block;margin-bottom:6px;opacity:.4"></i>Sin tareas</div>';
+      return;
+    }
+    tareas.forEach(function(t){
+      var fi=fechaInfo(t.fecha_limite,t.estado);
+      var nombre=t.asignado_a_perfil?t.asignado_a_perfil.nombre:'Sin asignar';
+      var ini=avatarIni(nombre);
+      var etqs=(t.etiquetas||[]).slice(0,2).map(function(e){return'<span class="tc-badge">'+e+'</span>';}).join('');
+      var card=document.createElement('div');
+      card.className='tarea-card';
+      card.draggable=true;
+      card.dataset.id=t.id;
+      var vencida=fi.cls==='venc';
+      card.innerHTML=(vencida?'<div class="tc-vencida-bar"></div>':'')+
+        prioBadge(t.prioridad)+
+        '<div class="tc-titulo">'+t.titulo+'</div>'+
+        (t.descripcion?'<div class="tc-desc">'+t.descripcion+'</div>':'')+
+        (etqs?'<div class="tc-badges">'+etqs+'</div>':'')+
+        '<div class="tc-footer">'+
+          '<div class="tc-assignee"><div class="tc-av" style="background:'+(vencida?'var(--red)':'var(--pera)')+'">'+ini+'</div><span>'+nombre+'</span></div>'+
+          '<span class="tc-fecha '+fi.cls+'"><i class="ti ti-calendar" style="font-size:10px"></i>'+fi.txt+'</span>'+
+        '</div>';
+      card.addEventListener('click',function(){abrirTarea(t.id);});
+      card.addEventListener('dragstart',function(e){dragTareaId=t.id;card.classList.add('dragging');e.dataTransfer.effectAllowed='move';});
+      card.addEventListener('dragend',function(){card.classList.remove('dragging');dragTareaId=null;document.querySelectorAll('.kanban-col-body').forEach(function(b){b.classList.remove('drag-over-col');});});
+      body.appendChild(card);
+    });
+  });
+}
+
+// ── LISTA ─────────────────────────────────────────
+function renderLista(){
+  var filtradas=getFiltradas();
+  var body=document.getElementById('lista-tareas-body');
+  if(!body)return;
+  if(!filtradas.length){body.innerHTML='<div class="empty-tareas"><i class="ti ti-checkup-list"></i><div style="font-size:15px;font-weight:600;margin-bottom:6px">Sin tareas</div><p>No hay tareas que coincidan con los filtros.</p></div>';return;}
+  body.innerHTML=filtradas.map(function(t){
+    var fi=fechaInfo(t.fecha_limite,t.estado);
+    var nombre=t.asignado_a_perfil?t.asignado_a_perfil.nombre:'Sin asignar';
+    var done=t.estado==='completada';
+    var ei=estadoInfo(t.estado);
+    return'<div class="lista-tarea-row" onclick="abrirTarea(''+t.id+'')" >'+
+      '<div class="ltr-check '+(done?'done':'')+'" onclick="event.stopPropagation();toggleCompletada(''+t.id+'','+done+')">'+
+        (done?'<i class="ti ti-check" style="font-size:11px"></i>':'')+
+      '</div>'+
+      '<div class="ltr-info">'+
+        '<div class="ltr-titulo '+(done?'done':'')+'" >'+t.titulo+'</div>'+
+        '<div class="ltr-sub">'+
+          prioBadge(t.prioridad)+
+          '<span style="background:'+ei.bg+';color:'+ei.color+';padding:1px 7px;border-radius:20px;font-size:10px;font-weight:600">'+ei.label+'</span>'+
+          (t.areas?'<span style="color:var(--text3)"><i class="ti ti-folder" style="font-size:10px"></i> '+t.areas.nombre+'</span>':'')+
+        '</div>'+
+      '</div>'+
+      '<div style="display:flex;align-items:center;gap:12px;flex-shrink:0">'+
+        '<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)">'+
+          '<div class="tc-av" style="width:22px;height:22px;font-size:9px">'+avatarIni(nombre)+'</div>'+
+          nombre+
+        '</div>'+
+        '<span class="tc-fecha '+fi.cls+'"><i class="ti ti-calendar" style="font-size:10px"></i> '+fi.txt+'</span>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+// ── CALENDARIO ────────────────────────────────────
+function navCal(d){CAL_MES+=d;if(CAL_MES>11){CAL_MES=0;CAL_ANIO++;}if(CAL_MES<0){CAL_MES=11;CAL_ANIO--;}renderCalendario();}
+function irHoyCal(){var n=new Date();CAL_MES=n.getMonth();CAL_ANIO=n.getFullYear();renderCalendario();}
+function renderCalendario(){
+  var dias=['Dom','Lun','Mar','Mie','Jue','Vie','Sab'];
+  var meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var lbl=document.getElementById('cal-mes-lbl');
+  if(lbl)lbl.textContent=meses[CAL_MES]+' '+CAL_ANIO;
+  var hdr=document.getElementById('cal-headers');
+  if(hdr)hdr.innerHTML=dias.map(function(d){return'<div class="cal-header-day">'+d+'</div>';}).join('');
+  var primerDia=new Date(CAL_ANIO,CAL_MES,1).getDay();
+  var diasEnMes=new Date(CAL_ANIO,CAL_MES+1,0).getDate();
+  var hoy=new Date();
+  var body=document.getElementById('cal-body');if(!body)return;
+  var cells='';
+  // Celdas vacías inicio
+  for(var i=0;i<primerDia;i++)cells+='<div class="cal-day otro-mes"></div>';
+  for(var d=1;d<=diasEnMes;d++){
+    var fechaStr=CAL_ANIO+'-'+String(CAL_MES+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    var esHoy=hoy.getFullYear()===CAL_ANIO&&hoy.getMonth()===CAL_MES&&hoy.getDate()===d;
+    var tareasD=TAREAS_ALL.filter(function(t){return t.fecha_limite===fechaStr&&t.estado!=='cancelada';});
+    var dotsHtml=tareasD.slice(0,3).map(function(t){
+      var pColors={alta:'var(--red-bg)',media:'var(--yellow-bg)',baja:'#e6f1fb'};
+      var pText={alta:'var(--red-dk)',media:'var(--yellow-dk)',baja:'#185FA5'};
+      return'<div class="cal-task-dot" style="background:'+pColors[t.prioridad]+';color:'+pText[t.prioridad]+'" onclick="event.stopPropagation();abrirTarea(''+t.id+'')">'+t.titulo+'</div>';
+    }).join('')+(tareasD.length>3?'<div style="font-size:10px;color:var(--text3);padding-left:2px">+'+( tareasD.length-3)+' mas</div>':'');
+    cells+='<div class="cal-day'+(esHoy?' hoy':'')+'" onclick="abrirNuevaTareaFecha(''+fechaStr+'')">'+
+      '<div class="cal-day-num">'+d+'</div>'+dotsHtml+'</div>';
+  }
+  body.innerHTML=cells;
+}
+
+// ── CRUD TAREAS ───────────────────────────────────
+async function crearTarea(){
+  var titulo=document.getElementById('nt-titulo').value.trim();
+  if(!titulo){alert('El titulo es obligatorio.');return;}
+  var etqRaw=document.getElementById('nt-etiquetas').value;
+  var etqs=etqRaw?etqRaw.split(',').map(function(e){return e.trim();}).filter(Boolean):[];
+  var datos={
+    titulo:titulo,
+    descripcion:document.getElementById('nt-desc').value.trim()||null,
+    asignado_a:document.getElementById('nt-asignado').value||null,
+    asignado_por:CU?CU.id:null,
+    area_id:document.getElementById('nt-area').value||null,
+    prioridad:document.getElementById('nt-prioridad').value,
+    estado:'pendiente',
+    fecha_limite:document.getElementById('nt-fecha-limite').value||null,
+    etiquetas:etqs.length?etqs:null
+  };
+  var res=await sb.from('tareas').insert(datos);
+  if(res.error){alert('Error: '+res.error.message);return;}
+  closeModal('modal-nueva-tarea');
+  ['nt-titulo','nt-desc','nt-etiquetas','nt-fecha-limite'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
+  await loadTareas();
+  sAlert('tareas-alert','Tarea creada correctamente.');
+}
+function abrirNuevaTarea(){
+  document.getElementById('nt-fecha-limite').value='';
+  openModal('modal-nueva-tarea');
+}
+function abrirNuevaTareaFecha(fecha){
+  document.getElementById('nt-fecha-limite').value=fecha;
+  openModal('modal-nueva-tarea');
+}
+async function cambiarEstadoTarea(id,nuevoEstado){
+  var upd={estado:nuevoEstado};
+  if(nuevoEstado==='completada')upd.fecha_completada=new Date().toISOString().split('T')[0];
+  var res=await sb.from('tareas').update(upd).eq('id',id);
+  if(res.error){console.error(res.error);return;}
+  var t=TAREAS_ALL.find(function(x){return x.id===id;});
+  if(t){t.estado=nuevoEstado;if(nuevoEstado==='completada')t.fecha_completada=upd.fecha_completada;}
+  actualizarStats();renderTareas();actualizarBadgeNav();
+}
+async function toggleCompletada(id,yaCompletada){
+  await cambiarEstadoTarea(id,yaCompletada?'pendiente':'completada');
+}
+
+// ── DETALLE TAREA ─────────────────────────────────
+async function abrirTarea(id){
+  var res=await sb.from('tareas').select('*,asignado_a_perfil:perfiles!tareas_asignado_a_fkey(id,nombre),asignado_por_perfil:perfiles!tareas_asignado_por_fkey(id,nombre),areas(nombre)').eq('id',id).single();
+  if(!res.data){alert('Tarea no encontrada.');return;}
+  TAREA_ACTUAL=res.data;
+  var t=TAREA_ACTUAL;
+
+  // Titulo
+  document.getElementById('mt-titulo-display').textContent=t.titulo;
+  document.getElementById('mt-titulo-input').value=t.titulo;
+  document.getElementById('mt-titulo-edit').style.display='none';
+  document.getElementById('mt-titulo-display').style.display='block';
+
+  // Prioridad badge
+  document.getElementById('mt-prioridad-badge').innerHTML=prioBadge(t.prioridad);
+
+  // Estado
+  var estadoSel=document.getElementById('mt-estado-selector');
+  var estados=['pendiente','en_progreso','en_revision','completada','cancelada'];
+  estadoSel.innerHTML=estados.map(function(e){
+    var i=estadoInfo(e);
+    return'<button class="estado-btn'+(t.estado===e?' selected':'')+'" style="background:'+i.bg+';color:'+i.color+'" onclick="cambiarEstadoModal(''+e+'',this)"><i class="ti '+i.icon+'"></i> '+i.label+'</button>';
+  }).join('');
+
+  // Descripcion
+  document.getElementById('mt-desc-display').textContent=t.descripcion||'Haz clic para agregar descripcion...';
+  document.getElementById('mt-desc-input').value=t.descripcion||'';
+  document.getElementById('mt-desc-edit').style.display='none';
+  document.getElementById('mt-desc-display').style.display='block';
+
+  // Lateral
+  document.getElementById('mt-prioridad').value=t.prioridad;
+  document.getElementById('mt-fecha-limite').value=t.fecha_limite||'';
+  document.getElementById('mt-etiquetas').value=(t.etiquetas||[]).join(', ');
+  document.getElementById('mt-asignado-por').textContent=t.asignado_por_perfil?t.asignado_por_perfil.nombre:'Desconocido';
+
+  // Selects asignado y area
+  var selA=document.getElementById('mt-asignado');
+  selA.innerHTML='<option value="">Sin asignar</option>';
+  var rPerf=await sb.from('perfiles').select('id,nombre').eq('habilitado',true).order('nombre');
+  (rPerf.data||[]).forEach(function(p){var o=document.createElement('option');o.value=p.id;o.textContent=p.nombre;selA.appendChild(o);});
+  selA.value=t.asignado_a||'';
+
+  var selAr=document.getElementById('mt-area');
+  selAr.innerHTML='<option value="">Sin area</option>';
+  AREAS.forEach(function(a){var o=document.createElement('option');o.value=a.id;o.textContent=a.nombre;selAr.appendChild(o);});
+  selAr.value=t.area_id||'';
+
+  // Subtareas
+  await cargarSubtareas(id);
+  // Evidencias
+  await cargarEvidencias(id);
+  // Comentarios
+  await cargarComentarios(id);
+  // Historial
+  renderHistorial();
+
+  openModal('modal-tarea');
+}
+function cambiarEstadoModal(e,btn){
+  if(!TAREA_ACTUAL)return;
+  document.querySelectorAll('.estado-btn').forEach(function(b){b.classList.remove('selected');});
+  btn.classList.add('selected');
+  cambiarEstadoTarea(TAREA_ACTUAL.id,e);
+  TAREA_ACTUAL.estado=e;
+  document.getElementById('mt-prioridad-badge').innerHTML=prioBadge(TAREA_ACTUAL.prioridad);
+}
+function editarCampoTarea(campo){
+  if(campo==='titulo'){
+    document.getElementById('mt-titulo-display').style.display='none';
+    document.getElementById('mt-titulo-edit').style.display='block';
+    document.getElementById('mt-titulo-input').focus();
+  } else if(campo==='descripcion'){
+    document.getElementById('mt-desc-display').style.display='none';
+    document.getElementById('mt-desc-edit').style.display='block';
+    document.getElementById('mt-desc-input').focus();
+  }
+}
+async function guardarCampoTarea(campo){
+  if(!TAREA_ACTUAL)return;
+  var upd={};
+  if(campo==='titulo'){
+    var v=document.getElementById('mt-titulo-input').value.trim();
+    if(!v)return;
+    upd.titulo=v;
+    TAREA_ACTUAL.titulo=v;
+    document.getElementById('mt-titulo-display').textContent=v;
+    document.getElementById('mt-titulo-display').style.display='block';
+    document.getElementById('mt-titulo-edit').style.display='none';
+  } else if(campo==='descripcion'){
+    var v=document.getElementById('mt-desc-input').value;
+    upd.descripcion=v||null;
+    TAREA_ACTUAL.descripcion=v;
+    document.getElementById('mt-desc-display').textContent=v||'Haz clic para agregar descripcion...';
+    document.getElementById('mt-desc-display').style.display='block';
+    document.getElementById('mt-desc-edit').style.display='none';
+  } else if(campo==='asignado_a'){
+    upd.asignado_a=document.getElementById('mt-asignado').value||null;
+  } else if(campo==='area_id'){
+    upd.area_id=document.getElementById('mt-area').value||null;
+  } else if(campo==='prioridad'){
+    var v=document.getElementById('mt-prioridad').value;
+    upd.prioridad=v;
+    TAREA_ACTUAL.prioridad=v;
+    document.getElementById('mt-prioridad-badge').innerHTML=prioBadge(v);
+  } else if(campo==='fecha_limite'){
+    upd.fecha_limite=document.getElementById('mt-fecha-limite').value||null;
+  } else if(campo==='etiquetas'){
+    var raw=document.getElementById('mt-etiquetas').value;
+    var etqs=raw?raw.split(',').map(function(e){return e.trim();}).filter(Boolean):null;
+    upd.etiquetas=etqs;
+  }
+  upd.updated_at=new Date().toISOString();
+  await sb.from('tareas').update(upd).eq('id',TAREA_ACTUAL.id);
+  // Actualizar en lista local
+  var idx=TAREAS_ALL.findIndex(function(t){return t.id===TAREA_ACTUAL.id;});
+  if(idx>=0)Object.assign(TAREAS_ALL[idx],upd);
+  renderTareas();
+}
+async function eliminarTareaActual(){
+  if(!TAREA_ACTUAL)return;
+  confirm2('Eliminar la tarea "'+TAREA_ACTUAL.titulo+'"?',async function(){
+    await sb.from('tareas').delete().eq('id',TAREA_ACTUAL.id);
+    TAREAS_ALL=TAREAS_ALL.filter(function(t){return t.id!==TAREA_ACTUAL.id;});
+    closeModal('modal-tarea');
+    actualizarStats();renderTareas();actualizarBadgeNav();
+  });
+}
+
+// ── SUBTAREAS ─────────────────────────────────────
+async function cargarSubtareas(tareaId){
+  // Usamos comentarios especiales para subtareas o tabla tarea_comentarios con tipo
+  // Guardamos subtareas en localStorage como demo o podemos usar tarea_comentarios
+  // Para simplicidad usamos un array en memoria con persistencia via tarea_evidencias tipo 'subtarea'
+  var res=await sb.from('tarea_evidencias').select('*').eq('tarea_id',tareaId).eq('tipo','subtarea').order('created_at');
+  SUBTAREAS_ACTUAL=res.data||[];
+  renderSubtareas();
+}
+function renderSubtareas(){
+  var lista=document.getElementById('mt-subtareas-list');
+  if(!lista)return;
+  var total=SUBTAREAS_ACTUAL.length;
+  var done=SUBTAREAS_ACTUAL.filter(function(s){return s.url==='done';}).length;
+  var bar=document.getElementById('mt-sub-bar');
+  var prog=document.getElementById('mt-sub-progress');
+  if(bar)bar.style.width=(total?Math.round(done/total*100):0)+'%';
+  if(prog)prog.textContent=total?'('+done+'/'+total+')':'';
+  if(!total){lista.innerHTML='<div style="font-size:12px;color:var(--text3);padding:4px 0">Sin subtareas aun</div>';return;}
+  lista.innerHTML=SUBTAREAS_ACTUAL.map(function(s){
+    var isDone=s.url==='done';
+    return'<div class="subtarea-row">'+
+      '<div class="subtarea-check '+(isDone?'done':'')+'" onclick="toggleSubtarea(''+s.id+'','+isDone+')">'+
+        (isDone?'<i class="ti ti-check" style="font-size:10px"></i>':'')+
+      '</div>'+
+      '<span style="flex:1;font-size:12px;'+(isDone?'text-decoration:line-through;color:var(--text3)':'')+'">'+s.nombre+'</span>'+
+      '<button class="btn btn-sm btn-danger" style="padding:2px 6px;font-size:10px" onclick="eliminarSubtarea(''+s.id+'')"><i class="ti ti-x"></i></button>'+
+    '</div>';
+  }).join('');
+}
+async function agregarSubtarea(){
+  if(!TAREA_ACTUAL)return;
+  var inp=document.getElementById('mt-nueva-subtarea');
+  var txt=inp.value.trim();if(!txt)return;
+  var res=await sb.from('tarea_evidencias').insert({tarea_id:TAREA_ACTUAL.id,perfil_id:CU?CU.id:null,nombre:txt,url:'pendiente',tipo:'subtarea'});
+  if(res.error){console.error(res.error);return;}
+  inp.value='';
+  await cargarSubtareas(TAREA_ACTUAL.id);
+}
+async function toggleSubtarea(id,isDone){
+  await sb.from('tarea_evidencias').update({url:isDone?'pendiente':'done'}).eq('id',id);
+  var s=SUBTAREAS_ACTUAL.find(function(x){return x.id===id;});
+  if(s)s.url=isDone?'pendiente':'done';
+  renderSubtareas();
+}
+async function eliminarSubtarea(id){
+  await sb.from('tarea_evidencias').delete().eq('id',id);
+  SUBTAREAS_ACTUAL=SUBTAREAS_ACTUAL.filter(function(s){return s.id!==id;});
+  renderSubtareas();
+}
+
+// ── EVIDENCIAS ────────────────────────────────────
+async function cargarEvidencias(tareaId){
+  var res=await sb.from('tarea_evidencias').select('*,perfiles(nombre)').eq('tarea_id',tareaId).neq('tipo','subtarea').order('created_at');
+  renderEvidencias(res.data||[]);
+}
+function renderEvidencias(evs){
+  var lista=document.getElementById('mt-evidencias-list');if(!lista)return;
+  if(!evs.length){lista.innerHTML='<div style="font-size:12px;color:var(--text3);padding:4px 0">Sin evidencias adjuntas</div>';return;}
+  lista.innerHTML=evs.map(function(e){
+    return'<div class="evidencia-item">'+
+      '<div class="evidencia-ico"><i class="ti ti-link"></i></div>'+
+      '<div style="flex:1;min-width:0">'+
+        '<div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+e.nombre+'</div>'+
+        '<a href="'+e.url+'" target="_blank" style="font-size:11px;color:var(--pera-dk);text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block">'+e.url+'</a>'+
+      '</div>'+
+      '<button class="btn btn-sm btn-danger" onclick="eliminarEvidencia(''+e.id+'')"><i class="ti ti-trash"></i></button>'+
+    '</div>';
+  }).join('');
+}
+async function agregarEvidencia(){
+  if(!TAREA_ACTUAL)return;
+  var nombre=document.getElementById('mt-ev-nombre').value.trim();
+  var url=document.getElementById('mt-ev-url').value.trim();
+  if(!nombre||!url){alert('Completa nombre y URL.');return;}
+  var res=await sb.from('tarea_evidencias').insert({tarea_id:TAREA_ACTUAL.id,perfil_id:CU?CU.id:null,nombre:nombre,url:url,tipo:'link'});
+  if(res.error){alert('Error: '+res.error.message);return;}
+  document.getElementById('mt-ev-nombre').value='';
+  document.getElementById('mt-ev-url').value='';
+  await cargarEvidencias(TAREA_ACTUAL.id);
+}
+async function eliminarEvidencia(id){
+  await sb.from('tarea_evidencias').delete().eq('id',id);
+  await cargarEvidencias(TAREA_ACTUAL.id);
+}
+
+// ── COMENTARIOS ───────────────────────────────────
+async function cargarComentarios(tareaId){
+  var res=await sb.from('tarea_comentarios').select('*,perfiles(nombre)').eq('tarea_id',tareaId).order('created_at',{ascending:true});
+  renderComentarios(res.data||[]);
+}
+function renderComentarios(coms){
+  var lista=document.getElementById('mt-comentarios-list');if(!lista)return;
+  if(!coms.length){lista.innerHTML='<div style="font-size:12px;color:var(--text3);padding:8px 0">Sin comentarios aun. Sé el primero en agregar una actualización.</div>';return;}
+  lista.innerHTML=coms.map(function(c){
+    var nombre=c.perfiles?c.perfiles.nombre:'Desconocido';
+    var ini=avatarIni(nombre);
+    var fecha=new Date(c.created_at).toLocaleDateString('es-CO',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    return'<div class="comentario-item">'+
+      '<div class="comentario-header">'+
+        '<div class="tc-av" style="width:26px;height:26px;font-size:10px">'+ini+'</div>'+
+        '<span style="font-size:12px;font-weight:600">'+nombre+'</span>'+
+        '<span style="font-size:10px;color:var(--text3);margin-left:auto">'+fecha+'</span>'+
+      '</div>'+
+      '<div style="font-size:13px;line-height:1.5;color:var(--text)">'+c.comentario+'</div>'+
+    '</div>';
+  }).join('');
+  lista.scrollTop=lista.scrollHeight;
+}
+async function agregarComentario(){
+  if(!TAREA_ACTUAL)return;
+  var txt=document.getElementById('mt-nuevo-comentario').value.trim();
+  if(!txt)return;
+  var res=await sb.from('tarea_comentarios').insert({tarea_id:TAREA_ACTUAL.id,perfil_id:CU?CU.id:null,comentario:txt});
+  if(res.error){alert('Error: '+res.error.message);return;}
+  document.getElementById('mt-nuevo-comentario').value='';
+  await cargarComentarios(TAREA_ACTUAL.id);
+}
+
+// ── HISTORIAL ─────────────────────────────────────
+function renderHistorial(){
+  var hist=document.getElementById('mt-historial');if(!hist||!TAREA_ACTUAL)return;
+  var t=TAREA_ACTUAL;
+  var items=[];
+  if(t.created_at)items.push({txt:'Tarea creada',fecha:t.created_at});
+  if(t.updated_at&&t.updated_at!==t.created_at)items.push({txt:'Ultima actualizacion',fecha:t.updated_at});
+  if(t.fecha_completada)items.push({txt:'Marcada como completada',fecha:t.fecha_completada+'T00:00:00'});
+  hist.innerHTML=items.reverse().map(function(h){
+    var f=new Date(h.fecha).toLocaleDateString('es-CO',{day:'2-digit',month:'short',year:'numeric'});
+    return'<div class="historial-item"><div class="hist-dot"></div><div><div style="font-weight:500">'+h.txt+'</div><div style="color:var(--text3);font-size:10px;margin-top:1px">'+f+'</div></div></div>';
+  }).join('');
+}
+
+// ── INIT FILTROS TAREAS ────────────────────────────
+function initFiltrosTareas(){
+  var selA=document.getElementById('tf-area');
+  var selU=document.getElementById('tf-asignado');
+  if(selA){
+    selA.innerHTML='<option value="">Todas las areas</option>';
+    AREAS.forEach(function(a){var o=document.createElement('option');o.value=a.id;o.textContent=a.nombre;selA.appendChild(o);});
+  }
+  // Usuarios: cargar async
+  sb.from('perfiles').select('id,nombre').eq('habilitado',true).order('nombre').then(function(res){
+    if(selU){
+      selU.innerHTML='<option value="">Todos</option>';
+      (res.data||[]).forEach(function(p){var o=document.createElement('option');o.value=p.id;o.textContent=p.nombre;selU.appendChild(o);});
+    }
+    // Tambien llenar selects de nueva tarea
+    var nt=document.getElementById('nt-asignado');
+    if(nt){nt.innerHTML='<option value="">Sin asignar</option>';(res.data||[]).forEach(function(p){var o=document.createElement('option');o.value=p.id;o.textContent=p.nombre;nt.appendChild(o);});}
+  });
+  var ntA=document.getElementById('nt-area');
+  if(ntA){ntA.innerHTML='<option value="">Sin area</option>';AREAS.forEach(function(a){var o=document.createElement('option');o.value=a.id;o.textContent=a.nombre;ntA.appendChild(o);});}
+}
+
 </script>
 </body>
 </html>
