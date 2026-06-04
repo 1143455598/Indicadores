@@ -329,6 +329,82 @@ tr:hover td{background:#fafdf5}
         </div>
       </div>
 
+      <!-- TAREAS -->
+      <div class="page" id="page-tareas">
+        <div id="tareas-alert" class="alert al-ok" style="display:none;margin-bottom:10px"></div>
+        <!-- stats -->
+        <div class="tareas-stats" id="tareas-stats">
+          <div class="tstat active" id="tstat-todas" onclick="filtrarEstadoRapido('todas',this)">
+            <div class="tstat-ico" style="background:#e8f0f8;color:#185FA5"><i class="ti ti-list-check"></i></div>
+            <div><div class="tstat-num" id="tcount-todas">0</div><div class="tstat-lbl">Total</div></div>
+          </div>
+          <div class="tstat" id="tstat-pendiente" onclick="filtrarEstadoRapido('pendiente',this)">
+            <div class="tstat-ico" style="background:#f0f0ee;color:#555"><i class="ti ti-clock"></i></div>
+            <div><div class="tstat-num" id="tcount-pendiente">0</div><div class="tstat-lbl">Pendientes</div></div>
+          </div>
+          <div class="tstat" id="tstat-en_progreso" onclick="filtrarEstadoRapido('en_progreso',this)">
+            <div class="tstat-ico" style="background:#FFF8DC;color:#8a6000"><i class="ti ti-player-play"></i></div>
+            <div><div class="tstat-num" id="tcount-en_progreso">0</div><div class="tstat-lbl">En progreso</div></div>
+          </div>
+          <div class="tstat" id="tstat-vencidas" onclick="filtrarEstadoRapido('vencidas',this)">
+            <div class="tstat-ico" style="background:var(--red-bg);color:var(--red-dk)"><i class="ti ti-alert-circle"></i></div>
+            <div><div class="tstat-num" id="tcount-vencidas">0</div><div class="tstat-lbl">Vencidas</div></div>
+          </div>
+          <div class="tstat" id="tstat-completada" onclick="filtrarEstadoRapido('completada',this)">
+            <div class="tstat-ico" style="background:var(--pera-bg);color:var(--pera-dk)"><i class="ti ti-circle-check"></i></div>
+            <div><div class="tstat-num" id="tcount-completada">0</div><div class="tstat-lbl">Completadas</div></div>
+          </div>
+        </div>
+
+        <!-- Topbar acciones -->
+        <div class="tareas-topbar">
+          <button class="btn btn-p btn-sm" onclick="abrirNuevaTarea()"><i class="ti ti-plus"></i> Nueva tarea</button>
+          <div class="view-tabs">
+            <button class="view-tab active" id="vtab-kanban" onclick="cambiarVistaT('kanban',this)"><i class="ti ti-layout-kanban"></i> Kanban</button>
+            <button class="view-tab" id="vtab-lista" onclick="cambiarVistaT('lista',this)"><i class="ti ti-list"></i> Lista</button>
+            <button class="view-tab" id="vtab-cal" onclick="cambiarVistaT('calendario',this)"><i class="ti ti-calendar"></i> Calendario</button>
+          </div>
+          <div style="flex:1"></div>
+          <!-- Filtros -->
+          <div class="tareas-filters">
+            <i class="ti ti-filter" style="color:var(--text3);font-size:15px"></i>
+            <select id="tf-area" onchange="renderTareas()"><option value="">Todas las areas</option></select>
+            <select id="tf-asignado" onchange="renderTareas()"><option value="">Todos</option></select>
+            <select id="tf-prioridad" onchange="renderTareas()">
+              <option value="">Prioridad</option>
+              <option value="alta">Alta</option>
+              <option value="media">Media</option>
+              <option value="baja">Baja</option>
+            </select>
+            <input type="text" id="tf-buscar" placeholder="Buscar..." oninput="renderTareas()" style="width:140px"/>
+            <button class="btn btn-sm" onclick="limpiarFiltrosT()"><i class="ti ti-x"></i></button>
+          </div>
+        </div>
+
+        <!-- VISTA KANBAN -->
+        <div id="tareas-kanban">
+          <div class="kanban-board" id="kanban-board"></div>
+        </div>
+
+        <!-- VISTA LISTA -->
+        <div id="tareas-lista" style="display:none">
+          <div class="lista-tareas" id="lista-tareas-body"></div>
+        </div>
+
+        <!-- VISTA CALENDARIO -->
+        <div id="tareas-calendario" style="display:none">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+            <button class="btn btn-sm" onclick="navCal(-1)"><i class="ti ti-chevron-left"></i></button>
+            <span id="cal-mes-lbl" style="font-size:14px;font-weight:600;min-width:160px;text-align:center"></span>
+            <button class="btn btn-sm" onclick="navCal(1)"><i class="ti ti-chevron-right"></i></button>
+            <button class="btn btn-sm" onclick="irHoyCal()">Hoy</button>
+          </div>
+          <div class="cal-grid" id="cal-headers"></div>
+          <div class="cal-grid" id="cal-body" style="margin-top:4px"></div>
+        </div>
+
+      </div>
+
       <!-- INDICADORES -->
       <div class="page" id="page-indicadores">
         <div class="sec-hdr"><span class="sec-title">Indicadores corporativos</span><button class="btn btn-p btn-sm" id="btn-new-ind" onclick="openModalInd()"><i class="ti ti-plus"></i> Nuevo</button></div>
@@ -448,81 +524,6 @@ tr:hover td{background:#fafdf5}
 </div>
 
 
-      <!-- TAREAS -->
-      <div class="page" id="page-tareas">
-        <div id="tareas-alert" class="alert al-ok" style="display:none;margin-bottom:10px"></div>
-        <!-- stats -->
-        <div class="tareas-stats" id="tareas-stats">
-          <div class="tstat active" id="tstat-todas" onclick="filtrarEstadoRapido('todas',this)">
-            <div class="tstat-ico" style="background:#e8f0f8;color:#185FA5"><i class="ti ti-list-check"></i></div>
-            <div><div class="tstat-num" id="tcount-todas">0</div><div class="tstat-lbl">Total</div></div>
-          </div>
-          <div class="tstat" id="tstat-pendiente" onclick="filtrarEstadoRapido('pendiente',this)">
-            <div class="tstat-ico" style="background:#f0f0ee;color:#555"><i class="ti ti-clock"></i></div>
-            <div><div class="tstat-num" id="tcount-pendiente">0</div><div class="tstat-lbl">Pendientes</div></div>
-          </div>
-          <div class="tstat" id="tstat-en_progreso" onclick="filtrarEstadoRapido('en_progreso',this)">
-            <div class="tstat-ico" style="background:#FFF8DC;color:#8a6000"><i class="ti ti-player-play"></i></div>
-            <div><div class="tstat-num" id="tcount-en_progreso">0</div><div class="tstat-lbl">En progreso</div></div>
-          </div>
-          <div class="tstat" id="tstat-vencidas" onclick="filtrarEstadoRapido('vencidas',this)">
-            <div class="tstat-ico" style="background:var(--red-bg);color:var(--red-dk)"><i class="ti ti-alert-circle"></i></div>
-            <div><div class="tstat-num" id="tcount-vencidas">0</div><div class="tstat-lbl">Vencidas</div></div>
-          </div>
-          <div class="tstat" id="tstat-completada" onclick="filtrarEstadoRapido('completada',this)">
-            <div class="tstat-ico" style="background:var(--pera-bg);color:var(--pera-dk)"><i class="ti ti-circle-check"></i></div>
-            <div><div class="tstat-num" id="tcount-completada">0</div><div class="tstat-lbl">Completadas</div></div>
-          </div>
-        </div>
-
-        <!-- Topbar acciones -->
-        <div class="tareas-topbar">
-          <button class="btn btn-p btn-sm" onclick="abrirNuevaTarea()"><i class="ti ti-plus"></i> Nueva tarea</button>
-          <div class="view-tabs">
-            <button class="view-tab active" id="vtab-kanban" onclick="cambiarVistaT('kanban',this)"><i class="ti ti-layout-kanban"></i> Kanban</button>
-            <button class="view-tab" id="vtab-lista" onclick="cambiarVistaT('lista',this)"><i class="ti ti-list"></i> Lista</button>
-            <button class="view-tab" id="vtab-cal" onclick="cambiarVistaT('calendario',this)"><i class="ti ti-calendar"></i> Calendario</button>
-          </div>
-          <div style="flex:1"></div>
-          <!-- Filtros -->
-          <div class="tareas-filters">
-            <i class="ti ti-filter" style="color:var(--text3);font-size:15px"></i>
-            <select id="tf-area" onchange="renderTareas()"><option value="">Todas las areas</option></select>
-            <select id="tf-asignado" onchange="renderTareas()"><option value="">Todos</option></select>
-            <select id="tf-prioridad" onchange="renderTareas()">
-              <option value="">Prioridad</option>
-              <option value="alta">Alta</option>
-              <option value="media">Media</option>
-              <option value="baja">Baja</option>
-            </select>
-            <input type="text" id="tf-buscar" placeholder="Buscar..." oninput="renderTareas()" style="width:140px"/>
-            <button class="btn btn-sm" onclick="limpiarFiltrosT()"><i class="ti ti-x"></i></button>
-          </div>
-        </div>
-
-        <!-- VISTA KANBAN -->
-        <div id="tareas-kanban">
-          <div class="kanban-board" id="kanban-board"></div>
-        </div>
-
-        <!-- VISTA LISTA -->
-        <div id="tareas-lista" style="display:none">
-          <div class="lista-tareas" id="lista-tareas-body"></div>
-        </div>
-
-        <!-- VISTA CALENDARIO -->
-        <div id="tareas-calendario" style="display:none">
-          <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
-            <button class="btn btn-sm" onclick="navCal(-1)"><i class="ti ti-chevron-left"></i></button>
-            <span id="cal-mes-lbl" style="font-size:14px;font-weight:600;min-width:160px;text-align:center"></span>
-            <button class="btn btn-sm" onclick="navCal(1)"><i class="ti ti-chevron-right"></i></button>
-            <button class="btn btn-sm" onclick="irHoyCal()">Hoy</button>
-          </div>
-          <div class="cal-grid" id="cal-headers"></div>
-          <div class="cal-grid" id="cal-body" style="margin-top:4px"></div>
-        </div>
-
-      </div>
 
 <!-- PANEL DE PERSONALIZACION -->
 <div class="panel-overlay" id="panel-overlay" onclick="cerrarPersonalizacion()"></div>
@@ -1650,6 +1651,7 @@ async function goTo(page,el){
     initFiltrosTareas();
     await loadTareas();
     cambiarVistaT(VISTA_T, document.getElementById('vtab-'+VISTA_T));
+    var c=document.querySelector('.content');if(c)c.scrollTop=0;
   }
 }
 function cfgTab(t,el){document.querySelectorAll('#page-config .tab').forEach(function(x){x.classList.remove('active');});el.classList.add('active');document.getElementById('cfg-areas').style.display=t==='areas'?'block':'none';document.getElementById('cfg-permisos').style.display=t==='permisos'?'block':'none';}
