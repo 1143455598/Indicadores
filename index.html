@@ -1608,17 +1608,18 @@ function renderLista(){
   var body=document.getElementById('lista-tareas-body');
   if(!body)return;
   if(!filtradas.length){body.innerHTML='<div class="empty-tareas"><i class="ti ti-checkup-list"></i><div style="font-size:15px;font-weight:600;margin-bottom:6px">Sin tareas</div><p>No hay tareas que coincidan con los filtros.</p></div>';return;}
-  body.innerHTML=filtradas.map(function(t){
+  body.innerHTML='';
+  filtradas.forEach(function(t){
     var fi=fechaInfo(t.fecha_limite,t.estado);
     var nombre=t.asignado_a_perfil?t.asignado_a_perfil.nombre:'Sin asignar';
     var done=t.estado==='completada';
     var ei=estadoInfo(t.estado);
-    return'<div class="lista-tarea-row" onclick="abrirTarea(''+t.id+'')" >'+
-      '<div class="ltr-check '+(done?'done':'')+'" onclick="event.stopPropagation();toggleCompletada(''+t.id+'','+done+')">'+
-        (done?'<i class="ti ti-check" style="font-size:11px"></i>':'')+
-      '</div>'+
+    var row=document.createElement('div');
+    row.className='lista-tarea-row';
+    row.innerHTML=
+      '<div class="ltr-check '+(done?'done':'')+'">'+(done?'<i class="ti ti-check" style="font-size:11px"></i>':'')+'</div>'+
       '<div class="ltr-info">'+
-        '<div class="ltr-titulo '+(done?'done':'')+'" >'+t.titulo+'</div>'+
+        '<div class="ltr-titulo '+(done?'done':'')+'">'+t.titulo+'</div>'+
         '<div class="ltr-sub">'+
           prioBadge(t.prioridad)+
           '<span style="background:'+ei.bg+';color:'+ei.color+';padding:1px 7px;border-radius:20px;font-size:10px;font-weight:600">'+ei.label+'</span>'+
@@ -1631,43 +1632,54 @@ function renderLista(){
           nombre+
         '</div>'+
         '<span class="tc-fecha '+fi.cls+'"><i class="ti ti-calendar" style="font-size:10px"></i> '+fi.txt+'</span>'+
-      '</div>'+
-    '</div>';
-  }).join('');
+      '</div>';
+    row.querySelector('.ltr-check').addEventListener('click',function(e){e.stopPropagation();toggleCompletada(t.id,done);});
+    row.addEventListener('click',function(){abrirTarea(t.id);});
+    body.appendChild(row);
+  });
 }
-
 // ── CALENDARIO ────────────────────────────────────
 function navCal(d){CAL_MES+=d;if(CAL_MES>11){CAL_MES=0;CAL_ANIO++;}if(CAL_MES<0){CAL_MES=11;CAL_ANIO--;}renderCalendario();}
 function irHoyCal(){var n=new Date();CAL_MES=n.getMonth();CAL_ANIO=n.getFullYear();renderCalendario();}
 function renderCalendario(){
-  var dias=['Dom','Lun','Mar','Mie','Jue','Vie','Sab'];
-  var meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var diasN=['Dom','Lun','Mar','Mie','Jue','Vie','Sab'];
+  var mesesN=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   var lbl=document.getElementById('cal-mes-lbl');
-  if(lbl)lbl.textContent=meses[CAL_MES]+' '+CAL_ANIO;
+  if(lbl)lbl.textContent=mesesN[CAL_MES]+' '+CAL_ANIO;
   var hdr=document.getElementById('cal-headers');
-  if(hdr)hdr.innerHTML=dias.map(function(d){return'<div class="cal-header-day">'+d+'</div>';}).join('');
+  if(hdr)hdr.innerHTML=diasN.map(function(d){return'<div class="cal-header-day">'+d+'</div>';}).join('');
   var primerDia=new Date(CAL_ANIO,CAL_MES,1).getDay();
   var diasEnMes=new Date(CAL_ANIO,CAL_MES+1,0).getDate();
   var hoy=new Date();
   var body=document.getElementById('cal-body');if(!body)return;
-  var cells='';
-  // Celdas vacías inicio
-  for(var i=0;i<primerDia;i++)cells+='<div class="cal-day otro-mes"></div>';
+  body.innerHTML='';
+  for(var i=0;i<primerDia;i++){var empty=document.createElement('div');empty.className='cal-day otro-mes';body.appendChild(empty);}
   for(var d=1;d<=diasEnMes;d++){
     var fechaStr=CAL_ANIO+'-'+String(CAL_MES+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
     var esHoy=hoy.getFullYear()===CAL_ANIO&&hoy.getMonth()===CAL_MES&&hoy.getDate()===d;
     var tareasD=TAREAS_ALL.filter(function(t){return t.fecha_limite===fechaStr&&t.estado!=='cancelada';});
-    var dotsHtml=tareasD.slice(0,3).map(function(t){
+    var cell=document.createElement('div');
+    cell.className='cal-day'+(esHoy?' hoy':'');
+    var numDiv=document.createElement('div');
+    numDiv.className='cal-day-num';
+    numDiv.textContent=d;
+    cell.appendChild(numDiv);
+    (function(fs){cell.addEventListener('click',function(){abrirNuevaTareaFecha(fs);});})(fechaStr);
+    tareasD.slice(0,3).forEach(function(t){
       var pColors={alta:'var(--red-bg)',media:'var(--yellow-bg)',baja:'#e6f1fb'};
       var pText={alta:'var(--red-dk)',media:'var(--yellow-dk)',baja:'#185FA5'};
-      return'<div class="cal-task-dot" style="background:'+pColors[t.prioridad]+';color:'+pText[t.prioridad]+'" onclick="event.stopPropagation();abrirTarea(''+t.id+'')">'+t.titulo+'</div>';
-    }).join('')+(tareasD.length>3?'<div style="font-size:10px;color:var(--text3);padding-left:2px">+'+( tareasD.length-3)+' mas</div>':'');
-    cells+='<div class="cal-day'+(esHoy?' hoy':'')+'" onclick="abrirNuevaTareaFecha(''+fechaStr+'')">'+
-      '<div class="cal-day-num">'+d+'</div>'+dotsHtml+'</div>';
+      var dot=document.createElement('div');
+      dot.className='cal-task-dot';
+      dot.style.background=pColors[t.prioridad]||'#f0f0ee';
+      dot.style.color=pText[t.prioridad]||'#555';
+      dot.textContent=t.titulo;
+      (function(tid){dot.addEventListener('click',function(e){e.stopPropagation();abrirTarea(tid);});})(t.id);
+      cell.appendChild(dot);
+    });
+    if(tareasD.length>3){var more=document.createElement('div');more.style.cssText='font-size:10px;color:var(--text3);padding-left:2px';more.textContent='+'+(tareasD.length-3)+' mas';cell.appendChild(more);}
+    body.appendChild(cell);
   }
-  body.innerHTML=cells;
 }
-
 // ── CRUD TAREAS ───────────────────────────────────
 async function crearTarea(){
   var titulo=document.getElementById('nt-titulo').value.trim();
