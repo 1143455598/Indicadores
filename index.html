@@ -583,6 +583,10 @@ tr:hover td{background:#fafdf5}
 <!-- MODAL TAREA DETALLE -->
 <div class="modal-ov" id="modal-tarea">
   <div class="modal modal-tarea">
+    <div id="mt-readonly-banner" style="display:none;align-items:center;gap:10px;padding:10px 14px;background:var(--yellow-bg);border-radius:var(--radius-sm);margin-bottom:12px;font-size:12px;color:var(--yellow-dk)">
+      <i class="ti ti-lock" style="font-size:16px;flex-shrink:0"></i>
+      <span>Solo puedes ver esta tarea. No eres el responsable ni el creador.</span>
+    </div>
     <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;gap:12px">
       <div style="flex:1">
         <div id="mt-prioridad-badge" style="margin-bottom:8px"></div>
@@ -1828,9 +1832,10 @@ function renderKanban(){
       card.draggable=true;
       card.dataset.id=t.id;
       var vencida=fi.cls==='venc';
+      var puedoEditarCard=puedeEditarTarea(t);
       card.innerHTML=(vencida?'<div class="tc-vencida-bar"></div>':'')+
         prioBadge(t.prioridad)+
-        '<div class="tc-titulo">'+t.titulo+'</div>'+
+        '<div class="tc-titulo">'+t.titulo+(puedoEditarCard?'':'<i class="ti ti-lock" style="font-size:11px;color:var(--text3);margin-left:6px" title="Solo lectura"></i>')+'</div>'+
         (t.descripcion?'<div class="tc-desc">'+t.descripcion+'</div>':'')+
         (etqs?'<div class="tc-badges">'+etqs+'</div>':'')+
         '<div class="tc-footer">'+
@@ -1838,7 +1843,10 @@ function renderKanban(){
           '<span class="tc-fecha '+fi.cls+'"><i class="ti ti-calendar" style="font-size:10px"></i>'+fi.txt+'</span>'+
         '</div>';
       card.addEventListener('click',function(){abrirTarea(t.id);});
-      card.addEventListener('dragstart',function(e){dragTareaId=t.id;card.classList.add('dragging');e.dataTransfer.effectAllowed='move';});
+      card.addEventListener('dragstart',function(e){
+        if(!puedeEditarTarea(t)){e.preventDefault();return;}
+        dragTareaId=t.id;card.classList.add('dragging');e.dataTransfer.effectAllowed='move';
+      });
       card.addEventListener('dragend',function(){card.classList.remove('dragging');dragTareaId=null;document.querySelectorAll('.kanban-col-body').forEach(function(b){b.classList.remove('drag-over-col');});});
       body.appendChild(card);
     });
@@ -1862,7 +1870,7 @@ function renderLista(){
     row.innerHTML=
       '<div class="ltr-check '+(done?'done':'')+'">'+(done?'<i class="ti ti-check" style="font-size:11px"></i>':'')+'</div>'+
       '<div class="ltr-info">'+
-        '<div class="ltr-titulo '+(done?'done':'')+'">'+t.titulo+'</div>'+
+        '<div class="ltr-titulo '+(done?'done':'')+'">'+t.titulo+(puedeEditarTarea(t)?'':'<i class="ti ti-lock" style="font-size:11px;color:var(--text3);margin-left:5px" title="Solo lectura"></i>')+'</div>'+
         '<div class="ltr-sub">'+
           prioBadge(t.prioridad)+
           '<span style="background:'+ei.bg+';color:'+ei.color+';padding:1px 7px;border-radius:20px;font-size:10px;font-weight:600">'+ei.label+'</span>'+
@@ -1956,6 +1964,8 @@ function abrirNuevaTareaFecha(fecha){
   openModal('modal-nueva-tarea');
 }
 async function cambiarEstadoTarea(id,nuevoEstado){
+  var t=TAREAS_ALL.find(function(x){return x.id===id;});
+  if(t&&!puedeEditarTarea(t)){alert('No tienes permiso para modificar esta tarea.');return;}
   var upd={estado:nuevoEstado};
   if(nuevoEstado==='completada')upd.fecha_completada=new Date().toISOString().split('T')[0];
   var res=await sb.from('tareas').update(upd).eq('id',id);
@@ -1969,22 +1979,36 @@ async function toggleCompletada(id,yaCompletada){
 }
 
 // ── DETALLE TAREA ─────────────────────────────────
+
+// ── PERMISOS DE TAREA ────────────────────────────
+function puedeEditarTarea(t){
+  if(!CU||!CP)return false;
+  if(CP.rol==='administrador')return true;
+  if(CU.id===t.asignado_a)return true;
+  if(CU.id===t.asignado_por)return true;
+  return false;
+}
 async function abrirTarea(id){
   var res=await sb.from('tareas').select('*,asignado_a_perfil:perfiles!tareas_asignado_a_fkey(id,nombre),asignado_por_perfil:perfiles!tareas_asignado_por_fkey(id,nombre),areas(nombre)').eq('id',id).single();
   if(!res.data){alert('Tarea no encontrada.');return;}
   TAREA_ACTUAL=res.data;
   var t=TAREA_ACTUAL;
 
-  // Titulo
+  // Determinar si el usuario puede editar esta tarea
+  var puedoEditar=puedeEditarTarea(t);
+
+  // Titulo - editable solo si tiene permiso
   document.getElementById('mt-titulo-display').textContent=t.titulo;
   document.getElementById('mt-titulo-input').value=t.titulo;
   document.getElementById('mt-titulo-edit').style.display='none';
   document.getElementById('mt-titulo-display').style.display='block';
+  document.getElementById('mt-titulo-display').style.cursor=puedoEditar?'pointer':'default';
+  document.getElementById('mt-titulo-display').onclick=puedoEditar?function(){editarCampoTarea('titulo');}:null;
 
   // Prioridad badge
   document.getElementById('mt-prioridad-badge').innerHTML=prioBadge(t.prioridad);
 
-  // Estado
+  // Estado - solo editable si tiene permiso
   var estadoSel=document.getElementById('mt-estado-selector');
   estadoSel.innerHTML='';
   var estados=['pendiente','en_progreso','en_revision','completada','cancelada'];
@@ -1994,45 +2018,76 @@ async function abrirTarea(id){
     btn.className='estado-btn'+(t.estado===estado?' selected':'');
     btn.style.cssText='background:'+inf.bg+';color:'+inf.color;
     btn.innerHTML='<i class="ti '+inf.icon+'"></i> '+inf.label;
-    (function(e){btn.addEventListener('click',function(){cambiarEstadoModal(e,btn);});})(estado);
+    if(puedoEditar){
+      (function(e){btn.addEventListener('click',function(){cambiarEstadoModal(e,btn);});})(estado);
+    } else {
+      btn.disabled=true;
+      btn.style.opacity='0.6';
+      btn.style.cursor='not-allowed';
+    }
     estadoSel.appendChild(btn);
   });
 
-  // Descripcion
-  document.getElementById('mt-desc-display').textContent=t.descripcion||'Haz clic para agregar descripcion...';
+  // Descripcion - editable solo si tiene permiso
+  document.getElementById('mt-desc-display').textContent=t.descripcion||'Sin descripcion.';
   document.getElementById('mt-desc-input').value=t.descripcion||'';
   document.getElementById('mt-desc-edit').style.display='none';
   document.getElementById('mt-desc-display').style.display='block';
+  document.getElementById('mt-desc-display').style.cursor=puedoEditar?'pointer':'default';
+  document.getElementById('mt-desc-display').onclick=puedoEditar?function(){editarCampoTarea('descripcion');}:null;
 
-  // Lateral
+  // Panel lateral - habilitar/deshabilitar segun permiso
   document.getElementById('mt-prioridad').value=t.prioridad;
+  document.getElementById('mt-prioridad').disabled=!puedoEditar;
   document.getElementById('mt-fecha-limite').value=t.fecha_limite||'';
+  document.getElementById('mt-fecha-limite').disabled=!puedoEditar;
   document.getElementById('mt-etiquetas').value=(t.etiquetas||[]).join(', ');
+  document.getElementById('mt-etiquetas').disabled=!puedoEditar;
   document.getElementById('mt-asignado-por').textContent=t.asignado_por_perfil?t.asignado_por_perfil.nombre:'Desconocido';
 
-  // Selects asignado y area
+  // Asignado a - solo admin puede reasignar
   var selA=document.getElementById('mt-asignado');
   selA.innerHTML='<option value="">Sin asignar</option>';
   var rPerf=await sb.from('perfiles').select('id,nombre').eq('habilitado',true).order('nombre');
   (rPerf.data||[]).forEach(function(p){var o=document.createElement('option');o.value=p.id;o.textContent=p.nombre;selA.appendChild(o);});
   selA.value=t.asignado_a||'';
+  selA.disabled=!(CP&&CP.rol==='administrador');
 
+  // Area - solo admin puede cambiar
   var selAr=document.getElementById('mt-area');
   selAr.innerHTML='<option value="">Sin area</option>';
   AREAS.forEach(function(a){var o=document.createElement('option');o.value=a.id;o.textContent=a.nombre;selAr.appendChild(o);});
   selAr.value=t.area_id||'';
+  selAr.disabled=!(CP&&CP.rol==='administrador');
 
-  // Subtareas
+  // Subtareas - agregar solo si puede editar
+  document.getElementById('mt-nueva-subtarea').disabled=!puedoEditar;
+  document.querySelector('#mt-nueva-subtarea + button').disabled=!puedoEditar;
+
+  // Evidencias - agregar solo si puede editar
+  document.getElementById('mt-ev-nombre').disabled=!puedoEditar;
+  document.getElementById('mt-ev-url').disabled=!puedoEditar;
+
+  // Boton eliminar - solo admin o quien creó
+  var btnElim=document.querySelector('#modal-tarea .btn-danger');
+  if(btnElim){
+    var puedeEliminar=CP&&(CP.rol==='administrador'||CU.id===t.asignado_por);
+    btnElim.style.display=puedeEliminar?'inline-flex':'none';
+  }
+
+  // Mostrar banner si solo lectura
+  var bannerEl=document.getElementById('mt-readonly-banner');
+  if(bannerEl){bannerEl.style.display=puedoEditar?'none':'flex';}
+
+  // Subtareas, evidencias, comentarios e historial
   await cargarSubtareas(id);
-  // Evidencias
   await cargarEvidencias(id);
-  // Comentarios
   await cargarComentarios(id);
-  // Historial
   renderHistorial();
 
   openModal('modal-tarea');
 }
+
 function cambiarEstadoModal(e,btn){
   if(!TAREA_ACTUAL)return;
   document.querySelectorAll('.estado-btn').forEach(function(b){b.classList.remove('selected');});
@@ -2054,6 +2109,7 @@ function editarCampoTarea(campo){
 }
 async function guardarCampoTarea(campo){
   if(!TAREA_ACTUAL)return;
+  if(!puedeEditarTarea(TAREA_ACTUAL)){return;}
   var upd={};
   if(campo==='titulo'){
     var v=document.getElementById('mt-titulo-input').value.trim();
@@ -2095,6 +2151,8 @@ async function guardarCampoTarea(campo){
 }
 async function eliminarTareaActual(){
   if(!TAREA_ACTUAL)return;
+  var puedeEliminar=CP&&(CP.rol==='administrador'||CU.id===TAREA_ACTUAL.asignado_por);
+  if(!puedeEliminar){alert('Solo el administrador o quien creó la tarea puede eliminarla.');return;}
   confirm2('Eliminar la tarea "'+TAREA_ACTUAL.titulo+'"?',async function(){
     await sb.from('tareas').delete().eq('id',TAREA_ACTUAL.id);
     TAREAS_ALL=TAREAS_ALL.filter(function(t){return t.id!==TAREA_ACTUAL.id;});
@@ -2145,6 +2203,7 @@ function renderSubtareas(){
 }
 async function agregarSubtarea(){
   if(!TAREA_ACTUAL)return;
+  if(!puedeEditarTarea(TAREA_ACTUAL)){alert('No tienes permiso para modificar esta tarea.');return;}
   var inp=document.getElementById('mt-nueva-subtarea');
   var txt=inp.value.trim();if(!txt)return;
   var res=await sb.from('tarea_evidencias').insert({tarea_id:TAREA_ACTUAL.id,perfil_id:CU?CU.id:null,nombre:txt,url:'pendiente',tipo:'subtarea'});
@@ -2186,6 +2245,7 @@ function renderEvidencias(evs){
 
 async function agregarEvidencia(){
   if(!TAREA_ACTUAL)return;
+  if(!puedeEditarTarea(TAREA_ACTUAL)){alert('No tienes permiso para modificar esta tarea.');return;}
   var nombre=document.getElementById('mt-ev-nombre').value.trim();
   var url=document.getElementById('mt-ev-url').value.trim();
   if(!nombre||!url){alert('Completa nombre y URL.');return;}
